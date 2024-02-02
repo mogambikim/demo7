@@ -1,0 +1,103 @@
+[
+
+	{
+		"id": "USD",
+		"name": "United States dollar"
+	},
+	{
+		"id": "AUD",
+		"name": "Australian dollar"
+	},
+	{
+		"id": "BRL",
+		"name": "Brazilian real **"
+	},
+	{
+		"id": "CAD",
+		"name": "Canadian dollar"
+	},
+	{
+		"id": "CNY",
+		"name": "Chinese Renmenbi ***"
+	},
+	{
+		"id": "CZK",
+		"name": "Czech koruna"
+	},
+	{
+		"id": "DKK",
+		"name": "Danish krone"
+	},
+	{
+		"id": "EUR",
+		"name": "Euro"
+	},
+	{
+		"id": "HKD",
+		"name": "Hong Kong dollar"
+	},
+	{
+		"id": "HUF",
+		"name": "Hungarian forint *"
+	},
+	{
+		"id": "ILS",
+		"name": "Israeli new shekel"
+	},
+	{
+		"id": "JPY",
+		"name": "Japanese yen *"
+	},
+	{
+		"id": "MYR",
+		"name": "Malaysian ringgit ***"
+	},
+	{
+		"id": "MXN",
+		"name": "Mexican peso"
+	},
+	{
+		"id": "TWD",
+		"name": "New Taiwan dollar *"
+	},
+	{
+		"id": "NZD",
+		"name": "New Zealand dollar"
+	},
+	{
+		"id": "NOK",
+		"name": "Norwegian krone"
+	},
+	{
+		"id": "PHP",
+		"name": "Philippine peso"
+	},
+	{
+		"id": "PLN",
+		"name": "Polish złoty"
+	},
+	{
+		"id": "GBP",
+		"name": "Pound sterling"
+	},
+	{
+		"id": "RUB",
+		"name": "Russian ruble"
+	},
+	{
+		"id": "SGD",
+		"name": "Singapore dollar"
+	},
+	{
+		"id": "SEK",
+		"name": "Swedish krona"
+	},
+	{
+		"id": "CHF",
+		"name": "Swiss franc"
+	},
+	{
+		"id": "THB",
+		"name": "Thai baht"
+	}
+]

@@ -1,0 +1,11 @@
+[
+
+	{
+		"id": "sandbox",
+		"name": "SandBox or Testing"
+	},
+	{
+		"id": "live",
+		"name": "Live or Production"
+	}
+]
