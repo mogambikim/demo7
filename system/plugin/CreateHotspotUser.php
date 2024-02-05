@@ -81,12 +81,54 @@ function VerifyHotspot()
 
         }
 
+        if($res=="Not enough balance"){
+            
+         
+            $data = array(
+           "Resultcode" => "2",
+           "Message1" => "Insuficient Balance for the transaction",
+           "Status" => "danger",
+           "Redirect" => "Insuficient balance"
+     
+       );
+       
+   echo    $message = json_encode($data);
+         
+            exit();
+            
+            
+        }
+
+
+
+        if($res=="Wrong Mpesa pin"){
+            
+         
+            $data = array(
+           "Resultcode" => "2",
+           "Message" => " You entered Wrong Mpesa pin, please resubmit",
+           "Status" => "danger",
+           "Redirect" => "Wrong Mpesa pin"
+     
+       );
+       
+   echo    $message = json_encode($data);
+         
+            exit();
+            
+            
+            
+            
+            
+        }
+
         if($status == 4){
 
             $data = array(
                 "Resultcode" => "2",
                 "Message" => "You cancelled the transation, you can enter phone number again to activate",
-                "Status" => "info"
+                "Status" => "info",
+                "Redirect" => "Transaction Cancelled"
 
             );
 
@@ -102,7 +144,7 @@ function VerifyHotspot()
 
             $data = array(
                 "Resultcode" => "1",
-                "Message" => "A payment pop up has been sent to $phone, Please enter pin to continue",
+                "Message" => "A payment pop up has been sent to $phone, Please enter pin to continue(Please do not leave  or reload the page untill redirected)",
                 "Status" => "primary"
 
             );
