@@ -7,8 +7,9 @@ function initiatetillstk()
     
              $username=$_POST['username'];
              $phone=$_POST['phone'];
+
   
-  
+         
   
             $phone = (substr($phone, 0,1) == '+') ? str_replace('+', '', $phone) : $phone;
             $phone = (substr($phone, 0,1) == '0') ? preg_replace('/^0/', '254', $phone) : $phone;
@@ -57,6 +58,11 @@ function initiatetillstk()
   
     $cburl = U . 'callback/MpesatillStk' ;
   
+
+    $username=$phone;
+
+ 
+
   
      $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
             ->where('username', $username)
@@ -69,10 +75,10 @@ function initiatetillstk()
             ->order_by_desc('id')
             ->find_one();
 
-           
+        
 
             $ThisUser->phonenumber=$phone;
-         //   $ThisUser->username=$phone;
+            $ThisUser->username=$phone;
             $ThisUser->save();
 
         
@@ -177,9 +183,16 @@ $resultDesc = $mpesaResponse->CustomerMessage;
        $PaymentGatewayRecord->payment_channel = 'Mpesa Stk Push';
         $PaymentGatewayRecord->save();
         
+        if(!empty($_POST['channel'])){
+
+
         
+        }else{
+          echo    $error="<script>toastr.success('Enter Mpesa Pin to complete');</script>";
+
+        }
         
-    echo    $error="<script>toastr.success('Enter Mpesa Pin to complete');</script>";
+ 
   
        }else{
            
