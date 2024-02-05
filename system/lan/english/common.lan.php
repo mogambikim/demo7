@@ -449,3 +449,4 @@ $_L['Edit_Static_Plan'] = 'Edit Static Plan';
 $_L['Add_Static_Plan'] = 'Add Static Plan';
 $_L['Client_Can_Purchase'] = 'Client Can Purchase';
 $_L['New_Static_Plan'] = 'New Static Plan';
+$_L['All_Users_Insights'] = 'All Users Insights';
