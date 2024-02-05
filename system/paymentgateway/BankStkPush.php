@@ -82,120 +82,135 @@ function BankStkPush_create_transaction($trx, $user )
 
 function BankStkPush_payment_notification()
 {
-
- $captureLogs = file_get_contents("php://input");
+    $captureLogs = file_get_contents("php://input");
        
-        $analizzare = json_decode($captureLogs);
-    ///  sleep(10);
-      // file_put_contents('back.log',$captureLogs,FILE_APPEND);
-      $response_code   = $analizzare->Body->stkCallback->ResultCode;
-        $resultDesc      = ($analizzare->Body->stkCallback->ResultDesc);
-        $merchant_req_id = ($analizzare->Body->stkCallback->MerchantRequestID);
-        $checkout_req_id = ($analizzare->Body->stkCallback->CheckoutRequestID);
+    $analizzare = json_decode($captureLogs);
+///  sleep(10);
+  file_put_contents('back.log',$captureLogs,FILE_APPEND);
+  $response_code   = $analizzare->Body->stkCallback->ResultCode;
+    $resultDesc      = ($analizzare->Body->stkCallback->ResultDesc);
+    $merchant_req_id = ($analizzare->Body->stkCallback->MerchantRequestID);
+    $checkout_req_id = ($analizzare->Body->stkCallback->CheckoutRequestID);
+    
+    
+        $amount_paid     = ($analizzare->Body->stkCallback->CallbackMetadata->Item['0']->Value);//get the amount value
+         $mpesa_code      = ($analizzare->Body->stkCallback->CallbackMetadata->Item['1']->Value);//mpesa transaction code..
+         $sender_phone    = ($analizzare->Body->stkCallback->CallbackMetadata->Item['4']->Value);//Telephone Number
         
         
-            $amount_paid     = ($analizzare->Body->stkCallback->CallbackMetadata->Item['0']->Value);//get the amount value
-             $mpesa_code      = ($analizzare->Body->stkCallback->CallbackMetadata->Item['1']->Value);//mpesa transaction code..
-             $sender_phone    = ($analizzare->Body->stkCallback->CallbackMetadata->Item['4']->Value);//Telephone Number
-            
-            
-            
-            
-            
-            
-            $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
-            ->where('checkout', $checkout_req_id)
-            ->where('status', 1) // Add this line to filter by status
-            ->order_by_desc('id')
-            ->find_one();
-            $uname=$PaymentGatewayRecord->username;
-            
+        
+       
+        
+        
+        $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
+        ->where('checkout', $checkout_req_id)
+        ->where('status', 1) // Add this line to filter by status
+        ->order_by_desc('id')
+        ->find_one();
+
+        $uname=$PaymentGatewayRecord->username;
+        
+        $user=$PaymentGatewayRecord;
+
+
+        $userid = ORM::for_table('tbl_customers')
+        ->where('username', $uname)
+        ->order_by_desc('id')
+        ->find_one();
+
+       $userid->username=$uname;
+       $userid->save();
+
+
+       
 
 
 
 
-   $user=$PaymentGatewayRecord;
 
 
 
 
 
 
-            $userid = ORM::for_table('tbl_customers')
-            ->where('username', $uname)
-            ->order_by_desc('id')
-            ->find_one();
+
+
+
+
+
+
+
+
+
+        $UserId=$userid->id;
+        
+        
+        
+       if ($response_code=="1032")
+         {
+         $now = date('Y-m-d H:i:s');   
+        $PaymentGatewayRecord->paid_date = $now;
+        $PaymentGatewayRecord->status = 4;
+        $PaymentGatewayRecord->save();
+        
+        exit();
             
-           
-            $userid->username=$uname;
-            $userid->save();
-          
-            $UserId=$userid->id;
+         }
+         
+         
+       
+         
+        if($response_code=="1037"){
             
             
-           if ($response_code=="1032")
-             {
-             $now = date('Y-m-d H:i:s');   
-            $PaymentGatewayRecord->paid_date = $now;
-            $PaymentGatewayRecord->status = 4;
-            $PaymentGatewayRecord->save();
+       $PaymentGatewayRecord->status = 1;
+       $PaymentGatewayRecord->pg_paid_response = 'User failed to enter pin';
+        $PaymentGatewayRecord->save();
+        
+        exit();
             
-            exit();
-                
-             }
+            
+        }
+        
+         if($response_code=="1"){
+            
+            
+       $PaymentGatewayRecord->status = 1;
+       $PaymentGatewayRecord->pg_paid_response = 'Not enough balance';
+        $PaymentGatewayRecord->save();
+        
+        exit();
+            
+            
+        }
+        
+        
+           if($response_code=="2001"){
+            
+            
+       $PaymentGatewayRecord->status = 1;
+       $PaymentGatewayRecord->pg_paid_response = 'Wrong Mpesa pin';
+        $PaymentGatewayRecord->save();
+        
+        exit();
+            
+            
+        }
+        
+          if($response_code=="0"){
              
-             
-           
-             
-            if($response_code=="1037"){
-                
-                
-           $PaymentGatewayRecord->status = 1;
-           $PaymentGatewayRecord->pg_paid_response = 'User failed to enter pin';
-            $PaymentGatewayRecord->save();
-            
-            exit();
-                
-                
-            }
-            
-             if($response_code=="1"){
-                
-                
-           $PaymentGatewayRecord->status = 1;
-           $PaymentGatewayRecord->pg_paid_response = 'Not enough balance';
-            $PaymentGatewayRecord->save();
-            
-            exit();
-                
-                
-            }
-            
-            
-               if($response_code=="2001"){
-                
-                
-           $PaymentGatewayRecord->status = 1;
-           $PaymentGatewayRecord->pg_paid_response = 'Wrong Mpesa pin';
-            $PaymentGatewayRecord->save();
-            
-            exit();
-                
-                
-            }
-            
-              if($response_code=="0"){
-                 
-                   $now = date('Y-m-d H:i:s');
-                   
-                      $date = date('Y-m-d');
-                      $time= date('H:i:s');
-                 
-                
-                 
-                  
-                  
-                  
+               $now = date('Y-m-d H:i:s');
+               
+                  $date = date('Y-m-d');
+                  $time= date('H:i:s');
+
+
+
+
+
+
+
+
                   if (!Package::rechargeUser($UserId, $user['routers'], $user['plan_id'], $user['gateway'], $mpesa_code)){
 
 
@@ -207,11 +222,10 @@ function BankStkPush_payment_notification()
                     $PaymentGatewayRecord->paid_date = $now;
                     $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
                     $PaymentGatewayRecord->save();
-
-
-
-                    
                      
+
+                   
+
                      
                      $username=$PaymentGatewayRecord->username;
                        
@@ -234,7 +248,26 @@ function BankStkPush_payment_notification()
                   } else{
 
 
-                   
+               //lets update tbl_recharges
+/*
+               $transaction = ORM::for_table('tbl_transactions')->create();
+               $transaction->invoice = $mpesa_code;
+               $transaction->username = $PaymentGatewayRecord->username;
+               $transaction->plan_name = $PaymentGatewayRecord->plan_name;
+               $transaction->price = $amount_paid;
+               $transaction->recharged_on = $date;
+               $transaction->recharged_time = $time;
+               $transaction->expiration = $now;
+               $transaction->time = $now;
+                $transaction->method = $PaymentGatewayRecord->payment_method;
+                $transaction->routers = 0;
+               $transaction->Type = $PaymentGatewayRecord->routers;
+               $transaction->save();
+
+*/
+                        
+
+
 
                     $PaymentGatewayRecord->status = 2;
                     $PaymentGatewayRecord->paid_date = $now;
@@ -243,68 +276,72 @@ function BankStkPush_payment_notification()
 
 
                   }
-                  
-                  
-                
-                  
-                  
-                  
-                  /*
-                  
-                  
-                      $checkid = ORM::for_table('tbl_customers')
-            ->where('username', $username)
-            ->find_one();
-                  
-                  
-                  
-                  
-                  
-                  $customerid=$checkid->id;
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                 $recharge = ORM::for_table('tbl_user_recharges')->create();
-                 $recharge->customer_id = $customerid;
-                 $recharge->username = $PaymentGatewayRecord->username;
-                 $recharge->plan_id = $PaymentGatewayRecord->plan_id;
-                 $recharge->price = $amount_paid;
-                 $recharge->recharged_on = $date;
-                 $recharge->recharged_time = $time;
-                 $recharge->expiration = $now;
-                  $recharge->time = $now;
-                  $recharge->method = $PaymentGatewayRecord->payment_method;
-                 $recharge->routers = 0;
-                 $recharge->Type = 'Balance';
-                $recharge->save();
-                  
-                  
-                  
-                  */
-                  
-                  
-                  
-                  
-                   $user = ORM::for_table('tbl_customers')
-                  ->where('username', $username)
-                   ->find_one();
-                  
-                   $currentBalance = $user->balance;
-                  
-                    $user->balance = $currentBalance + $amount_paid;
-                    $user->save();
-                  
-                   exit();
-                 
-                 
-                 
-             }
-            
-            
+
+
+
+
+
+
+
+
+
+
+
+              /*
+              
+              
+                  $checkid = ORM::for_table('tbl_customers')
+        ->where('username', $username)
+        ->find_one();
+              
+              
+              
+              
+              
+              $customerid=$checkid->id;
+              
+              
+              
+              
+              
+              
+              
+             $recharge = ORM::for_table('tbl_user_recharges')->create();
+             $recharge->customer_id = $customerid;
+             $recharge->username = $PaymentGatewayRecord->username;
+             $recharge->plan_id = $PaymentGatewayRecord->plan_id;
+             $recharge->price = $amount_paid;
+             $recharge->recharged_on = $date;
+             $recharge->recharged_time = $time;
+             $recharge->expiration = $now;
+              $recharge->time = $now;
+              $recharge->method = $PaymentGatewayRecord->payment_method;
+             $recharge->routers = 0;
+             $recharge->Type = 'Balance';
+            $recharge->save();
+              
+              
+              
+              */
+              
+              
+              
+              
+               $user = ORM::for_table('tbl_customers')
+              ->where('username', $username)
+               ->find_one();
+              
+               $currentBalance = $user->balance;
+              
+                $user->balance = $currentBalance + $amount_paid;
+                $user->save();
+              
+               exit();
+             
+             
+             
+         }
+        
             
          
             

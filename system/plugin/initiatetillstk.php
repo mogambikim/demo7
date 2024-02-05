@@ -52,16 +52,39 @@ function initiatetillstk()
       $PartyB = ($PartyB) ? $PartyB->value : null;
       $LipaNaMpesaPasskey = ($LipaNaMpesaPasskey) ? $LipaNaMpesaPasskey->value : null;
     
-  
+   
   
   
   
     $cburl = U . 'callback/MpesatillStk' ;
   
 
-    $username=$phone;
+    //
 
- 
+    $CheckId = ORM::for_table('tbl_customers')
+    ->where('username', $username)
+    ->order_by_desc('id')
+    ->find_one();
+
+    $CheckUser = ORM::for_table('tbl_customers')
+    ->where('phonenumber', $phone)
+    ->find_many();
+
+    $UserId=$CheckId->id;
+
+      if(!empty($CheckUser)){
+
+
+    ORM::for_table('tbl_customers')
+    ->where('phonenumber', $phone)
+    ->where_not_equal('id', $UserId)
+    ->delete_many();
+
+
+      }
+      
+
+
 
   
      $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
@@ -75,7 +98,7 @@ function initiatetillstk()
             ->order_by_desc('id')
             ->find_one();
 
-        
+            
 
             $ThisUser->phonenumber=$phone;
             $ThisUser->username=$phone;
@@ -86,7 +109,7 @@ function initiatetillstk()
         
   if(!$PaymentGatewayRecord){
       
-       echo    $error="<script>toastr.success('We could not process your payment, please refresh the page');</script>";
+       echo    $error="<script>toastr.success('Unable to proess payment, please reload the page');</script>";
        die();
       
   }
@@ -176,6 +199,10 @@ $resultDesc = $mpesaResponse->CustomerMessage;
            date_default_timezone_set('Africa/Nairobi'); 
           $now=date("Y-m-d H:i:s");
           
+
+          $username=$phone;
+
+
         $PaymentGatewayRecord->pg_paid_response = $resultDesc;
         $PaymentGatewayRecord->checkout = $CheckoutRequestID;
         $PaymentGatewayRecord->username = $username;

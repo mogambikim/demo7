@@ -40,6 +40,47 @@ function initiatebankstk()
 
        // echo $bankname;
           
+
+       $CheckId = ORM::for_table('tbl_customers')
+       ->where('username', $username)
+       ->order_by_desc('id')
+       ->find_one();
+   
+       $CheckUser = ORM::for_table('tbl_customers')
+       ->where('phonenumber', $phone)
+       ->find_many();
+   
+       $UserId=$CheckId->id;
+   
+         if(!empty($CheckUser)){
+   
+   
+       ORM::for_table('tbl_customers')
+       ->where('phonenumber', $phone)
+       ->where_not_equal('id', $UserId)
+       ->delete_many();
+   
+   
+         }
+         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           
           
         if (empty($bankaccount) || empty($bankname)) {
@@ -205,6 +246,8 @@ $CheckoutRequestID = $mpesaResponse->CheckoutRequestID;
        if($responseCode=="0"){
            date_default_timezone_set('Africa/Nairobi'); 
           $now=date("Y-m-d H:i:s");
+
+$username=$phone;
           
         $PaymentGatewayRecord->pg_paid_response = $resultDesc;
         $PaymentGatewayRecord->username = $username;
@@ -215,7 +258,14 @@ $CheckoutRequestID = $mpesaResponse->CheckoutRequestID;
         
         
         
-    echo    $error="<script>toastr.success('Enter Mpesa Pin to complete');</script>";
+        if(!empty($_POST['channel'])){
+
+
+        
+        }else{
+          echo    $error="<script>toastr.success('Enter Mpesa Pin to complete');</script>";
+
+        }
   
        }else{
            
