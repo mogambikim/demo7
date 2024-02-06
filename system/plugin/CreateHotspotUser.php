@@ -350,6 +350,15 @@ function InitiateStkpush($phone, $planId, $routerId)
         ->order_by_desc('id')
         ->find_one();
 
+
+        $Findrouter = ORM::for_table('tbl_routers')
+        ->where('id', $routerId)
+        ->order_by_desc('id')
+        ->find_one();
+
+        $rname=$Findrouter->name;
+
+
     $price = $Planname->price;
     $Planname = $Planname->name_plan;
 
@@ -383,7 +392,7 @@ function InitiateStkpush($phone, $planId, $routerId)
 
 
 
-    $rname = 'Hotspot';
+ 
 
 
 
