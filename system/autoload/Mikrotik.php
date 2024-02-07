@@ -128,7 +128,7 @@ class Mikrotik
                     ->setArgument('name', $name)
                     ->setArgument('shared-users', 3)
                     ->setArgument('address-pool', $pool)
-                    ->setArgument('rate-limit', '512K/512K')
+                    ->setArgument('rate-limit', '1K/1K')
             );
         } else {
             $setRequest = new RouterOS\Request('/ip/hotspot/user/profile/set');
@@ -137,7 +137,7 @@ class Mikrotik
                     ->setArgument('numbers', $profileID)
                     ->setArgument('shared-users', 3)
                     ->setArgument('address-pool', $pool)
-                    ->setArgument('rate-limit', '512K/512K')
+                    ->setArgument('rate-limit', '1K/1K')
             );
         }
     }

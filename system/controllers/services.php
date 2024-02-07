@@ -177,7 +177,7 @@ if (isset($plan['burst_limit_for_upload']) && isset($plan['burst_limit_for_downl
                     Mikrotik::addPpoePlan($client, $plan['name_plan'], $plan['pool'], $rate);
                     $log .= "DONE : $plan[name_plan], $plan[pool], $rate<br>";
                     if (!empty($plan['pool_expired'])) {
-                        Mikrotik::setPpoePlan($client, 'EXPIRED FREEISPRADIUS ' . $plan['pool_expired'], $plan['pool_expired'], '512K/512K');
+                        Mikrotik::setPpoePlan($client, 'EXPIRED FREEISPRADIUS ' . $plan['pool_expired'], $plan['pool_expired'], '1K/1K');
                         $log .= "DONE Expired : EXPIRED FREEISPRADIUS $plan[pool_expired]<br>";
                     }
                 }
@@ -254,7 +254,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                 Mikrotik::addStaticPlan($client, $plan['name_plan'], $plan['pool'], $rate);
                 $log .= "DONE : $plan[name_plan], $plan[pool], $rate<br>";
                 if (!empty($plan['pool_expired'])) {
-                    Mikrotik::setStaticPlan($client, 'EXPIRED FREEISPRADIUS ' . $plan['pool_expired'], $plan['pool_expired'], '512K/512K');
+                    Mikrotik::setStaticPlan($client, 'EXPIRED FREEISPRADIUS ' . $plan['pool_expired'], $plan['pool_expired'], '1K/1K');
                     $log .= "DONE Expired : EXPIRED FREEISPRADIUS $plan[pool_expired]<br>";
                 }
             }
@@ -721,7 +721,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                 $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                 Mikrotik::addPpoePlan($client, $name, $pool, $rate);
                 if (!empty($pool_expired)) {
-                    Mikrotik::setPpoePlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '512K/512K');
+                    Mikrotik::setPpoePlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '1K/1K');
                 }
             }
 //check here too how its structured on our case should be static or something services/dtatic
@@ -823,7 +823,7 @@ if (isset($plan['burst_time_for_upload']) && isset($plan['burst_time_for_downloa
                //needs more research on setpppoe plan
                 Mikrotik::setPpoePlan($client, $name, $pool, $rate);
                 if (!empty($pool_expired)) {
-                    Mikrotik::setPpoePlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '512K/512K');
+                    Mikrotik::setPpoePlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '1K/1K');
                 }
             }
 
@@ -1053,7 +1053,7 @@ case 'static':
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                         Mikrotik::addStaticPlan($client, $name, $pool, $rate);
                         if (!empty($pool_expired)) {
-                            Mikrotik::setStaticPlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '512K/512K');
+                            Mikrotik::setStaticPlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '1K/1K');
                         }
                     }
         //check here too how its structured on our case should be static or something services/dtatic
@@ -1122,7 +1122,7 @@ case 'static':
                //needs more research on setpppoe plan
                 Mikrotik::setStaticPlan($client, $name, $pool, $rate);
                 if (!empty($pool_expired)) {
-                    Mikrotik::setStaticPlan($client, 'EXPIRED ' . $pool_expired, $pool_expired, '512K/512K');
+                    Mikrotik::setStaticPlan($client, 'EXPIRED ' . $pool_expired, $pool_expired, '1K/1K');
                 }
             }
 

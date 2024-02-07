@@ -216,7 +216,7 @@ switch ($action) {
 	                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
 	                        Mikrotik::addStaticPlan($client, $name, $pool, $rate);
 	                        if (!empty($pool_expired)) {
-	                            Mikrotik::setStaticPlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '512K/512K');
+	                            Mikrotik::setStaticPlan($client, 'EXPIRED FREEISPRADIUS ' . $pool_expired, $pool_expired, '1K/1K');
 	                        }
 	                    }
 	        //check here too how its structured on our case should be static or something services/dtatic
@@ -286,7 +286,7 @@ switch ($action) {
 	               //needs more research on setpppoe plan
 	                Mikrotik::setStaticPlan($client, $name, $pool, $rate);
 	                if (!empty($pool_expired)) {
-	                    Mikrotik::setStaticPlan($client, 'EXPIRED ' . $pool_expired, $pool_expired, '512K/512K');
+	                    Mikrotik::setStaticPlan($client, 'EXPIRED ' . $pool_expired, $pool_expired, '1K/1K');
 	                }
 	            }
 
