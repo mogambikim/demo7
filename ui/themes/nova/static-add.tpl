@@ -79,14 +79,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label"><a href="{$_url}pool/add">{Lang::T('Expired IP Pool')}</a></label>
-                        <div class="col-md-6">
-                            <select id="pool_expired" name="pool_expired" class="form-control select2">
-                                <option value=''>{$_L['Select_Pool']}</option>
-                            </select>
-                        </div>
-                    </div>
+                   
                     <div class="form-group">
                         <div class="col-md-offset-2 col-md-10">
                             <button class="btn btn-primary waves-effect waves-light" type="submit">{$_L['Save']}</button>

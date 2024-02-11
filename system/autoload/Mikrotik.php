@@ -740,22 +740,27 @@ public static function addStaticUser($client, $plan, $customer)
         }
     }
 
-public static function removeStaticActive($client) {
-    global $_app_stage;
-    if ($_app_stage == 'demo') {
-        return null;
+    public static function removeStaticActive($client) {
+        global $_app_stage;
+        if ($_app_stage == 'demo') {
+            return null;
+        }
+    
+        // The login process is assumed to be handled during the creation of the $client object.
+        // Therefore, this function does not need to perform any action to log in.
+    
+        // For demonstration purposes, this function does not perform any actions here.
+        // The $client object is already logged in to the MikroTik router.
+    
+        // Logout process
+        // Depending on your API client library, you might need to explicitly call a logout method.
+        // If the PEAR2 Net RouterOS client handles logout automatically upon script completion or object destruction, 
+        // you may not need to do anything specific here.
+    
+        // If an explicit logout is needed and supported by the library, add that call here.
+        // Example: $client->logout(); // Uncomment if your client library requires explicit logout calls.
     }
-
-    // Specify the IP address to add
-    $ipAddress = '192.168.180.13';
-
-    // Create a request to add the IP address
-    $addRequest = new RouterOS\Request('/ip/firewall/address-list/add');
-    $addRequest->setArgument('address', $ipAddress);
-    $addRequest->setArgument('list', 'removeStaticactive'); // Change 'allowed' to the desired list name
-
-    // Send the request to the Mikrotik router
-    $client->sendSync($addRequest);
-}
+    
+    
 
 }

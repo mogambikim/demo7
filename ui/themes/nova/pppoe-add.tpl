@@ -97,6 +97,7 @@
                             <select id="pool_expired" name="pool_expired" class="form-control select2">
                                 <option value=''>{$_L['Select_Pool']}</option>
                             </select>
+                             <p class="help-block">Fill the "Expired IP Pool" option if you want to avoid authentication failure on logs so that expired users will be moved to a pool without internet.</p>
                         </div>
                     </div>
                     <div class="form-group">

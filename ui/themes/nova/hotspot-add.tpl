@@ -151,6 +151,7 @@
                             <select id="pool_expired" name="pool_expired" class="form-control select2">
                                 <option value=''>{$_L['Select_Pool']}</option>
                             </select>
+                             <p class="help-block">Leave the "Expired IP Pool" option unselected if your router doesnt have enough Storage/Powerful, to ensure expired users are removed from the router.</p>
                         </div>
                     </div>
                     <div class="form-group">
