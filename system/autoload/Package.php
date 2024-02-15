@@ -106,10 +106,10 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                     Mikrotik::addHotspotUser($client, $p, $c);
                 }
 
@@ -167,10 +167,10 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                   Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                     Mikrotik::addHotspotUser($client, $p, $c);
                 }
 
@@ -225,10 +225,10 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  ///  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                     Mikrotik::addPpoeUser($client, $p, $c);
                 }
 
@@ -287,10 +287,10 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  ///  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                     Mikrotik::addPpoeUser($client, $p, $c);
                 }
 
@@ -343,10 +343,12 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+
+                    ////below code is culprit causing removal of all ips so be careful with it
+                  //Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                     Mikrotik::addStaticUser($client, $p, $c);
                 }
         
@@ -405,10 +407,10 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                     Mikrotik::addStaticUser($client, $p, $c);
                 }
         
@@ -474,44 +476,79 @@ class Package
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                 }
             } else {
                 if (!$p['is_radius']) {
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                 }
             }
-        } else {
+
+////pppoe delete
+
+        }
+        
+        
+        elseif ($p['type'] == 'PPPOE') {
             if ($b) {
                 if (!$p['is_radius']) {
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                 }
             } else {
                 if (!$p['is_radius']) {
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeHotspotUser($client, $c['username']);
                     Mikrotik::removePpoeUser($client, $c['username']);
-                    Mikrotik::removeStaticUser($client, $c['username']);
+                  Mikrotik::removeStaticUser($client, $c['username']);
                     Mikrotik::removeHotspotActiveUser($client, $c['username']);
                     Mikrotik::removePpoeActive($client, $c['username']);
-                    Mikrotik::removeStaticActive($client);
+                   // Mikrotik::removeStaticActive($client);
                 }
             }
+        }
+
+
+////////staticdekete
+elseif ($p['type'] == 'Static') {
+                if ($b) {
+                    if (!$p['is_radius']) {
+                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                        Mikrotik::removeHotspotUser($client, $c['username']);
+                        Mikrotik::removePpoeUser($client, $c['username']);
+                      Mikrotik::removeStaticUser($client, $c['username']);
+                        Mikrotik::removeHotspotActiveUser($client, $c['username']);
+                        Mikrotik::removePpoeActive($client, $c['username']);
+                       // Mikrotik::removeStaticActive($client);
+                    }
+                } else {
+                    if (!$p['is_radius']) {
+                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                        Mikrotik::removeHotspotUser($client, $c['username']);
+                        Mikrotik::removePpoeUser($client, $c['username']);
+                      Mikrotik::removeStaticUser($client, $c['username']);
+                        Mikrotik::removeHotspotActiveUser($client, $c['username']);
+                        Mikrotik::removePpoeActive($client, $c['username']);
+                       // Mikrotik::removeStaticActive($client);
+                    }
+                }
+
+
+
         }
         // call the next mikrotik
         if($p['routers'] != $b['routers'] && $p['routers'] != 'radius'){

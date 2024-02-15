@@ -655,31 +655,33 @@ public static function addStaticUser($client, $plan, $customer)
         return null;
     }
 
-    // Retrieve the IP address for the customer from the database
-    $ipAddress = $customer['ip_address']; // Assuming 'ip_address' is the correct field name
+    // Check if IP address is provided for the customer, otherwise use a placeholder
+    $ipAddress = !empty($customer['ip_address']) ? $customer['ip_address'] : '10.10.10.10';
 
-    // Add the static IP to the RouterOS address list named 'allowed'
+    // Define names for the queue and address list entries
+    $queueName = !empty($customer['ip_address']) ? 'Queue-' . $customer['username'] : 'Queue [username] IP not found';
+    $addressListName = !empty($customer['ip_address']) ? $customer['username'] : 'IP not found';
+
+    // Add the IP to the RouterOS address list named 'allowed' or with a specific name if IP not found
     $addAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/add');
     $client->sendSync(
         $addAddressListRequest
             ->setArgument('list', 'allowed')
             ->setArgument('address', $ipAddress)
+            ->setArgument('comment', $addressListName) // Use comment to differentiate entries
     );
 
-    // Retrieve the bandwidth details from the database using the 'id_bw' field
+    // Retrieve the bandwidth details from the database
     $bandwidth = ORM::for_table('tbl_bandwidth')->find_one($plan['id_bw']);
-
-    // Convert the units to lowercase and append 'k' or 'M' to the rate limit based on the unit
     $rateUp = $bandwidth['rate_up'] . (strtolower($bandwidth['rate_up_unit']) == 'kbps' ? 'k' : 'M');
     $rateDown = $bandwidth['rate_down'] . (strtolower($bandwidth['rate_down_unit']) == 'kbps' ? 'k' : 'M');
-
     $rateLimit = $rateUp . '/' . $rateDown;
 
-    // Set up a simple queue for rate limiting
+    // Set up a simple queue for rate limiting, using placeholder data if no IP address is found
     $addQueueRequest = new RouterOS\Request('/queue/simple/add');
     $client->sendSync(
         $addQueueRequest
-            ->setArgument('name', 'Queue-' . $customer['username'])
+            ->setArgument('name', $queueName)
             ->setArgument('target', $ipAddress)
             ->setArgument('max-limit', $rateLimit)
     );
@@ -739,28 +741,4 @@ public static function addStaticUser($client, $plan, $customer)
             // Handle the error
         }
     }
-
-    public static function removeStaticActive($client) {
-        global $_app_stage;
-        if ($_app_stage == 'demo') {
-            return null;
-        }
-    
-        // The login process is assumed to be handled during the creation of the $client object.
-        // Therefore, this function does not need to perform any action to log in.
-    
-        // For demonstration purposes, this function does not perform any actions here.
-        // The $client object is already logged in to the MikroTik router.
-    
-        // Logout process
-        // Depending on your API client library, you might need to explicitly call a logout method.
-        // If the PEAR2 Net RouterOS client handles logout automatically upon script completion or object destruction, 
-        // you may not need to do anything specific here.
-    
-        // If an explicit logout is needed and supported by the library, add that call here.
-        // Example: $client->logout(); // Uncomment if your client library requires explicit logout calls.
-    }
-    
-    
-
 }

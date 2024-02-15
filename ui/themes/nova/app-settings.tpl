@@ -66,7 +66,7 @@
                             </select>
                         </div>
                         <p class="help-block col-md-4"><a
-                                href="https://freeispradius.com/wiki/Themes" target="_blank">Theme
+                                href="https://freeispradius.com" target="_blank">Theme
                                 info</a></p>
                     </div>
                     <div class="form-group">
@@ -77,6 +77,40 @@
                         <p class="help-block col-md-4">edit at config.php</p>
                     </div>
                 </div>
+
+
+
+
+
+
+
+              <div class="panel-heading">
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-primary btn-xs" title="save" type="submit"><span
+                                class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
+                    </div>
+                    Hide Dashboard Content
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><input type="checkbox" name="hide_mrc" value="yes" {if $_c['hide_mrc'] eq 'yes'}checked{/if}> {Lang::T('Monthly Registered Customers')}</label>
+                        <label class="col-md-2 control-label"><input type="checkbox" name="hide_tms" value="yes" {if $_c['hide_tms'] eq 'yes'}checked{/if}> {Lang::T('Total Monthly Sales')}</label>
+                        <label class="col-md-2 control-label"><input type="checkbox" name="hide_aui" value="yes" {if $_c['hide_aui'] eq 'yes'}checked{/if}> {Lang::T('All Users Insights')}</label>
+                        <label class="col-md-2 control-label"><input type="checkbox" name="hide_al" value="yes" {if $_c['hide_al'] eq 'yes'}checked{/if}> {$_L['Activity_Log']}</label>
+                        <label class="col-md-2 control-label"><input type="checkbox" name="hide_uet" value="yes" {if $_c['hide_uet'] eq 'yes'}checked{/if}> {$_L['User_Expired_Today']}</label>
+                        <label class="col-md-2 control-label"><input type="checkbox" name="hide_vs" value="yes" {if $_c['hide_vs'] eq 'yes'}checked{/if}> Vouchers Stock</label>
+                        <label class="col-md-2 control-label"><input type="checkbox" name="hide_pg" value="yes" {if $_c['hide_pg'] eq 'yes'}checked{/if}> Payment Gateway</label>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
@@ -158,7 +192,7 @@
                             </select>
                         </div>
                         <p class="help-block col-md-4"><a
-                                href="https://freeradius.com/wiki/FreeRadius"
+                                href="https://freeispradius.com"
                                 target="_blank">Radius Instructions</a></p>
                     </div>
                     <div class="form-group">
@@ -268,7 +302,7 @@
                             replaced.
                         </p>
                     </div>
-                    <small id="emailHelp" class="form-text text-muted"> You can use  SMS/WhatsApp on this form. Get your secret here. <a
+                    <small id="emailHelp" class="form-text text-muted">You can use WhatsApp in here too. <a
                             href="https://sms.freeispradius.com" target="_blank">Free Server</a></small>
                 </div>
                 <div class="panel-heading">
@@ -289,8 +323,8 @@
                             replaced.
                         </p>
                     </div>
-                    <small id="emailHelp" class="form-text text-muted">Get Whatsapp secret here. <a
-                            href="https://whatsapp.freeispradius.com" target="_blank">Free Server</a></small>
+                    <small id="emailHelp" class="form-text text-muted">You can use WhatsApp in here too. <a
+                            href="https://sms.freeispradius.com" target="_blank">Free Server</a></small>
                 </div>
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
@@ -414,15 +448,9 @@
                 </div>
             </div>
 
-         {literal}
-<pre>/ip hotspot walled-garden
-add dst-host={/literal}{$_domain}{literal}
-add dst-host=*.{/literal}{$_domain}{literal}
-add dst-host="code.jquery.com"
-add dst-host="cdn.jsdelivr.net"
-add dst-host="cdnjs.cloudflare.com"
-Remember to disable all not coming from lan for your vpn to work</pre>
-{/literal}
+            <pre>/ip hotspot walled-garden
+add dst-host={$_domain}
+add dst-host=*.{$_domain}</pre>
 
             <pre>
 # Expired Cronjob Every 5 Minutes
