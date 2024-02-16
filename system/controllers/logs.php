@@ -13,7 +13,7 @@ $action = $routes['1'];
 $admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
-if ($admin['user_type'] != 'Admin') {
+if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
     r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
 }
 
@@ -23,7 +23,7 @@ switch ($action) {
         $q = (_post('q') ? _post('q') : _get('q'));
         $keep = _post('keep');
         if (!empty($keep)) {
-            ORM::raw_execute("DELETE FROM tbl_logs WHERE date < UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL $keep DAY))");
+            ORM::raw_execute("DELETE FROM tbl_logs WHERE UNIX_TIMESTAMP(date) < UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL $keep DAY))");
             r2(U . "logs/list/", 's', "Delete logs older than $keep days");
         }
         if ($q != '') {

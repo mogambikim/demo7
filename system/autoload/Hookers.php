@@ -16,8 +16,10 @@ $menu_registered = array();
  * Admin/Sales menu: AFTER_DASHBOARD, CUSTOMERS, PREPAID, SERVICES, REPORTS, VOUCHER, AFTER_ORDER, NETWORK, SETTINGS, AFTER_PAYMENTGATEWAY
  * | Customer menu: AFTER_DASHBOARD, ORDER, HISTORY, ACCOUNTS
  * @param string icon from ion icon, ion-person, only for AFTER_
+ *  * @param string label for showing label or number of notification or update
+ * @param string color Label color
  */
-function register_menu($name, $admin, $function, $position, $icon = '')
+function register_menu($name, $admin, $function, $position, $icon = '', $label = '', $color = 'success')
 {
     global $menu_registered;
     $menu_registered[] = [
@@ -25,7 +27,9 @@ function register_menu($name, $admin, $function, $position, $icon = '')
         "admin" => $admin,
         "position" => $position,
         "icon" => $icon,
-        "function" => $function
+        "function" => $function,
+        "label" => $label,
+        "color" => $color
     ];
 }
 
@@ -48,4 +52,3 @@ function run_hook($action){
         }
     }
 }
-

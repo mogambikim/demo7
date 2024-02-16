@@ -257,6 +257,8 @@
                                      Hotspot
                                   {elseif $_user.service_type == 'PPPoE'}
                                      PPPoE
+                                      {elseif $_user.service_type == 'Static'}
+                                     Static
                                     {elseif $_user.service_type == 'Others' || $_user.service_type == null}
                                   Others
                                  {/if}

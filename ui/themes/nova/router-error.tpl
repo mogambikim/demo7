@@ -14,8 +14,7 @@
     <link rel="stylesheet" href="ui/ui/fonts/MaterialDesign/css/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="ui/ui/styles/modern-AdminLTE.min.css">
-    
-    <style>
+     <style>
         ::-moz-selection {
             /* Code for Firefox */
             color: red;
@@ -57,9 +56,18 @@
                         <div class="box-footer">
                             <div class="btn-group btn-group-justified" role="group" aria-label="...">
                                 <a href="./update.php?step=4" class="btn btn-info btn-sm btn-block">Update Database</a>
-                                <a href="{$_url}community#update" class="btn btn-primary btn-sm btn-block">Update
+                                    <a href="{$_url}community#update" class="btn btn-success btn-sm btn-block">Update
                                     FreeIspRadius</a>
                             </div>
+        <br>
+                            <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                            <a href="https://wa.me/254769023642" target="_blank"
+                            class="btn btn-success btn-sm btn-block">Ask Support Line</a>
+                                <a href="https://t.me/freeispradius" target="_blank"
+                                    class="btn btn-primary btn-sm btn-block">Ask Telegram Community</a>
+                            </div>
+
+
                             <br><br>
                             <a href="javascript::history.back()" onclick="history.back()"
                                 class="btn btn-warning btn-block">back</a>

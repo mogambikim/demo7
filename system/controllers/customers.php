@@ -14,13 +14,13 @@ $admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 
-if ($admin['user_type'] != 'Admin' and $admin['user_type'] != 'Sales') {
+if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
     r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
 }
 
 switch ($action) {
     case 'list':
-        $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/customers.js"></script>');
+       
         $search = _post('search');
         run_hook('list_customers'); #HOOK
         if ($search != '') {
@@ -48,6 +48,43 @@ switch ($action) {
         $ui->assign('paginator', $paginator);
         $ui->display('customers.tpl');
         break;
+
+        case 'csv':
+            $cs = ORM::for_table('tbl_customers')
+            ->select('tbl_customers.id', 'id')
+            ->select('tbl_customers.username', 'username')
+                ->select('fullname')
+                ->select('phonenumber')
+                ->select('email')
+                ->select('balance')
+                ->select('namebp')
+                ->select('routers')
+                ->select('status')
+                ->select('method', 'Payment')
+                ->join('tbl_user_recharges', array('tbl_customers.id', '=', 'tbl_user_recharges.customer_id'))
+                ->order_by_asc('tbl_customers.id')->find_array();
+            $h = false;
+            set_time_limit(-1);
+            header('Pragma: public');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header("Content-type: text/csv");
+            header('Content-Disposition: attachment;filename="freeispradius_customers_' . date('Y-m-d_H_i') . '.csv"');
+            header('Content-Transfer-Encoding: binary');
+            foreach ($cs as $c) {
+                $ks = [];
+                $vs = [];
+                foreach ($c as $k => $v) {
+                    $ks[] = $k;
+                    $vs[] = $v;
+                }
+                if (!$h) {
+                    echo '"' . implode('";"', $ks) . "\"\n";
+                    $h = true;
+                }
+             echo '"' . implode('";"', $vs) . "\"\n";
+            }
+            break;
 
     case 'add':
         run_hook('view_add_customer'); #HOOK
@@ -135,7 +172,7 @@ switch ($action) {
             $v  = $routes['3'];
             if (empty($v) || $v == 'order') {
                 $v = 'order';
-                $paginator = Paginator::build(ORM::for_table('tbl_payment_gateway'),['username'=>$customer['username']]);
+                $paginator = Paginator::build(ORM::for_table('tbl_payment_gateway'), ['username' => $customer['username']]);
                 $order = ORM::for_table('tbl_payment_gateway')
                     ->where('username', $customer['username'])
                     ->offset($paginator['startpoint'])
@@ -146,7 +183,7 @@ switch ($action) {
                 $ui->assign('order', $order);
                 $ui->assign('ip_address', $customer['ip_address']);
             } else if ($v == 'activation') {
-                $paginator = Paginator::build(ORM::for_table('tbl_transactions'),['username'=>$customer['username']]);
+                 $paginator = Paginator::build(ORM::for_table('tbl_transactions'), ['username' => $customer['username']]);
                 $activation = ORM::for_table('tbl_transactions')
                     ->where('username', $customer['username'])
                     ->offset($paginator['startpoint'])
@@ -247,7 +284,7 @@ switch ($action) {
         if (Validator::Length($fullname, 36, 2) == false) {
             $msg .= 'Full Name should be between 3 to 25 characters' . '<br>';
         }
-        if (!Validator::Length($password, 35, 2)) {
+        if (!Validator::Length($password, 36, 2)) {
             $msg .= 'Password should be between 3 to 35 characters' . '<br>';
         }
 
@@ -287,14 +324,14 @@ switch ($action) {
         $ip_address = _post('ip_address');
         run_hook('edit_customer'); #HOOK
         $msg = '';
-        if (Validator::Length($username, 16, 2) == false) {
+        if (Validator::Length($username, 35, 2) == false) {
             $msg .= 'Username should be between 3 to 15 characters' . '<br>';
         }
-        if (Validator::Length($fullname, 26, 1) == false) {
+        if (Validator::Length($fullname, 36, 1) == false) {
             $msg .= 'Full Name should be between 2 to 25 characters' . '<br>';
         }
         if ($password != '') {
-            if (!Validator::Length($password, 15, 2)) {
+            if (!Validator::Length($password, 36, 2)) {
                 $msg .= 'Password should be between 3 to 15 characters' . '<br>';
             }
         }
@@ -350,8 +387,8 @@ switch ($action) {
                         if($userDiff){
                             Radius::customerChangeUsername($oldusername, $username);
                         }
-                        Radius::customerAddPlan($d, $p, $p['expiration'].' '.$p['time']);
-                    }else{
+                              Radius::customerAddPlan($d, $p, $p['expiration'] . ' ' . $p['time']);
+                    } else {
                         $mikrotik = Mikrotik::info($c['routers']);
                         if ($c['type'] == 'Hotspot') {
                             $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);

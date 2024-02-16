@@ -1,8 +1,8 @@
 <?php
 
 /**
- *  PHP Mikrotik Billing (https://freeispradius.com/)
- *  by https://t.me/freeispradius
+ *  PHP Mikrotik Billing (https://github.comll/)
+ *  by https://t.me/ibnux
  **/
 
 
@@ -56,6 +56,24 @@ class Lang
         return date($config['date_format'] . ' H:i', strtotime("$date $time"));
     }
 
+    public static function timeElapsed($time){
+            $s = $time%60;
+            $m = floor(($time%3600)/60);
+            $h = floor(($time%86400)/3600);
+            $d = floor(($time%2592000)/86400);
+            $M = floor($time/2592000);
+            $result = '';
+            if($M>0){
+                $result = $M.'m ';
+            }
+            if($d>0){
+                $result .= $d.'d ';
+            }else if($M>0){
+                $result .= '0d ';
+            }
+            return "$result$h:$m:$s";
+    }
+
     public static function nl2br($text)
     {
         return nl2br($text);
@@ -98,5 +116,39 @@ class Lang
             }
         }
         return $result;
+    }
+
+    /**
+     * $pad_type
+     * 0 Left
+     * 1 right
+     * 2 center
+     * */
+    public static function pad($text, $pad_string = ' ', $pad_type = 0){
+        global $config;
+        $cols = 37;
+        if($config['printer_cols']){
+            $cols = $config['printer_cols'];
+        }
+        $text = trim($text);
+        $texts = explode("\n", $text);
+        if(count($texts)>1){
+            $text = '';
+            foreach($texts as $t){
+                $text.= self::pad(trim($t), $pad_string, $pad_type)."\n";
+            }
+            return $text;
+        }else{
+            return str_pad(trim($text), $cols, $pad_string, $pad_type);
+        }
+    }
+
+    public static function pads($textLeft, $textRight, $pad_string = ' '){
+        global $config;
+        $cols = 37;
+        if($config['printer_cols']){
+            $cols = $config['printer_cols'];
+        }
+        return $textLeft.str_pad($textRight, $cols-strlen($textLeft), $pad_string, 0);
     }
 }

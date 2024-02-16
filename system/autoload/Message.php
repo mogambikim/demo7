@@ -1,8 +1,8 @@
 <?php
 
 /**
- *  PHP Mikrotik Billing (https://freeispradius.com/)
- *  by https://t.me/freeispradius
+ *  PHP Mikrotik Billing (https://github.com/hotspo/)
+ *  by https://t.me/ibnux
  **/
 
 
@@ -14,7 +14,7 @@ class Message
         global $config;
         run_hook('send_telegram'); #HOOK
         if (!empty($config['telegram_bot']) && !empty($config['telegram_target_id'])) {
-            Http::getData('https://api.telegram.org/bot' . $config['telegram_bot'] . '/sendMessage?chat_id=' . $config['telegram_target_id'] . '&text=' . urlencode($txt));
+            return Http::getData('https://api.telegram.org/bot' . $config['telegram_bot'] . '/sendMessage?chat_id=' . $config['telegram_target_id'] . '&text=' . urlencode($txt));
         }
     }
 
@@ -27,17 +27,17 @@ class Message
             if (strlen($config['sms_url']) > 4 && substr($config['sms_url'], 0, 4) != "http") {
                 if (strlen($txt) > 160) {
                     $txts = str_split($txt, 160);
-                    foreach ($txts as $txt) {
-                        try {
-                            $mikrotik = Mikrotik::info($config['sms_url']);
-                            $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                    try {
+                        $mikrotik = Mikrotik::info($config['sms_url']);
+                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                        foreach ($txts as $txt) {
                             Mikrotik::sendSMS($client, $phone, $txt);
-                        } catch (Exception $e) {
-                            // ignore, add to logs
-                            _log("Failed to send SMS using Mikrotik.\n" . $e->getMessage(), 'SMS', 0);
                         }
+                    } catch (Exception $e) {
+                        // ignore, add to logs
+                        _log("Failed to send SMS using Mikrotik.\n" . $e->getMessage(), 'SMS', 0);
                     }
-                }else{
+                } else {
                     try {
                         $mikrotik = Mikrotik::info($config['sms_url']);
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
@@ -50,7 +50,7 @@ class Message
             } else {
                 $smsurl = str_replace('[number]', urlencode($phone), $config['sms_url']);
                 $smsurl = str_replace('[text]', urlencode($txt), $smsurl);
-                Http::getData($smsurl);
+                return Http::getData($smsurl);
             }
         }
     }
@@ -62,14 +62,15 @@ class Message
         if (!empty($config['wa_url'])) {
             $waurl = str_replace('[number]', urlencode($phone), $config['wa_url']);
             $waurl = str_replace('[text]', urlencode($txt), $waurl);
-            Http::getData($waurl);
+            return Http::getData($waurl);
         }
     }
 
-    public static function sendPackageNotification($phone, $name, $package, $message, $via)
+    public static function sendPackageNotification($phone, $name, $package, $price, $message, $via)
     {
-        $msg = str_replace('[[name]]', "*$name*", $message);
-        $msg = str_replace('[[package]]', "*$package*", $msg);
+        $msg = str_replace('[[name]]', $name, $message);
+        $msg = str_replace('[[package]]', $package, $msg);
+        $msg = str_replace('[[price]]', $price, $msg);
         if (
             !empty($phone) && strlen($phone) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
@@ -85,9 +86,9 @@ class Message
 
     public static function sendBalanceNotification($phone, $name, $balance, $balance_now, $message, $via)
     {
-        $msg = str_replace('[[name]]', "*$name*", $message);
+        $msg = str_replace('[[name]]', $name, $message);
         $msg = str_replace('[[current_balance]]', Lang::moneyFormat($balance_now), $msg);
-        $msg = str_replace('[[balance]]', "*" . Lang::moneyFormat($balance) . "*", $msg);
+        $msg = str_replace('[[balance]]', Lang::moneyFormat($balance), $msg);
         if (
             !empty($phone) && strlen($phone) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
@@ -110,8 +111,9 @@ class Message
         $textInvoice = str_replace('[[phone]]', $config['phone'], $textInvoice);
         $textInvoice = str_replace('[[invoice]]', $trx['invoice'], $textInvoice);
         $textInvoice = str_replace('[[date]]', Lang::dateAndTimeFormat($trx['recharged_on'], $trx['recharged_time']), $textInvoice);
-        $textInvoice = str_replace('[[payment_gateway]]', $config['gateway'], $textInvoice);
-        $textInvoice = str_replace('[[payment_channel]]', $config['channel'], $textInvoice);
+        $gc = explode("-", $trx['method']);
+        $textInvoice = str_replace('[[payment_gateway]]', trim($gc[0]), $textInvoice);
+        $textInvoice = str_replace('[[payment_channel]]', trim($gc[1]), $textInvoice);
         $textInvoice = str_replace('[[type]]', $trx['type'], $textInvoice);
         $textInvoice = str_replace('[[plan_name]]', $trx['plan_name'], $textInvoice);
         $textInvoice = str_replace('[[plan_price]]',  Lang::moneyFormat($trx['price']), $textInvoice);

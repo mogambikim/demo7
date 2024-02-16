@@ -39,6 +39,31 @@
                         </div>
                     </div>
 
+
+                                       <div class="form-group">
+                        <label class="col-md-2 control-label">{Lang::T('Voucher Format')}</label>
+                        <div class="col-md-6">
+                            <select name="voucher_format" id="voucher_format" class="form-control">
+                                <option value="up" {if $_c['voucher_format'] == 'up'}selected="selected" {/if}>UPPERCASE
+                                </option>
+                                <option value="low" {if $_c['voucher_format'] == 'low'}selected="selected" {/if}>
+                                    lowercase
+                                </option>
+                                <option value="rand" {if $_c['voucher_format'] == 'rand'}selected="selected" {/if}>
+                                    RaNdoM
+                                </option>
+                            </select>
+                        </div>
+                        <p class="help-block col-md-4">UPPERCASE lowercase RaNdoM</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">{Lang::T('Voucher Prefix')}</label>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="prefix" placeholder="ISP-" value="{$_c['voucher_prefix']}">
+                        </div>
+                        <p class="help-block col-md-4">ISP-VoUCHeRCOdE</p>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-md-2 control-label">{$_L['Length_Code']}</label>
                         <div class="col-md-6">

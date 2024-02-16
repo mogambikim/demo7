@@ -107,7 +107,25 @@ try {
         ORM::configure('password', $radius_pass, 'radius');
         ORM::configure('driver_options', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'), 'radius');
         ORM::configure('return_result_sets', true, 'radius');
+       
     }
+
+} catch (Throwable $e) {
+    $ui = new Smarty();
+    $ui->setTemplateDir(['custom' => File::pathFixer('ui/ui_custom/'), 'default' => File::pathFixer('ui/ui/')]);
+    $ui->assign('_url', APP_URL . '/index.php?_route=');
+    $ui->setCompileDir(File::pathFixer('ui/compiled/'));
+    $ui->setConfigDir(File::pathFixer('ui/conf/'));
+    $ui->setCacheDir(File::pathFixer('ui/cache/'));
+    $ui->assign("error_title", "FreeIspRadius Crash");
+    if (_auth()) {
+        $ui->assign("error_message", $e->getMessage() . '<br>');
+    } else {
+        $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
+    }
+    $ui->display('router-error.tpl');
+    die();
+
 } catch (Exception $e) {
     $ui = new Smarty();
     $ui->setTemplateDir(['custom' => File::pathFixer('ui/ui_custom/'), 'default' => File::pathFixer('ui/ui/')]);
@@ -116,7 +134,7 @@ try {
     $ui->setConfigDir(File::pathFixer('ui/conf/'));
     $ui->setCacheDir(File::pathFixer('ui/cache/'));
     $ui->assign("error_title", "FreeispRadius Crash");
-    if (isset($_SESSION['uid'])) {
+    if (_auth()) {
         $ui->assign("error_message", $e->getMessage() . '<br>');
     }else{
         $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
@@ -190,13 +208,17 @@ $_notifmsg_default = json_decode(file_get_contents(File::pathFixer('system/uploa
 
 //register all plugin
 foreach (glob(File::pathFixer("system/plugin/*.php")) as $filename) {
-    include $filename;
+    try {
+        include $filename;
+    } catch (Throwable $e) {
+    } catch (Exception $e) {
+    }
 }
 
 
 function _auth($login = true)
 {
-    if (isset($_SESSION['uid'])) {
+    if (User::getID()) {
         return true;
     } else {
         if ($login) {
@@ -209,7 +231,7 @@ function _auth($login = true)
 
 function _admin($login = true)
 {
-    if (isset($_SESSION['aid'])) {
+    if (Admin::getID()) {
         return true;
     } else {
         if ($login) {
@@ -278,10 +300,8 @@ function time_elapsed_string($datetime, $full = false)
     $now = new DateTime;
     $ago = new DateTime($datetime);
     $diff = $now->diff($ago);
-
     $diff->w = floor($diff->d / 7);
     $diff->d -= $diff->w * 7;
-
     $string = array(
         'y' => 'year',
         'm' => 'month',
@@ -298,8 +318,8 @@ function time_elapsed_string($datetime, $full = false)
             unset($string[$k]);
         }
     }
-
-    if (!$full) $string = array_slice($string, 0, 1);
+    if (!$full)
+        $string = array_slice($string, 0, 1);
     return $string ? implode(', ', $string) . ' ago' : 'just now';
 }
 
@@ -327,11 +347,19 @@ try {
                 if (!empty($menu['icon'])) {
                     $menus[$menu['position']] .= '<i class="' . $menu['icon'] . '"></i>';
                 }
+                if (!empty($menu['label'])) {
+                    $menus[$menu['position']] .= '<span class="pull-right-container">';
+                    $menus[$menu['position']] .= '<small class="label pull-right bg-' . $menu['color'] . '">' . $menu['label'] . '</small></span>';
+                }
                 $menus[$menu['position']] .= '<span class="text">' . $menu['name'] . '</span></a></li>';
             } else if (!$menu['admin'] && _auth(false)) {
                 $menus[$menu['position']] .= '<li' . (($routes[1] == $menu['function']) ? ' class="active"' : '') . '><a href="' . U . 'plugin/' . $menu['function'] . '">';
                 if (!empty($menu['icon'])) {
                     $menus[$menu['position']] .= '<i class="' . $menu['icon'] . '"></i>';
+                }
+                if (!empty($menu['label'])) {
+                    $menus[$menu['position']] .= '<span class="pull-right-container">';
+                    $menus[$menu['position']] .= '<small class="label pull-right bg-' . $menu['color'] . '">' . $menu['label'] . '</small></span>';
                 }
                 $menus[$menu['position']] .= '<span class="text">' . $menu['name'] . '</span></a></li>';
             }
@@ -344,9 +372,17 @@ try {
     } else {
         r2(U . 'dashboard', 'e', 'not found');
     }
+} catch (Throwable $e) {
+    if (!Admin::getID()) {
+        r2(U . 'home', 'e', $e->getMessage());
+    }
+    $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
+    $ui->assign("error_title", "FreeIspRadius Crash");
+    $ui->display('router-error.tpl');
+    die();
 } catch (Exception $e) {
-    if (!isset($_SESSION['aid']) || empty($_SESSION['aid'])) {
-        r2(U . 'home' , 'e', $e->getMessage());
+    if (!Admin::getID()) {
+        r2(U . 'home', 'e', $e->getMessage());
     }
     $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
     $ui->assign("error_title", "FreeIspRadius Crash");

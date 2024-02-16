@@ -29,6 +29,7 @@ switch ($do) {
                 $d_pass = $d['password'];
                 if (Password::_uverify($password, $d_pass) == true) {
                     $_SESSION['uid'] = $d['id'];
+                    User::setCookie($d['id']);
                     $d->last_login = date('Y-m-d H:i:s');
                     $d->save();
                     _log($username . ' ' . $_L['Login_Successful'], 'User', $d['id']);
@@ -62,7 +63,7 @@ if (isset($_POST['redirect'])) {
         $username = _post('username');
         $v1 = ORM::for_table('tbl_voucher')->where('code', $voucher)->find_one();
         if ($v1) {
-            // coucher exists, check customer exists or not
+             // voucher exists, check customer exists or not
             $user = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
             if (!$user) {
                 $d = ORM::for_table('tbl_customers')->create();
@@ -78,7 +79,7 @@ if (isset($_POST['redirect'])) {
                         r2(U . 'login', 'e', Lang::T('Voucher activation failed'));
                     }
                 } else {
-                    r2(U . 'login', 'e', Lang::T('Voucher activation failed').'.');
+                 r2(U . 'login', 'e', Lang::T('Voucher activation failed') . '.');
                 }
             }
             if ($v1['status'] == 0) {
@@ -87,10 +88,12 @@ if (isset($_POST['redirect'])) {
                 $user->password = $voucher;
                 $user->save();
                 // voucher activation
-                if (Package::rechargeUser($user['id'], $v1['routers'], $v1['id_plan'], "Activation", "Voucher")) {
+                if (Package::rechargeUser($user['id'], $v1['routers'], $v1['id_plan'], "Voucher", $voucher)) {
                     $v1->status = "1";
                     $v1->user = $user['username'];
                     $v1->save();
+                    $user->last_login = date('Y-m-d H:i:s');
+                    $user->save();
                     // add customer to mikrotik
                     if (!empty($_SESSION['nux-mac']) && !empty($_SESSION['nux-ip'])) {
                         try{
@@ -125,6 +128,8 @@ if (isset($_POST['redirect'])) {
                 // used voucher
                 // check if voucher used by this username
                 if ($v1['user'] == $user['username']) {
+                    $user->last_login = date('Y-m-d H:i:s');
+                    $user->save();
                     if (!empty($_SESSION['nux-mac']) && !empty($_SESSION['nux-ip'])) {
                         try{
                             $m = Mikrotik::info($v1['routers']);
@@ -155,8 +160,8 @@ if (isset($_POST['redirect'])) {
                 }
             }
         } else {
-            // voucher not found
-            r2(U . 'login', 'e', $_L['Voucher_Not_Valid']);
+                   _msglog('e', $_L['Invalid_Username_or_Password']);
+            r2(U . 'login');
         }
         default:
         run_hook('customer_view_login'); #HOOK

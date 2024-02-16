@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
+ * PHP Mikrotik Billing (https://gl/)
  * This file for reminding user about expiration
  * Example to run every at 7:00 in the morning
  * 0 7 * * * /usr/bin/php /var/www/system/cron_reminder.php
@@ -67,7 +67,13 @@ $_notifmsg_default = json_decode(file_get_contents('uploads/notifications.defaul
 
 //register all plugin
 foreach (glob(File::pathFixer("plugin/*.php")) as $filename) {
-    include $filename;
+    try{
+        include $filename;
+    } catch(Throwable $e){
+        //ignore plugin error
+    }catch(Exception $e){
+        //ignore plugin error
+    }
 }
 
 $result = ORM::for_table('tbl_appconfig')->find_many();
@@ -75,6 +81,7 @@ foreach ($result as $value) {
     $config[$value['setting']] = $value['value'];
 }
 date_default_timezone_set($config['timezone']);
+
 
 
 $d = ORM::for_table('tbl_user_recharges')->where('status', 'on')->find_many();
@@ -98,13 +105,15 @@ print_r([$day1, $day3, $day7]);
 foreach ($d as $ds) {
     if (in_array($ds['expiration'], [$day1, $day3, $day7])) {
         $u = ORM::for_table('tbl_user_recharges')->where('id', $ds['id'])->find_one();
+        $p = ORM::for_table('tbl_plans')->where('id', $u['plan_id'])->find_one();
         $c = ORM::for_table('tbl_customers')->where('id', $ds['customer_id'])->find_one();
+        $price = Lang::moneyFormat($p['price']);
         if ($ds['expiration'] == $day7) {
-            echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $u['namebp'], Lang::getNotifText('reminder_7_day'), $config['user_notification_reminder']) . "\n";
+               echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_7_day'), $config['user_notification_reminder']) . "\n";
         } else if ($ds['expiration'] == $day3) {
-            echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $u['namebp'], Lang::getNotifText('reminder_3_day'), $config['user_notification_reminder']) . "\n";
+             echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_3_day'), $config['user_notification_reminder']) . "\n";
         } else if ($ds['expiration'] == $day1) {
-            echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $u['namebp'], Lang::getNotifText('reminder_1_day'), $config['user_notification_reminder']) . "\n";
+              echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_1_day'), $config['user_notification_reminder']) . "\n";
         }
     }
 }

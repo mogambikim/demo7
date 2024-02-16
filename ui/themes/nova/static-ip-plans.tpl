@@ -27,7 +27,7 @@
                         </form>
                     </div>
                     <div class="col-md-4">
-                        <a href="{$_url}services/static-ip-add" class="btn btn-primary btn-block waves-effect"><i
+                        <a href="{$_url}services/static-add" class="btn btn-primary btn-block waves-effect"><i
                                 class="ion ion-android-add"> </i> {$_L['New_Plan']}</a>
                     </div>&nbsp;
                 </div>
@@ -46,25 +46,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {foreach $staticIpPlans as $plan}
-                                <tr {if $plan['enabled'] != 1}class="danger" title="disabled" {/if}>
-                                    <td>{$plan['name_plan']}</td>
-                                    <td>{$plan['ip_range']}</td>
-                                    <td>{Lang::moneyFormat($plan['price'])}</td>
-                                    <td>
-                                        {if $plan['routers']!=''}
-                                            <a href="{$_url}routers/edit/0&name={$plan['routers']}">{$plan['routers']}</a>
-                                        {/if}
-                                    </td>
-                                    <td>
-                                        <a href="{$_url}services/static-ip-edit/{$plan['id']}"
-                                            class="btn btn-info btn-xs">{$_L['Edit']}</a>
-                                        <a href="{$_url}services/static-ip-delete/{$plan['id']}"
-                                            onclick="return confirm('{$_L['Delete']}?')" id="{$plan['id']}"
-                                            class="btn btn-danger btn-xs">{$_L['Delete']}</a>
-                                    </td>
-                                </tr>
-                            {/foreach}
+             {foreach $d as $ds}
+    <tr {if $ds['enabled'] != 1}class="danger" title="disabled"
+                                    {elseif $ds['allow_purchase'] != 'yes'}class="warning" title="Customer can't purchase" {/if}>
+        <td>{$ds['name_plan']}</td>
+        <td>{$ds['name_bw']}</td> <!-- Assuming name_bw is the field for bandwidth -->
+        <td>{Lang::moneyFormat($ds['price'])}</td>
+        <td>{$ds['validity']} {$ds['validity_unit']}</td>
+        <td>{$ds['pool']}</td>
+        <td>{$ds['pool_expired']}</td>
+        <td>
+            {if $ds['is_radius']}
+                <span class="label label-primary">RADIUS</span>
+            {else}
+                {if $ds['routers']!=''}
+                    <a href="{$_url}routers/edit/0&name={$ds['routers']}">{$ds['routers']}</a>
+                {/if}
+            {/if}
+        </td>
+        <td>
+            <a href="{$_url}services/static-edit/{$ds['id']}"
+                class="btn btn-info btn-xs">{$_L['Edit']}</a>
+            <a href="{$_url}services/static-delete/{$ds['id']}"
+                onclick="return confirm('{$_L['Delete']}?')" id="{$ds['id']}"
+                class="btn btn-danger btn-xs">{$_L['Delete']}</a>
+        </td>
+    </tr>
+{/foreach}
+
                         </tbody>
                     </table>
                 </div>

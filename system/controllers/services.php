@@ -16,7 +16,7 @@ $action = $routes['1'];
 $admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
-if ($admin['user_type'] != 'Admin' and $admin['user_type'] != 'Sales') {
+if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
     r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
 }
 
@@ -325,6 +325,8 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                     Mikrotik::removeHotspotPlan($client, $d['name_plan']);
                 } catch (Exception $e) {
                     //ignore exception, it means router has already deleted
+                } catch(Throwable $e){
+                    //ignore exception, it means router has already deleted
                 }
             }
 
@@ -351,6 +353,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         $routers = _post('routers');
         $pool_expired = _post('pool_expired');
         $enabled = _post('enabled');
+        $allow_purchase = _post('allow_purchase');
 
         $msg = '';
         if (Validator::UnsignedNumber($validity) == false) {
@@ -416,6 +419,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                 $d->pool_expired = $pool_expired;
             }
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
             $plan_id = $d->id();
 
@@ -454,6 +458,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         $validity_unit = _post('validity_unit');
         $pool_expired = _post('pool_expired');
         $enabled = _post('enabled');
+        $allow_purchase = _post('allow_purchase');
         $routers = _post('routers');
         $msg = '';
         if (Validator::UnsignedNumber($validity) == false) {
@@ -515,6 +520,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             $d->shared_users = $sharedusers;
             $d->pool_expired = $pool_expired;
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
 
             r2(U . 'services/hotspot', 's', $_L['Updated_Successfully']);
@@ -594,6 +600,8 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                     Mikrotik::removePpoePlan($client, $d['name_plan']);
                 } catch (Exception $e) {
                     //ignore exception, it means router has already deleted
+                } catch(Throwable $e){
+                    //ignore exception, it means router has already deleted
                 }
             }
             $d->delete();
@@ -615,6 +623,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         $pool = _post('pool_name');
         $pool_expired = _post('pool_expired');
         $enabled = _post('enabled');
+        $allow_purchase = _post('allow_purchase');
 
         $msg = '';
         if (Validator::UnsignedNumber($validity) == false) {
@@ -711,6 +720,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                 $d->pool_expired = $pool_expired;
             }
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
             $plan_id = $d->id();
 
@@ -742,6 +752,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         $pool = _post('pool_name');
         $pool_expired = _post('pool_expired');
         $enabled = _post('enabled');
+        $allow_purchase = _post('allow_purchase');
 
         $msg = '';
         if (Validator::UnsignedNumber($validity) == false) {
@@ -836,6 +847,7 @@ if (isset($plan['burst_time_for_upload']) && isset($plan['burst_time_for_downloa
             $d->pool = $pool;
             $d->pool_expired = $pool_expired;
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
 //check here needs more
             r2(U . 'services/pppoe', 's', $_L['Updated_Successfully']);
@@ -933,6 +945,8 @@ case 'static':
                     Mikrotik::removeStaticPlan($client, $d['name_plan']);
                 } catch (Exception $e) {
                     //ignore exception, it means router has already deleted
+                } catch(Throwable $e){
+                    //ignore exception, it means router has already deleted
                 }
             }
             $d->delete();
@@ -956,6 +970,7 @@ case 'static':
                 $pool = _post('pool_name');
                 $pool_expired = _post('pool_expired');
                 $enabled = _post('enabled');
+                $allow_purchase = _post('allow_purchase');
 
 
                 $msg = '';
@@ -1043,6 +1058,7 @@ case 'static':
                         $d->pool_expired = $pool_expired;
                     }
                     $d->enabled = $enabled;
+                    $allow_purchase = _post('allow_purchase');
                     $d->save();
                     $plan_id = $d->id();
 
@@ -1074,6 +1090,7 @@ case 'static':
                     $pool = _post('pool_name');
                     $pool_expired = _post('pool_expired');
                     $enabled = _post('enabled');
+                    $allow_purchase = _post('allow_purchase');
 
 
                     $msg = '';
@@ -1135,6 +1152,7 @@ case 'static':
             $d->pool = $pool;
             $d->pool_expired = $pool_expired;
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
 //check here needs more
             r2(U . 'services/static', 's', $_L['Updated_Successfully']);
@@ -1205,6 +1223,7 @@ case 'static':
         $name = _post('name');
         $price = _post('price');
         $enabled = _post('enabled');
+        $allow_purchase = _post('allow_purchase');
 
         $msg = '';
         if (Validator::UnsignedNumber($price) == false) {
@@ -1224,6 +1243,7 @@ case 'static':
             $d->name_plan = $name;
             $d->price = $price;
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
 
             r2(U . 'services/balance', 's', $_L['Updated_Successfully']);
@@ -1235,6 +1255,7 @@ case 'static':
         $name = _post('name');
         $price = _post('price');
         $enabled = _post('enabled');
+        $allow_purchase = _post('allow_purchase');
 
         $msg = '';
         if (Validator::UnsignedNumber($price) == false) {
@@ -1260,6 +1281,7 @@ case 'static':
             $d->routers = '';
             $d->pool = '';
             $d->enabled = $enabled;
+            $d->allow_purchase = $allow_purchase;
             $d->save();
 
             r2(U . 'services/balance', 's', $_L['Created_Successfully']);

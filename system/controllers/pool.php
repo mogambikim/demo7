@@ -13,7 +13,7 @@ $action = $routes['1'];
 $admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
-if ($admin['user_type'] != 'Admin') {
+if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
     r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
 }
 
@@ -68,7 +68,10 @@ switch ($action) {
                     Mikrotik::removePool($client, $d['pool_name']);
                 } catch (Exception $e) {
                     //ignore exception, it means router has already deleted
+                } catch(Throwable $e){
+                    //ignore exception, it means router has already deleted
                 }
+                
             }
             $d->delete();
 

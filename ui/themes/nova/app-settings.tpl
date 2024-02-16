@@ -54,6 +54,9 @@
                         </div>
                     </div>
                     <div class="form-group">
+
+  
+
                         <label class="col-md-2 control-label">Theme</label>
                         <div class="col-md-6">
                             <select name="theme" id="theme" class="form-control">
@@ -177,6 +180,9 @@
                 </div>
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
+
+
+                    
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
                                 class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
                     </div>
@@ -244,6 +250,7 @@
                 </div>
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
+                        <a class="btn btn-success btn-xs" style="color: black;" href="javascript:testTg()">Test TG</a>
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
                                 class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
                     </div>
@@ -270,6 +277,7 @@
                 </div>
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
+                       <a class="btn btn-success btn-xs" style="color: black;" href="javascript:testSms()">Test SMS</a>
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
                                 class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
                     </div>
@@ -302,11 +310,12 @@
                             replaced.
                         </p>
                     </div>
-                    <small id="emailHelp" class="form-text text-muted">You can use WhatsApp in here too. <a
+                    <small id="emailHelp" class="form-text text-muted">You can use WhatsApp  here too. <a
                             href="https://sms.freeispradius.com" target="_blank">Free Server</a></small>
                 </div>
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
+                       <a class="btn btn-success btn-xs" style="color: black;" href="javascript:testWa()">Test WA</a>
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
                                 class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
                     </div>
@@ -466,4 +475,24 @@ add dst-host=*.{$_domain}</pre>
         </div>
     </div>
 </form>
+
+<script>
+    function testWa() {
+        var target = prompt("Phone number\nSave First before Test", "");
+        if (target != null) {
+            window.location.href = '{$_url}settings/app&testWa='+target;
+        }
+    }
+    function testSms() {
+        var target = prompt("Phone number\nSave First before Test", "");
+        if (target != null) {
+            window.location.href = '{$_url}settings/app&testSms='+target;
+        }
+    }
+    function testTg() {
+        window.location.href = '{$_url}settings/app&testTg=test';
+    }
+</script>
+
+
 {include file="sections/footer.tpl"}

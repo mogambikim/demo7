@@ -154,6 +154,18 @@ switch ($action) {
         if (empty($plan)) {
             r2(U . "order/package", 'e', Lang::T("Plan Not found"));
         }
+
+//added commit
+
+if(!$plan['enabled']){
+    r2(U . "home", 'e', 'Plan is not exists');
+}
+if($plan['allow_purchase'] != 'yes'){
+    r2(U . "home", 'e', 'Cannot recharge this plan');
+}
+
+//end of commit
+
         if ($routes['2'] == 'radius') {
             $router_name = 'radius';
         } else {
@@ -171,7 +183,10 @@ switch ($action) {
                     "\nPrice: " . $p['price']);
             }
         } else {
-            echo "no renewall | plan enabled: $p[enabled] | User balance: $c[balance] | price $p[price]\n";
+            //added commit
+            r2(U . "home", 'e', 'Plan is not exists');
+
+//end of commit
         }
         break;
     case 'send':
@@ -184,6 +199,17 @@ switch ($action) {
         if (empty($plan)) {
             r2(U . "order/package", 'e', Lang::T("Plan Not found"));
         }
+
+        //added commit
+        if(!$plan['enabled']){
+            r2(U . "home", 'e', 'Plan is not exists');
+        }
+        if($plan['allow_purchase'] != 'yes'){
+            r2(U . "home", 'e', 'Cannot recharge this plan');
+        }
+
+        //end of commit
+
         if ($routes['2'] == 'radius') {
             $router_name = 'radius';
         } else {
@@ -282,7 +308,7 @@ switch ($action) {
             $router['id'] = 0;
             $router['name'] = 'balance';
         }
-        $plan = ORM::for_table('tbl_plans')->where('enabled', '1')->find_one($routes['3']);
+        $plan = ORM::for_table('tbl_plans')->where('enabled', '1')->where('allow_purchase', 'yes')->find_one($routes['3']);
         if (empty($router) || empty($plan)) {
             r2(U . "order/package", 'e', Lang::T("Plan Not found"));
         }
