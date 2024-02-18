@@ -130,7 +130,7 @@ foreach ($d as $ds) {
             } else {
                 $client = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
                 if (!empty($p['pool_expired'])) {
-                    Mikrotik::setHotspotUserPackage($client, $c['username'], 'EXPIRED NUXBILL ' . $p['pool_expired']);
+                    Mikrotik::setHotspotUserPackage($client, $c['username'], 'EXPIRED FREEISPRADIUS ' . $p['pool_expired']);
                 } else {
                     Mikrotik::removeHotspotUser($client, $c['username']);
                 }
@@ -241,7 +241,7 @@ foreach ($d as $ds) {
             } else {
                 $client = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
                 if (!empty($p['pool_expired'])) {
-                    Mikrotik::setPpoeUserPlan($client, $c['username'], 'EXPIRED NUXBILL ' . $p['pool_expired']);
+                    Mikrotik::setPpoeUserPlan($client, $c['username'], 'EXPIRED FREEISPRADIUS ' . $p['pool_expired']);
                 } else {
                     Mikrotik::removePpoeUser($client, $c['username']);
                 }
