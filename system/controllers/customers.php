@@ -234,9 +234,9 @@ switch ($action) {
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                         Mikrotik::removePpoeUser($client, $d['username']);
                         Mikrotik::removePpoeActive($client, $d['username']);
-                    }else {
+                    } elseif ($c['type'] == 'Static') {
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                        Mikrotik::removeStaticPlan($client, $d['ip_address']);
+                      
                         Mikrotik::removeStaticUser($client, $d['username']);
                     }
                     try {

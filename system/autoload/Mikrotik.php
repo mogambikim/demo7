@@ -696,18 +696,18 @@ public static function addStaticUser($client, $plan, $customer)
         if ($_app_stage == 'demo') {
             return null;
         }
-
-       // Retrieve the customer data from the database using ORM
-    $customer = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
-
-    if (!$customer) {
-        // Handle the case where the customer was not found in the database
-        return;
-    }
-
-    // Get the IP address from the customer data
-    $ipAddress = $customer['ip_address'];
-
+    
+        // Retrieve the customer data from the database
+        $customer = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
+    
+        if (!$customer) {
+            // Handle the case where the customer was not found in the database
+            return;
+        }
+    
+        // Get the IP address from the customer data
+        $ipAddress = $customer->ip_address;
+    
         try {
             // Find the address list entry
             $findAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/print');
@@ -716,29 +716,39 @@ public static function addStaticUser($client, $plan, $customer)
             foreach ($addressListResponses as $addressListResponse) {
                 if ($addressListResponse->getType() === RouterOS\Response::TYPE_DATA) {
                     $addressListId = $addressListResponse->getProperty('.id');
-
-                    // Remove the address list entry
-                    $removeAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/remove');
-                    $client->sendSync($removeAddressListRequest->setArgument('.id', $addressListId));
+                    // Verify if the address exactly matches the IP address from customer data
+                    $address = $addressListResponse->getProperty('address');
+                    if ($address === $ipAddress) {
+                        // Remove the address list entry only if it matches the IP address
+                        $removeAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/remove');
+                        $removeAddressListRequest->setArgument('.id', $addressListId);
+                        $client->sendSync($removeAddressListRequest);
+                    }
                 }
             }
-
+    
             $findQueueRequest = new RouterOS\Request('/queue/simple/print');
             $findQueueRequest->setQuery(Query::where('target', $ipAddress .'/32'));
             $queueResponses = $client->sendSync($findQueueRequest);
-
+    
             foreach ($queueResponses as $queueResponse) {
                 if ($queueResponse->getType() === RouterOS\Response::TYPE_DATA) {
                     $queueId = $queueResponse->getProperty('.id');
-
-                    // Remove the queue
-                    $removeQueueRequest = new RouterOS\Request('/queue/simple/remove');
-                    $client->sendSync($removeQueueRequest->setArgument('.id', $queueId));
+                    // Verify if the queue target exactly matches the IP address
+                    $target = $queueResponse->getProperty('target');
+                    if ($target === $ipAddress .'/32') {
+                        // Remove the queue only if it matches the IP address
+                        $removeQueueRequest = new RouterOS\Request('/queue/simple/remove');
+                        $removeQueueRequest->setArgument('.id', $queueId);
+                        $client->sendSync($removeQueueRequest);
+                    }
                 }
             }
-
+    
         } catch (Exception $e) {
             // Handle the error
+            // Error handling logic here
         }
     }
-}
+    
+}    

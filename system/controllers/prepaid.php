@@ -206,11 +206,12 @@ switch ($action) {
                 }
                  //my added code i also added else if for each type
                  //use of elseif instead of else
-                else {
+                 elseif ($d['type'] == 'Static') {
+
                     $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                     Mikrotik::removeStaticUser($client, $d['username']);
                     //Mikrotik::removeStaticPlan($client);
-                    Mikrotik::removeStaticPlan($client, $d['ip_address']);
+                
                 }
             }
 
