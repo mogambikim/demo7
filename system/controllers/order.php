@@ -10,6 +10,12 @@ $action = $routes['1'];
 $user = User::_info();
 $ui->assign('_user', $user);
 
+
+ $router_id=$user['router_id'];
+
+
+
+
 switch ($action) {
     case 'voucher':
         $ui->assign('_system_menu', 'voucher');
@@ -63,14 +69,29 @@ switch ($action) {
                     $plans_static = ORM::for_table('tbl_plans')->where('enabled', '1')->where_in('routers', $rs)->where('is_radius', 0)->where('type', 'Static')->where('allow_purchase', 'yes')->find_many();
                 }
             } else {
+                
+                
+                
+                
+              
+                
                 $radius_pppoe = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 1)->where('type', 'PPPOE')->where('allow_purchase', 'yes')->find_many();
                 $radius_hotspot = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 1)->where('type', 'Hotspot')->where('allow_purchase', 'yes')->find_many();
                 $radius_static = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 1)->where('type', 'Static')->where('allow_purchase', 'yes')->find_many();
 
-                $routers = ORM::for_table('tbl_routers')->find_many();
-                $plans_pppoe = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'PPPOE')->where('allow_purchase', 'yes')->find_many();
-                $plans_hotspot = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'Hotspot')->where('allow_purchase', 'yes')->find_many();
-                $plans_static = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'Static')->where('allow_purchase', 'yes')->find_many();
+                $routers = ORM::for_table('tbl_routers') ->where('id', $router_id)->find_many();
+                
+                
+                
+                 $rs = [];
+                 
+                 foreach ($routers as $r) {
+                        $rs[] = $r['name'];
+                    }
+               
+                $plans_pppoe = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'PPPOE')->where('allow_purchase', 'yes') ->where('routers', $rs)->find_many();
+                $plans_hotspot = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'Hotspot')->where('allow_purchase', 'yes')->where('routers', $rs)->find_many();
+                $plans_static = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'Static')->where('allow_purchase', 'yes') ->where('routers', $rs)->find_many();
             }
             $ui->assign('routers', $routers);
             $ui->assign('radius_pppoe', $radius_pppoe);
