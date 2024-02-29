@@ -1,55 +1,43 @@
 {include file="sections/header.tpl"}
 
-<form class="form-horizontal" method="post" role="form" action="{$_url}paymentgateway/mpesa" >
+<form class="form-horizontal" method="post" role="form" action="{$_url}paymentgateway/MpesaPaybill" >
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <div class="panel panel-primary panel-hovered panel-stacked mb30">
                 <div class="panel-heading">M-Pesa</div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Consumer Key</label>
+                        
                         <div class="col-md-6">
-                            <input type="text" class="form-control" id="mpesa_consumer_key" name="mpesa_consumer_key" placeholder="xxxxxxxxxxxxxxxxx" value="{$_c['mpesa_consumer_key']}">
-                            <small class="form-text text-muted"><a href="https://developer.safaricom.co.ke/MyApps" target="_blank">https://developer.safaricom.co.ke/MyApps</a></small>
+                            <input type="hidden" class="form-control" id="mpesa_consumer_key" name="mpesa_consumer_key" placeholder="xxxxxxxxxxxxxxxxx" value="{$_c['mpesa_consumer_key']}">
+                           
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Consumer Secret</label>
+                        
                         <div class="col-md-6">
-                            <input type="password" class="form-control" id="mpesa_consumer_secret" name="mpesa_consumer_secret" placeholder="xxxxxxxxxxxxxxxxx" value="{$_c['mpesa_consumer_secret']}">
+                            <input type="hidden" class="form-control" id="mpesa_consumer_secret" name="mpesa_consumer_secret" placeholder="xxxxxxxxxxxxxxxxx" value="{$_c['mpesa_consumer_secret']}">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Business Shortcode</label>
+                        <label class="col-md-2 control-label">Your Paybill</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control" id="mpesa_business_code" name="mpesa_business_code" placeholder="xxxxxxx" maxlength="7" value="{$_c['mpesa_business_code']}">
+                            <input type="text" class="form-control" id="mpesa_paybill" name="mpesa_paybill" placeholder="xxxxxxx" maxlength="7" value="{$_c['mpesa_paybill']}">
                         </div>
                     </div>
 					<div class="form-group">
-                        <label class="col-md-2 control-label">Pass Key</label>
+                       
                         <div class="col-md-6">
-                            <input type="text" class="form-control" id="mpesa_pass_key" name="mpesa_pass_key" placeholder="bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" maxlength="" value="{$_c['mpesa_pass_key']}">
+                            <input type="hidden" class="form-control" id="mpesa_pass_key" name="mpesa_pass_key" placeholder="bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" maxlength="" value="{$_c['mpesa_pass_key']}">
                         </div>
                     </div>
-					<div class="form-group">
-                        <label class="col-md-2 control-label">M-Pesa Environment</label>
-                        <div class="col-md-6">
-                            <select class="form-control" name="mpesa_env">
-                                {foreach $env as $environment}
-                                    <option value="{$environment['id']}"
-                                    {if $environment['id'] == $_c['mpesa_env']}selected{/if}
-                                    >{$environment['id']} - {$environment['name']}</option>
-                                {/foreach}
-                            </select>
-                            <small class="form-text text-muted"><font color="red"><b>Sandbox</b></font> is for testing purpose, please switch to <font color="green"><b>Live</b></font> in production.</small>
-                        </div>
-                    </div>
+					
 
                     <div class="form-group">
-                        <label class="col-md-2 control-label">Url Notification</label>
+                       
                         <div class="col-md-6">
-                            <input type="text" readonly class="form-control" onclick="this.select()" value="{$_url}callback/mpesa">
-                            <p class="help-block">CallBack URL</p>
+                            <input type="hidden" readonly class="form-control" onclick="this.select()" value="{$_url}callback/mpesa">
+                           
                         </div>
                     </div>
                     <div class="form-group">
