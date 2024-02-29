@@ -88,6 +88,12 @@ switch ($action) {
                  foreach ($routers as $r) {
                         $rs[] = $r['name'];
                     }
+
+                    if(empty($rs)){
+                        
+                        r2(U . "home", 'e', Lang::T("Your acount is not conneted to a router"));
+                     die;   
+                    }
                
                 $plans_pppoe = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'PPPOE')->where('allow_purchase', 'yes') ->where('routers', $rs)->find_many();
                 $plans_hotspot = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 0)->where('type', 'Hotspot')->where('allow_purchase', 'yes')->where('routers', $rs)->find_many();
