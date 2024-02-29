@@ -78,7 +78,7 @@
                         </div>
                     </div>
 
-!-- New IP Address Field -->
+
 <div class="form-group">
     <label class="col-md-2 control-label">IP Address</label>
     <div class="col-md-6">
@@ -93,12 +93,25 @@
 						<option value="Hotspot" {if $d['service_type'] eq 'Hotspot'}selected{/if}>Hotspot</option>
 						<option value="PPPoE" {if $d['service_type'] eq 'PPPoE'}selected{/if}>PPPoE</option>
                         <option value="Static" {if $d['service_type'] eq 'Static'}selected{/if}>Static</option>
-						<!-- New Static Option -->
-            <option value="Static" {if $d['service_type'] eq 'Static'}selected{/if}>Static</option>
+						
                         <option value="Others" {if $d['service_type'] eq 'Others'}selected{/if}>Others</option>
 						</select>
 						</div>
                     </div>
+
+
+                                        <div class="form-group">
+    <label class="col-md-2 control-label">Router</label>
+    <div class="col-md-6">
+<select class="form-control" id="router_id" name="router_id">
+    <option value="">Select Router (optional)</option>
+    {foreach from=$routers item=router}
+        <option value="{$router.id}" {if $router.id eq $d['router_id']}selected{/if}>{$router.name}</option>
+    {/foreach}
+</select>
+
+    </div>
+</div>
 
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">

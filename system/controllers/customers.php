@@ -87,9 +87,12 @@ switch ($action) {
             break;
 
     case 'add':
-        run_hook('view_add_customer'); #HOOK
-        $ui->display('customers-add.tpl');
-        break;
+                run_hook('view_add_customer'); #HOOK
+                $routers = ORM::for_table('tbl_routers')->find_many();
+                $ui->assign('routers', $routers); // Pass routers to the template
+                $ui->display('customers-add.tpl');
+                break;
+            
     case 'recharge':
         $id_customer  = $routes['2'];
         $b = ORM::for_table('tbl_user_recharges')->where('customer_id', $id_customer)->find_one();
@@ -119,7 +122,7 @@ switch ($action) {
                         Mikrotik::removePpoeUser($client, $b['username']);
                         Mikrotik::removePpoeActive($client, $b['username']);
                     }else if ($b['type'] == 'Static') {
-                        Mikrotik::removeStaticPlan($client, $b['ip_address']);
+            
                         Mikrotik::removeStaticUser($client, $b['username']);
                     }
                 }
@@ -202,17 +205,19 @@ switch ($action) {
             r2(U . 'customers/list', 'e', $_L['Account_Not_Found']);
         }
         break;
-    case 'edit':
-        $id  = $routes['2'];
-        run_hook('edit_customer'); #HOOK
-        $d = ORM::for_table('tbl_customers')->find_one($id);
-        if ($d) {
-            $ui->assign('d', $d);
-            $ui->display('customers-edit.tpl');
-        } else {
-            r2(U . 'customers/list', 'e', $_L['Account_Not_Found']);
-        }
-        break;
+        case 'edit':
+            $id  = $routes['2'];
+            run_hook('edit_customer'); #HOOK
+            $d = ORM::for_table('tbl_customers')->find_one($id);
+            $routers = ORM::for_table('tbl_routers')->find_many();
+            if ($d) {
+                $ui->assign('d', $d);
+                $ui->assign('routers', $routers); // Pass the routers to the template
+                $ui->display('customers-edit.tpl');
+            } else {
+                r2(U . 'customers/list', 'e', $_L['Account_Not_Found']);
+            }
+            break;
 
     case 'delete':
         $id  = $routes['2'];
@@ -276,6 +281,10 @@ switch ($action) {
         $phonenumber = _post('phonenumber');
         $service_type = _post('service_type');
         $ip_address = _post('ip_address');
+        $router_id = _post('router_id');
+    if ($router_id == '') {
+        $router_id = NULL; // Set router_id to NULL if no selection was made
+    }
         run_hook('add_customer'); #HOOK
         $msg = '';
         if (Validator::Length($username, 35, 2) == false) {
@@ -304,7 +313,8 @@ switch ($action) {
             $d->phonenumber = Lang::phoneFormat($phonenumber);
             $d->service_type = $service_type;
             $d->ip_address = $ip_address;
-
+            $d->router_id = $router_id;
+            
             $d->save();
             r2(U . 'customers/list', 's', $_L['account_created_successfully']);
         } else {
@@ -322,6 +332,10 @@ switch ($action) {
         $phonenumber = Lang::phoneFormat(_post('phonenumber'));
         $service_type = _post('service_type');
         $ip_address = _post('ip_address');
+        $router_id = _post('router_id');
+        if ($router_id == '') {
+            $router_id = NULL; // Set router_id to NULL if no selection was made
+        }
         run_hook('edit_customer'); #HOOK
         $msg = '';
         if (Validator::Length($username, 35, 2) == false) {
@@ -376,6 +390,7 @@ switch ($action) {
             $d->phonenumber = $phonenumber;
             $d->service_type = $service_type;
             $d->ip_address = $ip_address;
+            $d->router_id = $router_id; // Update router_id in the customer record
             $d->save();
             if ($userDiff || $pppoeDiff || $passDiff) {
                 $c = ORM::for_table('tbl_user_recharges')->where('username', ($userDiff) ? $oldusername : $username)->find_one();
@@ -394,7 +409,7 @@ switch ($action) {
                             $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                             Mikrotik::setHotspotUser($client, $c['username'], $password);
                             Mikrotik::removeHotspotActiveUser($client, $d['username']);
-                        } else {
+                        } elseif ($c['type'] == 'PPPoE') {
                             $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                             if (!empty($d['pppoe_password'])) {
                                 Mikrotik::setPpoeUser($client, $c['username'], $d['pppoe_password']);
@@ -402,6 +417,11 @@ switch ($action) {
                                 Mikrotik::setPpoeUser($client, $c['username'], $password);
                             }
                             Mikrotik::removePpoeActive($client, $d['username']);
+                        } elseif ($c['type'] == 'Static') {
+                            $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+
+
+
                         }
                     }
                 }
