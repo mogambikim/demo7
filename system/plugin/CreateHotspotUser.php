@@ -343,6 +343,14 @@ function InitiateStkpush($phone, $planId, $routerId)
 
     }
 
+    elseif ($gateway == "MpesaPaybill") {
+
+
+        $url = (U . "plugin/initiatePaybillStk");
+
+
+    }
+
 
 
     $Planname = ORM::for_table('tbl_plans')

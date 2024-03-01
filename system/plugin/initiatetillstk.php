@@ -101,7 +101,7 @@ function initiatetillstk()
             
 
             $ThisUser->phonenumber=$phone;
-            $ThisUser->username=$phone;
+            // $ThisUser->username=$phone;
             $ThisUser->save();
 
         
@@ -200,7 +200,7 @@ $resultDesc = $mpesaResponse->CustomerMessage;
           $now=date("Y-m-d H:i:s");
           
 
-          $username=$phone;
+        //   $username=$phone;
 
 
         $PaymentGatewayRecord->pg_paid_response = $resultDesc;

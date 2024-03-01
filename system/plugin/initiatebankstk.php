@@ -140,7 +140,7 @@ function initiatebankstk()
 
 
     $ThisUser->phonenumber=$phone;
-    $ThisUser->username=$phone;
+    // $ThisUser->username=$phone;
     $ThisUser->save();
 
 
@@ -247,7 +247,7 @@ $CheckoutRequestID = $mpesaResponse->CheckoutRequestID;
            date_default_timezone_set('Africa/Nairobi'); 
           $now=date("Y-m-d H:i:s");
 
-$username=$phone;
+// $username=$phone;
           
         $PaymentGatewayRecord->pg_paid_response = $resultDesc;
         $PaymentGatewayRecord->username = $username;
@@ -306,31 +306,3 @@ $username=$phone;
 
 }
 
-
-
-
-
-   
-   
-   
-   
-   
-   
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-?>
