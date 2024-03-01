@@ -40,7 +40,7 @@ CREATE TABLE `tbl_customers` (
   `auto_renewal` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Auto renewall using balance',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_login` datetime DEFAULT NULL,
-  `ip_address` varchar(15) DEFAULT NULL
+  `ip_address` varchar(15) DEFAULT NULL,
   `router_id` int(10) DEFAULT NULL
   
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
