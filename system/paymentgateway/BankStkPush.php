@@ -100,15 +100,21 @@ function BankStkPush_payment_notification()
         
         
        
-        
+       
         
         $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
         ->where('checkout', $checkout_req_id)
-        ->where('status', 1) // Add this line to filter by status
+      //  ->where('status', 1) // Add this line to filter by status
         ->order_by_desc('id')
         ->find_one();
 
         $uname=$PaymentGatewayRecord->username;
+        
+        
+            $plan_id=$PaymentGatewayRecord->plan_id;
+        
+        
+        $mac_address=$PaymentGatewayRecord->mac_address;
         
         $user=$PaymentGatewayRecord;
 
@@ -124,6 +130,11 @@ function BankStkPush_payment_notification()
 
        
 
+  $plans = ORM::for_table('tbl_plans')
+        ->where('id', $plan_id)
+        
+        ->order_by_desc('id')
+        ->find_one();
 
 
 
@@ -131,21 +142,10 @@ function BankStkPush_payment_notification()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-        $UserId=$userid->id;
+  
         
         
-        
+       
        if ($response_code=="1032")
          {
          $now = date('Y-m-d H:i:s');   
@@ -198,8 +198,9 @@ function BankStkPush_payment_notification()
         }
         
           if($response_code=="0"){
-             
-               $now = date('Y-m-d H:i:s');
+              
+              
+                     $now = date('Y-m-d H:i:s');
                
                   $date = date('Y-m-d');
                   $time= date('H:i:s');
@@ -209,6 +210,166 @@ function BankStkPush_payment_notification()
 
 
 
+   $check_mpesa = ORM::for_table('tbl_payment_gateway')
+        ->where('gateway_trx_id', $mpesa_code)
+        ->find_one();
+
+
+// if($check_mpesa){
+    
+//     echo "double callback, ignore one";
+    
+//     die;
+    
+    
+// }
+
+
+
+
+ $plan_type=$plans->type;
+              
+           $UserId=$userid->id;    
+            
+              
+               
+                if($plan_type=="Hotspot"){
+             
+            
+            // echo $mpesa_code;
+            // die;
+             
+             
+      $plan_id=$plans->id;
+
+    
+             
+             
+             
+$validity = $plans->validity;
+$units = $plans->validity_unit;
+
+// Convert units to seconds
+$unit_in_seconds = [
+    'Mins' => 60,
+    'Hrs' => 3600,
+    'Days' => 86400,
+    'Months' => 2592000 // Assuming 30 days per month for simplicity
+];
+
+// Get the unit in seconds
+$unit_seconds = $unit_in_seconds[$units];
+
+// Calculate expiry timestamp
+$expiry_timestamp = time() + ($validity * $unit_seconds);
+
+// Extract date and time components
+$expiry_date = date("Y-m-d", $expiry_timestamp);
+$expiry_time = date("H:i:s", $expiry_timestamp);
+
+ //"Expiry Time: $expiry_time";
+       
+     
+   
+             
+     $recharged_on=date("Y:m:d");
+     $recharged_time=date("H:i:s");
+             
+              
+             
+             $updated_count = ORM::for_table('tbl_user_recharges')
+        ->where('username', $uname)
+        ->where('status', 'on')
+        ->find_many(); // Find the matching records
+
+    foreach ($updated_count as $record) {
+        $record->status = 'off'; // Update status to 'off'
+        $record->save(); // Save the updated record
+    }  
+             
+             
+             
+             
+      
+       $plan_name=$plans->name_plan;
+    $routerId=$PaymentGatewayRecord->routers_id;
+      
+    $file_path = 'system/adduser.php';
+
+// Check if the file exists
+
+    // Include the file
+    include_once $file_path;
+
+       $rname= ORM::for_table('tbl_routers')
+        ->where('id', $routerId)
+        ->find_one();
+      
+      $routername=$rname->name;
+      
+    $deleted_count = ORM::for_table('tbl_user_recharges')
+    ->where('username', $uname)
+    //     ->where('status', 'on')
+     ->delete_many();
+   
+      
+try {
+    // Insert into tbl_user_recharges
+    ORM::for_table('tbl_user_recharges')->create(array(
+        'customer_id' => $UserId,
+        'username' => $uname,
+        'plan_id' => $plan_id,
+        'namebp' => $plan_name,
+        'recharged_on' => $recharged_on,
+        'recharged_time' => $recharged_time,
+        'expiration' => $expiry_date,
+        'time' => $expiry_time,
+        // 'mac_address' => $mac_address,
+        'status' => "on",
+        'method' => $PaymentGatewayRecord->gateway."-".$mpesa_code,
+        'routers' => $routername,
+        'type' => $plan_type
+    ))->save();
+
+    // Insert into tbl_transactions
+    ORM::for_table('tbl_transactions')->create(array(
+        'invoice' => $mpesa_code, // Assuming you have this value available
+        'username' => $uname,
+        'plan_name' => $plan_name,
+        'price' => $amount_paid, // Assuming you have this value available
+        'recharged_on' => $recharged_on,
+        'recharged_time' => $recharged_time,
+        'expiration' => $expiry_date,
+        'time' => $expiry_time,
+        'method' => $PaymentGatewayRecord->gateway."-".$mpesa_code,
+        'routers' => $routername,
+        'type' => $plan_type
+    ))->save();
+
+    echo "Recharge and transaction records saved successfully.";
+} catch (Exception $e) {
+    echo "Error occurred: " . $e->getMessage();
+}
+
+                   $PaymentGatewayRecord->status = 2;
+                    $PaymentGatewayRecord->paid_date = $now;
+                    $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
+                    $PaymentGatewayRecord->save();
+      
+      
+      die;
+  }
+              
+              
+              
+              
+              
+              
+              
+             
+        
+
+              
 
 
                   if (!Package::rechargeUser($UserId, $user['routers'], $user['plan_id'], $user['gateway'], $mpesa_code)){
@@ -306,6 +467,7 @@ function BankStkPush_payment_notification()
               
               
               
+              
              $recharge = ORM::for_table('tbl_user_recharges')->create();
              $recharge->customer_id = $customerid;
              $recharge->username = $PaymentGatewayRecord->username;
@@ -327,16 +489,16 @@ function BankStkPush_payment_notification()
               
               
               
-               $user = ORM::for_table('tbl_customers')
-              ->where('username', $username)
-               ->find_one();
+            //   $user = ORM::for_table('tbl_customers')
+            //   ->where('username', $username)
+            //   ->find_one();
               
-               $currentBalance = $user->balance;
+            //   $currentBalance = $user->balance;
               
-                $user->balance = $currentBalance + $amount_paid;
-                $user->save();
+            //     $user->balance = $currentBalance + $amount_paid;
+            //     $user->save();
               
-               exit();
+            //   exit();
              
              
              
