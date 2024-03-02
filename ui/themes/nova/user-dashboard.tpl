@@ -89,26 +89,25 @@
         <div class="bg-no-repeat bg-cover bg-center px-5 py-8 rounded-[6px] relative flex items-center" style="background-image: url({$_theme}/assets/images/all-img/widget-bg-6.png)">
           <div class="flex-1">
             <div class="max-w-[180px]">
-              <h4 class="text-sm font-medium text-white mb-2">
+             <h4 class="text-sm font-medium text-white mb-2">
     <span class="block text-sm">
         {if $_bills}
             {foreach $_bills as $_bill}
-                {$_bill['namebp']} &nbsp;
                 {if $_bill['status'] == 'on'}
+                    {$_bill['namebp']} &nbsp;
                     <span class="badge bg-primary-500 text-small text-white capitalize">
                         <a class="flex-none" href="{$_url}home&deactivate={$_bill['id']}"
                             onclick="return confirm('{Lang::T('Deactivate')}?')">{Lang::T('Deactivate')}</a>
                     </span>
-                {else}
-                    <span class="badge bg-primary-500 text-small text-white capitalize">
-                        <a class="flex-none" href="{$_url}order/package">{Lang::T('expired')}</a>
-                    </span>
-                {/if}<br>
+                    <br>
+                {/if}
             {/foreach}
         {else}
-            <span class="block text-sm">{$_L['Plan_Name']}</span><span class="block">{Lang::T('Buy Package')}</span> {/if}
+            <span class="block text-sm">{$_L['Plan_Name']}</span><span class="block">{Lang::T('Buy Package')}</span>
+        {/if}
     </span>
 </h4>
+
             </div>
           </div>
         </div>
