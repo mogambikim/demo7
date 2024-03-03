@@ -195,22 +195,22 @@ function MpesaPaybill_payment_notification()
             
         }
         
-          if($response_code=="0"){
-              
-              
-                     $now = date('Y-m-d H:i:s');
-               
-                  $date = date('Y-m-d');
-                  $time= date('H:i:s');
-
-
-
-
-
-
-   $check_mpesa = ORM::for_table('tbl_payment_gateway')
-        ->where('gateway_trx_id', $mpesa_code)
-        ->find_one();
+      if($response_code=="0"){
+            $existingTransaction = ORM::for_table('tbl_payment_gateway')
+                ->where('gateway_trx_id', $mpesa_code)
+                ->find_one();
+        
+            if ($existingTransaction) {
+                exit();
+            }
+        
+            $now = date('Y-m-d H:i:s');
+            $date = date('Y-m-d');
+            $time= date('H:i:s');
+        
+            $check_mpesa = ORM::for_table('tbl_payment_gateway')
+                ->where('gateway_trx_id', $mpesa_code)
+                ->find_one();
 
 
 // if($check_mpesa){
