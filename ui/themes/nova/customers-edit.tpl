@@ -82,10 +82,9 @@
 <div class="form-group">
     <label class="col-md-2 control-label">IP Address</label>
     <div class="col-md-6">
-        <input type="text" class="form-control" id="ip_address" name="ip_address" placeholder="Enter IP Address">
+        <input type="text" class="form-control" id="ip_address" name="ip_address" placeholder="Enter IP Address" value="{$d['ip_address']}">
     </div>
 </div>
-
 					<div class="form-group">
                         <label class="col-md-2 control-label">{Lang::T('Service Type')}</label>
                         <div class="col-md-6">
