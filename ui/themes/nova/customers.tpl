@@ -33,17 +33,19 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-condensed">
                         <thead>
-                            <tr>
-                                <th>{$_L['Username']}</th>
-                                <th>{$_L['Full_Name']}</th>
-                                <th>{Lang::T('Balance')}</th>
-                                <th>{$_L['Phone_Number']}</th>
-                                <th>{$_L['Email']}</th>
-                                <th>{$_L['Package']}</th>
-                                <th>{Lang::T('Service Type')}</th>
-                                <th>{$_L['Created_On']}</th>
-                                <th>{$_L['Manage']}</th>
-                            </tr>
+                                     <tr>
+                            <th>{$_L['Username']}</th>
+                            <th>{$_L['Full_Name']}</th>
+                            <th>{Lang::T('Balance')}</th>
+                            <th>{$_L['Phone_Number']}</th>
+                            <th>{$_L['Email']}</th>
+                            <th>{$_L['Package']}</th>
+                            <th>{Lang::T('Service Type')}</th>
+                            <th>{$_L['Created_On']}</th>
+                            <th>{$_L['IP_Address']}</th> <!-- New IP Address column -->
+                        <th>Router</th> <!-- New Router column -->
+                            <th>{$_L['Manage']}</th>
+                        </tr>
                         </thead>
                         <tbody>
                             {foreach $d as $ds}
@@ -59,13 +61,19 @@
                                         <span class="label label-default">&bull;</span>
                                     </td>
                                     <td>{$ds['service_type']}</td>
-                                    <td>{Lang::dateTimeFormat($ds['created_at'])}</td>
-                                    <td align="center">
-                                    <a href="{$_url}customers/view/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
-                                            class="btn btn-success btn-xs">&nbsp;&nbsp;{Lang::T('View')}&nbsp;&nbsp;</a>
-                                        <a href="{$_url}prepaid/recharge/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
-                                            class="btn btn-primary btn-xs">{$_L['Recharge']}</a>
-                                    </td>
+                                <td>{Lang::dateTimeFormat($ds['created_at'])}</td>
+                                <td>{$ds['ip_address']}</td> <!-- New IP Address column -->
+                                 <td>{$ds['router_name']}</td> <!-- New Router column -->
+                      <td align="center">
+    <a href="{$_url}customers/view/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
+            class="btn btn-success btn-xs">&nbsp;&nbsp;{Lang::T('View')}&nbsp;&nbsp;</a>
+    <a href="{$_url}prepaid/recharge/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
+            class="btn btn-primary btn-xs">{$_L['Recharge']}</a>
+    <a href="{$_url}customers/edit/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
+            class="btn btn-warning btn-xs">{$_L['Edit']}</a>
+    <a href="{$_url}customers/delete/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
+            class="btn btn-danger btn-xs" onclick="return confirm('{$_L['Delete']}?')">{$_L['Delete']}</a>
+</td>
                                 </tr>
                             {/foreach}
                         </tbody>
