@@ -29,6 +29,7 @@ switch ($action) {
                 'fullname' => '%' . $search . '%',
                 'phonenumber' => '%' . $search . '%',
                 'email' => '%' . $search . '%',
+                'ip_address' => '%' . $search . '%',
                 'service_type' => '%' . $search . '%'
             ], $search);
             $d = ORM::for_table('tbl_customers')
