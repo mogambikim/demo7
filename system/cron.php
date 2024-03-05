@@ -128,13 +128,19 @@ foreach ($d as $ds) {
                     print_r(Radius::disconnectCustomer($c['username']));
                 }
             } else {
-                $client = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
-                if (!empty($p['pool_expired'])) {
-                    Mikrotik::setHotspotUserPackage($client, $c['username'], 'EXPIRED FREEISPRADIUS ' . $p['pool_expired']);
-                } else {
-                    Mikrotik::removeHotspotUser($client, $c['username']);
+                try {
+                    $client = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
+                    if (!empty($p['pool_expired'])) {
+                        Mikrotik::setHotspotUserPackage($client, $c['username'], 'EXPIRED FREEISPRADIUS ' . $p['pool_expired']);
+                    } else {
+                        Mikrotik::removeHotspotUser($client, $c['username']);
+                    }
+                    Mikrotik::removeHotspotActiveUser($client, $c['username']);
+                } catch (Exception $e) {
+                    echo "Failed to connect to router: " . $m['ip_address'] . "\n";
+                    echo "Error: " . $e->getMessage() . "\n";
+                    continue; // Skip to the next router
                 }
-                Mikrotik::removeHotspotActiveUser($client, $c['username']);
             }
             echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $u['namebp'], $price, $textExpired, $config['user_notification_expired'])."\n";
             //update database user dengan status off
@@ -184,10 +190,16 @@ foreach ($d as $ds) {
                             print_r(Radius::disconnectCustomer($c['username']));
                         }
                     } else {
+                        try {
                         $client = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
                        
                             Mikrotik::removeStaticUser($client, $c['username']);
+                        } catch (Exception $e) {
+                            echo "Failed to connect to router: " . $m['ip_address'] . "\n";
+                            echo "Error: " . $e->getMessage() . "\n";
+                            continue; // Skip to the next router
                         }
+                    }
                 
                     
                     echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $u['namebp'], $price, $textExpired, $config['user_notification_expired'])."\n";
@@ -239,6 +251,7 @@ foreach ($d as $ds) {
                     print_r(Radius::disconnectCustomer($c['username']));
                 }
             } else {
+                try {
                 $client = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
                 if (!empty($p['pool_expired'])) {
                     Mikrotik::setPpoeUserPlan($client, $c['username'], 'EXPIRED FREEISPRADIUS ' . $p['pool_expired']);
@@ -246,7 +259,12 @@ foreach ($d as $ds) {
                     Mikrotik::removePpoeUser($client, $c['username']);
                 }
                 Mikrotik::removePpoeActive($client, $c['username']);
+            } catch (Exception $e) {
+                echo "Failed to connect to router: " . $m['ip_address'] . "\n";
+                echo "Error: " . $e->getMessage() . "\n";
+                continue; // Skip to the next router
             }
+        }
             echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $u['namebp'], $price, $textExpired, $config['user_notification_expired'])."\n";
 
             $u->status = 'off';
