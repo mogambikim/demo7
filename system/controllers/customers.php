@@ -33,7 +33,7 @@ switch ($action) {
                 'service_type' => '%' . $search . '%'
             ], $search);
             $d = ORM::for_table('tbl_customers')
-                ->where_raw("(`username` LIKE '%$search%' OR `fullname` LIKE '%$search%' OR `phonenumber` LIKE '%$search%' OR `email` LIKE '%$search%')")
+                ->where_raw("(`username` LIKE '%$search%' OR `fullname` LIKE '%$search%' OR `phonenumber` LIKE '%$search%' OR `email` LIKE '%$search%' OR `ip_address` LIKE '%$search%')") // Added 'ip_address' to the search conditions
                 ->offset($paginator['startpoint'])
                 ->limit($paginator['limit'])
                 ->order_by_asc('username')
