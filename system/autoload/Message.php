@@ -129,4 +129,22 @@ class Message
             Message::sendWhatsapp($cust['phonenumber'], $textInvoice);
         }
     }
+    public static function sendAccountCreateNotification($phone, $name, $username, $password, $message, $via)
+    {
+        $msg = str_replace('[[name]]', $name, $message);
+        $msg = str_replace('[[user_name]]', $username, $msg);
+        $msg = str_replace('[[user_password]]', $password, $msg);
+        if (
+            !empty($phone) && strlen($phone) > 5
+            && !empty($message) && in_array($via, ['sms', 'wa'])
+        ) {
+            if ($via == 'sms') {
+                Message::sendSMS($phone, $msg);
+            } else if ($via == 'wa') {
+                Message::sendWhatsapp($phone, $msg);
+            }
+        }
+        return "$via: $msg";
+    }
+
 }

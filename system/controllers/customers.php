@@ -315,8 +315,22 @@ switch ($action) {
             $d->service_type = $service_type;
             $d->ip_address = $ip_address;
             $d->router_id = $router_id;
-            
             $d->save();
+
+            // After saving the new customer
+            // Load the notifications.json file
+            $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+            
+            if (isset($notifications['account_created_sms'])) {
+                // Prepare the message text
+                $message = $notifications['account_created_sms'];
+                $message = str_replace('[[name]]', $d->fullname, $message);
+                $message = str_replace('[[user_name]]', $d->username, $message);
+                $message = str_replace('[[user_password]]', $d->password, $message);
+                // Send the SMS
+                Message::sendAccountCreateNotification($d->phonenumber, $d->fullname, $d->username, $d->password, $message, $config['user_notification_expired']);
+            }
+            
             r2(U . 'customers/list', 's', $_L['account_created_successfully']);
         } else {
             r2(U . 'customers/add', 'e', $msg);
