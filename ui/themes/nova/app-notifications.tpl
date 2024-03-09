@@ -145,7 +145,28 @@
                         </p>
                     </div>
                 </div>
+
+<div class="panel-body">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{Lang::T('Account Created SMS Template')}</label>
+        <div class="col-md-6">
+            <textarea class="form-control" id="account_created_sms" name="account_created_sms"
+                rows="3">{if $_json['account_created_sms']}{Lang::htmlspecialchars($_json['account_created_sms'])}{else}Hello [[name]], your account has been created.{/if}</textarea>
+        </div>
+        <p class="col-md-4 help-block">
+            <b>[[name]]</b> will be replaced with Customer Name.<br>
+            <b>[[user_password]]</b> will be replaced with user password to customer portal.<br>
+            <b>[[user_name]]</b> will be replaced with username to customer portal.
+        </p>
+    </div>
+</div>
+
+
             </div>
+
+
+
+
 
             <div class="panel-body">
                 <div class="form-group">
