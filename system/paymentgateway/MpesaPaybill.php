@@ -344,7 +344,36 @@ try {
         'type' => $plan_type
     ))->save();
 
-    echo "Recharge and transaction records saved successfully.";
+    // Fetch the customer details
+    $customer = ORM::for_table('tbl_customers')
+        ->where('username', $uname)
+        ->find_one();
+
+    if ($customer) {
+        // Prepare the customer and transaction data
+        $cust = array(
+            'phonenumber' => $customer->phonenumber,
+            'fullname' => $customer->fullname,
+            'password' => $customer->password
+        );
+        $trx = array(
+            'invoice' => $mpesa_code,
+            'recharged_on' => $recharged_on,
+            'recharged_time' => $recharged_time,
+            'method' => $PaymentGatewayRecord->gateway."-".$mpesa_code,
+            'type' => $plan_type,
+            'plan_name' => $plan_name,
+            'price' => $amount_paid, // Assuming you have this value available
+            'username' => $uname,
+            'expiration' => $expiry_date,
+            'time' => $expiry_time
+        );
+
+        // Send the invoice notification
+        Message::sendInvoice($cust, $trx);
+    } else {
+
+    }
 } catch (Exception $e) {
     echo "Error occurred: " . $e->getMessage();
 }
