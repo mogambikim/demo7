@@ -11,7 +11,14 @@ ORM::configure('return_result_sets', true);
 ORM::configure('logging', true);
 
 $filename = "webhook_log.txt";
-
+// Retrieve the SMS URL from the tbl_appconfig table
+$smsUrlConfig = ORM::for_table('tbl_appconfig')->where('setting', 'sms_url')->find_one();
+if ($smsUrlConfig) {
+    $config['sms_url'] = $smsUrlConfig->value;
+} else {
+    // Set a default SMS URL if not found in the database
+    $config['sms_url'] = 'https://example.com/sms/send?api=YOUR_API_KEY&SenderId=YOUR_SENDER_ID&msg=[text]&phone=[number]';
+}
 function decodePhoneNumber($hash) {
     $url = "https://api.hashback.co.ke/decode";
     $data = array(
@@ -112,36 +119,35 @@ if ($reference !== null && $amount !== null && $hashedSenderPhone !== null) {
         $paymentGatewayRecord->payment_channel = 'kopokopo';
         $paymentGatewayRecord->pg_request = '';
         $paymentGatewayRecord->pg_paid_response = '';
-        $paymentGatewayRecord->expired_date = date("Y-m-d H:i:s"); // Use current date-time
-        $paymentGatewayRecord->created_date = date("Y-m-d H:i:s"); // Use current date-time
-        $paymentGatewayRecord->paid_date = date("Y-m-d H:i:s"); // Use current date-time
+        $paymentGatewayRecord->expired_date = date("Y-m-d H:i:s"); 
+        $paymentGatewayRecord->created_date = date("Y-m-d H:i:s");
+        $paymentGatewayRecord->paid_date = date("Y-m-d H:i:s"); 
         $paymentGatewayRecord->status = '2';
     
         $paymentGatewayRecord->save();
 
-        // Save transaction data to tbl_transactions
+     
 $transaction = ORM::for_table('tbl_transactions')->create();
 $transaction->invoice = $reference;
 $transaction->username = $username;
 $transaction->plan_name = $planName;
 $transaction->price = $amount;
-$transaction->recharged_on = date("Y-m-d"); // Use current date
-$transaction->recharged_time = date("H:i:s"); // Use current time
-$transaction->expiration = date("Y-m-d H:i:s"); // Use current date-time
-$transaction->time = date("Y-m-d H:i:s"); // Use current date-time
+$transaction->recharged_on = date("Y-m-d"); 
+$transaction->recharged_time = date("H:i:s"); 
+$transaction->expiration = date("Y-m-d H:i:s"); 
+$transaction->time = date("Y-m-d H:i:s"); 
 $transaction->method = 'Kopokopo Manual';
 $transaction->routers = $routerName;
 $transaction->Type = 'Balance';
 $transaction->save();
-// ... rest of your code ...
 
-// Fetch the latest recharge record for the user
+
 $latestRecharge = ORM::for_table('tbl_user_recharges')
     ->where('customer_id', $userId)
     ->order_by_desc('id')
     ->find_one();
 
-// Fetch the plan price
+
 $planData = ORM::for_table('tbl_plans')
     ->where('id', $planId)
     ->find_one();
@@ -170,22 +176,35 @@ if ($userData->balance >= $planPrice && $latestRecharge && $latestRecharge->stat
     }
 }
 } else {
+    // Save transaction data to tbl_transactions
+    $transaction = ORM::for_table('tbl_transactions')->create();
+    $transaction->invoice = $reference;
+    $transaction->username = 'unknown ' . $decodedPhoneNumber;
+    $transaction->plan_name = 'unknown';
+    $transaction->price = $amount;
+    $transaction->recharged_on = date("Y-m-d"); // Use current date
+    $transaction->recharged_time = date("H:i:s"); // Use current time
+    $transaction->expiration = date("Y-m-d H:i:s"); // Use current date-time
+    $transaction->time = date("Y-m-d H:i:s"); // Use current date-time
+    $transaction->method = 'Kopokopo Manual';
+    $transaction->routers = 'uknown';
+    $transaction->Type = 'Balance';
+    $transaction->save();
 
-     // Save transaction data to tbl_transactions
-$transaction = ORM::for_table('tbl_transactions')->create();
-$transaction->invoice = $reference;
-$transaction->username = 'unknown ' . $decodedPhoneNumber;
-$transaction->plan_name = 'unknown';
-$transaction->price = $amount;
-$transaction->recharged_on = date("Y-m-d"); // Use current date
-$transaction->recharged_time = date("H:i:s"); // Use current time
-$transaction->expiration = date("Y-m-d H:i:s"); // Use current date-time
-$transaction->time = date("Y-m-d H:i:s"); // Use current date-time
-$transaction->method = 'Kopokopo Manual';
-$transaction->routers = 'uknown';
-$transaction->Type = 'Balance';
-$transaction->save();
-    // User not found, handle the error
-    file_put_contents($filename, date('Y-m-d H:i:s') . " - User with phone number $phoneNumberLast9Digits not found\n", FILE_APPEND);
+    try {
+        // Load the notifications from the JSON file
+        $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+
+        if (isset($notifications['custom_message'])) {
+            $customMessage = $notifications['custom_message'];
+        
+            $customMessage = str_replace('[[amount]]', $amount, $customMessage);
+            $customMessage = str_replace('[[phone]]', $decodedPhoneNumber, $customMessage);
+        
+            $result = Message::sendUnknownPayment($decodedPhoneNumber, $amount, $customMessage, 'sms');
+        } else {
+        }
+        } catch (Exception $e) {
+        }
 }
 }

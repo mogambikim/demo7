@@ -162,6 +162,22 @@
 </div>
 
 
+<div class="panel-body">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{Lang::T('Unknown Payments For Till Users')}</label>
+        <div class="col-md-6">
+            <textarea class="form-control" id="custom_message" name="custom_message"
+                rows="3">{if $_json['custom_message']}{Lang::htmlspecialchars($_json['custom_message'])}{else} Dear [[phone]], we couldn't link your payment of [[amount]] to any account as the number wasn't used during registration. Please contact our support center to activate your account{/if}</textarea>
+        </div>
+        <p class="col-md-4 help-block">
+            <b>[[amount]]</b> will be replaced with the payment amount.<br>
+            <b>[[phone]]</b> will be replaced with the decoded phone number.
+        </p>
+    </div>
+</div>
+
+
+
             </div>
 
 

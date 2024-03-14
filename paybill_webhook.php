@@ -14,6 +14,15 @@ ORM::configure('logging', true);
 $filename = "webhook_log.txt";
 file_put_contents($filename, date('Y-m-d H:i:s') . " - Script started\n", FILE_APPEND);
 
+// Retrieve the SMS URL from the tbl_appconfig table
+$smsUrlConfig = ORM::for_table('tbl_appconfig')->where('setting', 'sms_url')->find_one();
+if ($smsUrlConfig) {
+    $config['sms_url'] = $smsUrlConfig->value;
+} else {
+    // Set a default SMS URL if not found in the database
+    $config['sms_url'] = 'https://example.com/sms/send?api=YOUR_API_KEY&SenderId=YOUR_SENDER_ID&msg=[text]&phone=[number]';
+}
+
 // ... rest of your code ...
 
 $captureLogs = file_get_contents("php://input");
@@ -160,8 +169,7 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
    $transaction->routers = 'uknown';
    $transaction->Type = 'Balance';
    $transaction->save();
-       // User not found, handle the error
-       file_put_contents($filename, date('Y-m-d H:i:s') . " - User with phone number $billRefNumber not found\n", FILE_APPEND);
+
    }
    }
    

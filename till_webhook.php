@@ -12,6 +12,15 @@ ORM::configure('logging', true);
 
 $filename = "webhook_log.txt";
 
+// Retrieve the SMS URL from the tbl_appconfig table
+$smsUrlConfig = ORM::for_table('tbl_appconfig')->where('setting', 'sms_url')->find_one();
+if ($smsUrlConfig) {
+    $config['sms_url'] = $smsUrlConfig->value;
+} else {
+    // Set a default SMS URL if not found in the database
+    $config['sms_url'] = 'https://example.com/sms/send?api=YOUR_API_KEY&SenderId=YOUR_SENDER_ID&msg=[text]&phone=[number]';
+}
+
 $captureLogs = file_get_contents("php://input");
 $analizzare = json_decode($captureLogs);
 
@@ -155,8 +164,21 @@ $paymentGatewayRecord->save();
    $transaction->routers = 'uknown';
    $transaction->Type = 'Balance';
    $transaction->save();
-       // User not found, handle the error
-       file_put_contents($filename, date('Y-m-d H:i:s') . " - User with phone number $phoneNumberLast9Digits not found\n", FILE_APPEND);
+   try {
+    // Load the notifications from the JSON file
+    $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+
+    if (isset($notifications['custom_message'])) {
+        $customMessage = $notifications['custom_message'];
+    
+        $customMessage = str_replace('[[amount]]', $amount, $customMessage);
+        $customMessage = str_replace('[[phone]]', $decodedPhoneNumber, $customMessage);
+    
+        $result = Message::sendUnknownPayment($decodedPhoneNumber, $amount, $customMessage, 'sms');
+    } else {
+    }
+    } catch (Exception $e) {
+    }
    }
-   }
+}
    
