@@ -147,4 +147,31 @@ class Message
         return "$via: $msg";
     }
 
+    public static function sendUnknownPayment($phone, $amount, $message, $via)
+    {
+        if (!empty($message)) {
+            $msg = str_replace('[[amount]]', $amount, $message);
+            $msg = str_replace('[[phone]]', $phone, $msg);
+            if (!empty($phone) && strlen($phone) > 5) {
+                if ($via == 'sms') {
+                    Message::sendSMS($phone, $msg);
+                } else if ($via == 'wa') {
+                    Message::sendWhatsapp($phone, $msg);
+                }
+            }
+        }
+        return "$via: $msg";
+    }
+
+    public static function sendMassSMS($users, $message)
+{
+    foreach ($users as $user) {
+        $msg = str_replace('[[name]]', $user['name'], $message);
+        $msg = str_replace('[[user_name]]', $user['username'], $msg);
+        if (!empty($user['phone']) && strlen($user['phone']) > 5) {
+            Message::sendSMS($user['phone'], $msg);
+        }
+    }
+}
+
 }
