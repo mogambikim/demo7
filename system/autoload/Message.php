@@ -5,9 +5,9 @@
  *  by https://t.me/ibnux
  **/
 
-
 class Message
 {
+    private static $smsCache = [];
 
     public static function sendTelegram($txt)
     {
@@ -18,11 +18,16 @@ class Message
         }
     }
 
-
     public static function sendSMS($phone, $txt)
     {
         global $config;
         run_hook('send_sms'); #HOOK
+
+        // Check if SMS was sent to the same customer within the last 120 seconds
+        if (isset(self::$smsCache[$phone]) && (time() - self::$smsCache[$phone]) < 120) {
+            return; // Do not send SMS if sent within the last 120 seconds
+        }
+
         if (!empty($config['sms_url'])) {
             if (strlen($config['sms_url']) > 4 && substr($config['sms_url'], 0, 4) != "http") {
                 if (strlen($txt) > 160) {
@@ -52,6 +57,9 @@ class Message
                 $smsurl = str_replace('[text]', urlencode($txt), $smsurl);
                 return Http::getData($smsurl);
             }
+
+            // Update the SMS cache with the current timestamp
+            self::$smsCache[$phone] = time();
         }
     }
 
@@ -129,6 +137,7 @@ class Message
             Message::sendWhatsapp($cust['phonenumber'], $textInvoice);
         }
     }
+
     public static function sendAccountCreateNotification($phone, $name, $username, $password, $message, $via)
     {
         $msg = str_replace('[[name]]', $name, $message);
@@ -164,14 +173,13 @@ class Message
     }
 
     public static function sendMassSMS($users, $message)
-{
-    foreach ($users as $user) {
-        $msg = str_replace('[[name]]', $user['name'], $message);
-        $msg = str_replace('[[user_name]]', $user['username'], $msg);
-        if (!empty($user['phone']) && strlen($user['phone']) > 5) {
-            Message::sendSMS($user['phone'], $msg);
+    {
+        foreach ($users as $user) {
+            $msg = str_replace('[[name]]', $user['name'], $message);
+            $msg = str_replace('[[user_name]]', $user['username'], $msg);
+            if (!empty($user['phone']) && strlen($user['phone']) > 5) {
+                Message::sendSMS($user['phone'], $msg);
+            }
         }
     }
-}
-
 }
