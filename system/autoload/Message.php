@@ -49,6 +49,8 @@ class Message
     public static $invoiceCache = array();
     private static $mutex; // Mutex for thread-safe caching
     private static $cacheFile = '';
+    private static $maxCacheSize = 1000; // Maximum number of cached entries
+    private static $cacheClearTime = '00:00:00'; // Time to clear the cache (midnight)
 
     public static function sendTelegram($txt)
     {
@@ -75,14 +77,12 @@ class Message
         self::$cacheFile = sys_get_temp_dir() . '/sms_cache.json';
         if (file_exists(self::$cacheFile)) {
             self::$smsCache = json_decode(file_get_contents(self::$cacheFile), true);
-            error_log("[$processId:$threadId] SMS cache loaded from file: " . self::$cacheFile);
         }
 
         // Check if SMS was sent to the same customer within the last 120 seconds
         if (isset(self::$smsCache[$phone])) {
             $lastSentTime = self::$smsCache[$phone];
             if (time() - $lastSentTime < 120) {
-                error_log("[$processId:$threadId] SMS not sent to $phone within 120 seconds. Last sent at: " . date('Y-m-d H:i:s', $lastSentTime));
                 // Release the mutex
                 self::releaseMutex();
                 return; // Do not send SMS if sent within the last 120 seconds
@@ -98,38 +98,36 @@ class Message
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                         foreach ($txts as $txt) {
                             Mikrotik::sendSMS($client, $phone, $txt);
-                            error_log("[$processId:$threadId] SMS sent to $phone using Mikrotik.");
                         }
                     } catch (Exception $e) {
                         // ignore, add to logs
-                        error_log("[$processId:$threadId] Failed to send SMS using Mikrotik.\n" . $e->getMessage());
                     }
                 } else {
                     try {
                         $mikrotik = Mikrotik::info($config['sms_url']);
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                         Mikrotik::sendSMS($client, $phone, $txt);
-                        error_log("[$processId:$threadId] SMS sent to $phone using Mikrotik.");
                     } catch (Exception $e) {
                         // ignore, add to logs
-                        error_log("[$processId:$threadId] Failed to send SMS using Mikrotik.\n" . $e->getMessage());
                     }
                 }
             } else {
                 $smsurl = str_replace('[number]', urlencode($phone), $config['sms_url']);
                 $smsurl = str_replace('[text]', urlencode($txt), $smsurl);
-                $response = Http::getData($smsurl);
-                error_log("[$processId:$threadId] SMS sent to $phone using external URL. Response: $response");
+                Http::getData($smsurl);
             }
 
             // Update the SMS cache with the current timestamp
             self::$smsCache[$phone] = time();
-            error_log("[$processId:$threadId] SMS cache updated for $phone. Timestamp: " . date('Y-m-d H:i:s', self::$smsCache[$phone]));
+
+            // Limit the cache size
+            if (count(self::$smsCache) > self::$maxCacheSize) {
+                array_shift(self::$smsCache); // Remove the oldest entry
+            }
         }
 
         // Save the cache to a file
         file_put_contents(self::$cacheFile, json_encode(self::$smsCache));
-        error_log("[$processId:$threadId] SMS cache saved to file: " . self::$cacheFile);
 
         // Release the mutex
         self::releaseMutex();
@@ -147,8 +145,7 @@ class Message
         if (!empty($config['wa_url'])) {
             $waurl = str_replace('[number]', urlencode($phone), $config['wa_url']);
             $waurl = str_replace('[text]', urlencode($txt), $waurl);
-            $response = Http::getData($waurl);
-            error_log("[$processId:$threadId] WhatsApp message sent to $phone. Response: $response");
+            Http::getData($waurl);
         }
     }
 
@@ -170,7 +167,6 @@ class Message
                 Message::sendWhatsapp($phone, $msg);
             }
         }
-        error_log("[$processId:$threadId] Package notification sent via $via to $phone: $msg");
         return "$via: $msg";
     }
 
@@ -192,7 +188,6 @@ class Message
                 Message::sendWhatsapp($phone, $msg);
             }
         }
-        error_log("[$processId:$threadId] Balance notification sent via $via to $phone: $msg");
         return "$via: $msg";
     }
 
@@ -230,25 +225,12 @@ class Message
         self::$cacheFile = sys_get_temp_dir() . '/invoice_cache.json';
         if (file_exists(self::$cacheFile)) {
             self::$invoiceCache = json_decode(file_get_contents(self::$cacheFile), true);
-            error_log("[$processId:$threadId] Invoice cache loaded from file: " . self::$cacheFile);
-        }
-
-        // Check if SMS was sent to the same customer within the last 120 seconds
-        if (isset(self::$smsCache[$phoneNumber])) {
-            $lastSentTime = self::$smsCache[$phoneNumber];
-            if (time() - $lastSentTime < 120) {
-                error_log("[$processId:$threadId] Invoice SMS not sent to $phoneNumber within 120 seconds. Last SMS sent at: " . date('Y-m-d H:i:s', $lastSentTime));
-                // Release the mutex
-                self::releaseMutex();
-                return; // Do not send SMS if sent within the last 120 seconds
-            }
         }
 
         // Check if an invoice was sent to the same customer within the last 120 seconds
         if (isset(self::$invoiceCache[$phoneNumber])) {
             $lastSentTime = self::$invoiceCache[$phoneNumber];
             if (time() - $lastSentTime < 120) {
-                error_log("[$processId:$threadId] Invoice SMS not sent to $phoneNumber within 120 seconds. Last invoice sent at: " . date('Y-m-d H:i:s', $lastSentTime));
                 // Release the mutex
                 self::releaseMutex();
                 return; // Do not send invoice if sent within the last 120 seconds
@@ -257,25 +239,20 @@ class Message
 
         if ($config['user_notification_payment'] == 'sms') {
             Message::sendSMS($phoneNumber, $textInvoice);
-            error_log("[$processId:$threadId] Invoice SMS sent to $phoneNumber.");
         } else if ($config['user_notification_payment'] == 'wa') {
             Message::sendWhatsapp($phoneNumber, $textInvoice);
-            error_log("[$processId:$threadId] Invoice WhatsApp message sent to $phoneNumber.");
         }
 
         // Update the invoice cache with the current timestamp
         self::$invoiceCache[$phoneNumber] = time();
-        error_log("[$processId:$threadId] Invoice cache updated for $phoneNumber. Timestamp: " . date('Y-m-d H:i:s', self::$invoiceCache[$phoneNumber]));
 
-        // Update the SMS cache with the current timestamp
-        self::$smsCache[$phoneNumber] = time();
-        error_log("[$processId:$threadId] SMS cache updated for $phoneNumber. Timestamp: " . date('Y-m-d H:i:s', self::$smsCache[$phoneNumber]));
+        // Limit the cache size
+        if (count(self::$invoiceCache) > self::$maxCacheSize) {
+            array_shift(self::$invoiceCache); // Remove the oldest entry
+        }
 
         // Save the caches to files
         file_put_contents(self::$cacheFile, json_encode(self::$invoiceCache));
-        error_log("[$processId:$threadId] Invoice cache saved to file: " . self::$cacheFile);
-        file_put_contents(sys_get_temp_dir() . '/sms_cache.json', json_encode(self::$smsCache));
-        error_log("[$processId:$threadId] SMS cache saved to file: " . sys_get_temp_dir() . '/sms_cache.json');
 
         // Release the mutex
         self::releaseMutex();
@@ -299,7 +276,6 @@ class Message
                 Message::sendWhatsapp($phone, $msg);
             }
         }
-        error_log("[$processId:$threadId] Account creation notification sent via $via to $phone: $msg");
         return "$via: $msg";
     }
 
@@ -319,7 +295,6 @@ class Message
                 }
             }
         }
-        error_log("[$processId:$threadId] Unknown payment notification sent via $via to $phone: $msg");
         return "$via: $msg";
     }
 
@@ -335,6 +310,22 @@ class Message
     {
         if (self::$mutex) {
             self::$mutex->release();
+        }
+    }
+
+    public static function clearCache()
+    {
+        self::$smsCache = [];
+        self::$invoiceCache = [];
+        file_put_contents(sys_get_temp_dir() . '/sms_cache.json', json_encode(self::$smsCache));
+        file_put_contents(sys_get_temp_dir() . '/invoice_cache.json', json_encode(self::$invoiceCache));
+    }
+
+    public static function checkCacheClearTime()
+    {
+        $currentTime = date('H:i:s');
+        if ($currentTime === self::$cacheClearTime) {
+            self::clearCache();
         }
     }
 }

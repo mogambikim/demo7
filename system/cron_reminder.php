@@ -82,12 +82,9 @@ foreach ($result as $value) {
 }
 date_default_timezone_set($config['timezone']);
 
-
-
 $d = ORM::for_table('tbl_user_recharges')->where('status', 'on')->find_many();
 
 run_hook('cronjob_reminder'); #HOOK
-
 
 echo "PHP Time\t" . date('Y-m-d H:i:s') . "\n";
 $res = ORM::raw_execute('SELECT NOW() AS WAKTU;');
@@ -96,24 +93,28 @@ $rows = array();
 while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
     echo "MYSQL Time\t" . $row['WAKTU'] . "\n";
 }
+$currentDate = date('Y-m-d');
 
-
-$day7 = date('Y-m-d', strtotime("+7 day"));
-$day3 = date('Y-m-d', strtotime("+3 day"));
-$day1 = date('Y-m-d', strtotime("+1 day"));
-print_r([$day1, $day3, $day7]);
 foreach ($d as $ds) {
-    if (in_array($ds['expiration'], [$day1, $day3, $day7])) {
+    $daysRemaining = (strtotime($ds['expiration']) - strtotime($currentDate)) / (60 * 60 * 24);
+
+    if ($daysRemaining >= 7 && $daysRemaining < 8) {
         $u = ORM::for_table('tbl_user_recharges')->where('id', $ds['id'])->find_one();
         $p = ORM::for_table('tbl_plans')->where('id', $u['plan_id'])->find_one();
         $c = ORM::for_table('tbl_customers')->where('id', $ds['customer_id'])->find_one();
         $price = Lang::moneyFormat($p['price']);
-        if ($ds['expiration'] == $day7) {
-               echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_7_day'), $config['user_notification_reminder']) . "\n";
-        } else if ($ds['expiration'] == $day3) {
-             echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_3_day'), $config['user_notification_reminder']) . "\n";
-        } else if ($ds['expiration'] == $day1) {
-              echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_1_day'), $config['user_notification_reminder']) . "\n";
-        }
+        echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_7_day'), $config['user_notification_reminder']) . "\n";
+    } else if ($daysRemaining >= 3 && $daysRemaining < 4) {
+        $u = ORM::for_table('tbl_user_recharges')->where('id', $ds['id'])->find_one();
+        $p = ORM::for_table('tbl_plans')->where('id', $u['plan_id'])->find_one();
+        $c = ORM::for_table('tbl_customers')->where('id', $ds['customer_id'])->find_one();
+        $price = Lang::moneyFormat($p['price']);
+        echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_3_day'), $config['user_notification_reminder']) . "\n";
+    } else if ($daysRemaining >= 1 && $daysRemaining < 2) {
+        $u = ORM::for_table('tbl_user_recharges')->where('id', $ds['id'])->find_one();
+        $p = ORM::for_table('tbl_plans')->where('id', $u['plan_id'])->find_one();
+        $c = ORM::for_table('tbl_customers')->where('id', $ds['customer_id'])->find_one();
+        $price = Lang::moneyFormat($p['price']);
+        echo Message::sendPackageNotification($c['phonenumber'], $c['fullname'], $p['name_plan'], $price, Lang::getNotifText('reminder_1_day'), $config['user_notification_reminder']) . "\n";
     }
 }
