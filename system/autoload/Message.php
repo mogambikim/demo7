@@ -65,30 +65,32 @@ class Message
     {
         global $config;
         run_hook('send_sms'); #HOOK
-
+    
         // Get the current process ID and thread ID
         $processId = getmypid();
         $threadId = getRealThreadID();
-
+    
         // Acquire the mutex
         self::acquireMutex();
-
+    
         // Load the cache from a file
         self::$cacheFile = sys_get_temp_dir() . '/sms_cache.json';
         if (file_exists(self::$cacheFile)) {
             self::$smsCache = json_decode(file_get_contents(self::$cacheFile), true);
         }
-
+    
         // Check if SMS was sent to the same customer within the last 120 seconds
         if (isset(self::$smsCache[$phone])) {
             $lastSentTime = self::$smsCache[$phone];
             if (time() - $lastSentTime < 120) {
                 // Release the mutex
                 self::releaseMutex();
-                return; // Do not send SMS if sent within the last 120 seconds
+                return "SMS not sent. Sent within the last 120 seconds."; // Do not send SMS if sent within the last 120 seconds
             }
         }
-
+    
+        $response = '';
+    
         if (!empty($config['sms_url'])) {
             if (strlen($config['sms_url']) > 4 && substr($config['sms_url'], 0, 4) != "http") {
                 if (strlen($txt) > 160) {
@@ -97,40 +99,42 @@ class Message
                         $mikrotik = Mikrotik::info($config['sms_url']);
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                         foreach ($txts as $txt) {
-                            Mikrotik::sendSMS($client, $phone, $txt);
+                            $response = Mikrotik::sendSMS($client, $phone, $txt);
                         }
                     } catch (Exception $e) {
-                        // ignore, add to logs
+                        $response = "Error: " . $e->getMessage();
                     }
                 } else {
                     try {
                         $mikrotik = Mikrotik::info($config['sms_url']);
                         $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                        Mikrotik::sendSMS($client, $phone, $txt);
+                        $response = Mikrotik::sendSMS($client, $phone, $txt);
                     } catch (Exception $e) {
-                        // ignore, add to logs
+                        $response = "Error: " . $e->getMessage();
                     }
                 }
             } else {
                 $smsurl = str_replace('[number]', urlencode($phone), $config['sms_url']);
                 $smsurl = str_replace('[text]', urlencode($txt), $smsurl);
-                Http::getData($smsurl);
+                $response = Http::getData($smsurl);
             }
-
+    
             // Update the SMS cache with the current timestamp
             self::$smsCache[$phone] = time();
-
+    
             // Limit the cache size
             if (count(self::$smsCache) > self::$maxCacheSize) {
                 array_shift(self::$smsCache); // Remove the oldest entry
             }
         }
-
+    
         // Save the cache to a file
         file_put_contents(self::$cacheFile, json_encode(self::$smsCache));
-
+    
         // Release the mutex
         self::releaseMutex();
+    
+        return $response;
     }
 
     public static function sendWhatsapp($phone, $txt)
