@@ -515,6 +515,11 @@
                                         href="{$_url}settings/localisation">{$_L['Localisation']}</a></li>
                                 <li {if $_routes[1] eq 'notifications'}class="active" {/if}><a
                                         href="{$_url}settings/notifications">{Lang::T('User Notification')}</a></li>
+                                         <li {if $_routes[1] eq 'bulk'}class="active" {/if}><a
+                                        href="{$_url}settings/bulk">{Lang::T('Send Bulk Sms')}</a></li>
+
+                                         <li {if $_routes[1] eq 'specific'}class="active" {/if}><a
+                                        href="{$_url}settings/specific">{Lang::T('SMS')}</a></li>   
                                 <li {if $_routes[1] eq 'users'}class="active" {/if}><a
                                         href="{$_url}settings/users">{$_L['Administrator_Users']}</a></li>
                                 <li {if $_routes[1] eq 'dbstatus'}class="active" {/if}><a

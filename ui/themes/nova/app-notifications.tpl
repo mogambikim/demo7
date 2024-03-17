@@ -177,6 +177,41 @@
 </div>
 
 
+                
+                 <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">{Lang::T('Downtime alert')}</label>
+                        <div class="col-md-6">
+                            <textarea class="form-control" id="downtime_alert" name="downtime_alert"
+                                rows="3">{if $_json['downtime_alert']}{Lang::htmlspecialchars($_json['downtime_alert'])}{else}{Lang::htmlspecialchars($_default['downtime_alert'])}{/if}</textarea>
+                        </div>
+                       
+                    </div>
+                </div>
+                
+                
+                
+                  <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">{Lang::T('New offer/discount')}</label>
+                        <div class="col-md-6">
+                            <textarea class="form-control" id="discount_alert" name="discount_alert"
+                                rows="3">{if $_json['discount_alert']}{Lang::htmlspecialchars($_json['discount_alert'])}{else}{Lang::htmlspecialchars($_default['discount_alert'])}{/if}</textarea>
+                        </div>
+                       
+                    </div>
+                </div>
+                 <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">{Lang::T('Custom message')}</label>
+                        <div class="col-md-6">
+                            <textarea class="form-control" id="custom_message" name="custom_message"
+                                rows="3">{if $_json['custom_message']}{Lang::htmlspecialchars($_json['custom_message'])}{else}{Lang::htmlspecialchars($_default['custom_message'])}{/if}</textarea>
+                        </div>
+                       
+                    </div>
+                </div>
+
 
             </div>
 

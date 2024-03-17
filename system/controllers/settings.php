@@ -469,6 +469,196 @@ switch ($action) {
         $ui->assign('_default', json_decode(file_get_contents('system/uploads/notifications.default.json'), true));
         $ui->display('app-notifications.tpl');
         break;
+
+
+        
+        
+        case 'bulk':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
+            }
+            run_hook('view_notifications'); #HOOK
+            if (file_exists("system/uploads/notifications.json")) {
+                $ui->assign('_json', json_decode(file_get_contents('system/uploads/notifications.json'), true));
+            } else {
+                $ui->assign('_json', json_decode(file_get_contents('system/uploads/notifications.default.json'), true));
+            }
+            $ui->assign('_default', json_decode(file_get_contents('system/uploads/notifications.default.json'), true));
+            $ui->display('bulk.tpl');
+            break;
+            
+              case 'specific':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
+            }
+            run_hook('view_notifications'); #HOOK
+            if (file_exists("system/uploads/notifications.json")) {
+                $ui->assign('_json', json_decode(file_get_contents('system/uploads/notifications.json'), true));
+            } else {
+                $ui->assign('_json', json_decode(file_get_contents('system/uploads/notifications.default.json'), true));
+            }
+            $ui->assign('_default', json_decode(file_get_contents('system/uploads/notifications.default.json'), true));
+             $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
+            $ui->assign('r', $r);
+            
+            
+              $u = ORM::for_table('tbl_customers')->find_many();
+             $ui->assign('u', $u);
+                    
+            $ui->display('specific.tpl');
+            break;
+            
+            
+            case 'specific-post':
+              $msg_type=$_POST['msgtype'];
+              $type=$_POST['type'];
+                 $router=$_POST['server'];              
+                  $customers=$_POST['id_customer'];
+                  
+                  
+                 
+                  if($type=='All'){
+                      
+                    //   echo $router;
+                    //   die;
+                      
+                      $users = ORM::for_table('tbl_customers')->where('router_id', $router)->find_many();
+                      
+                      
+                      foreach ($users as $user){
+                          
+                          
+                          
+                            $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+               
+               
+    
+                    $mess= $notifications[$msg_type];
+                    
+                    
+                       $result = Message::sendSMS($user->phonenumber, $mess);
+                      r2(U . 'settings/specific', 's', 'Message sent all users for the selected router ');
+                          
+                          
+                      }
+                      
+                      
+                      break;
+                  }
+       
+                  
+                  foreach($customers as $customer){
+                      
+                      
+                      
+                      $user = ORM::for_table('tbl_customers')->where('id', $customer)->find_one();
+                      
+                      
+                    //   echo $user->phonenumber;
+                    
+                    
+                    
+                   $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+               
+               
+    
+                    $mess= $notifications[$msg_type];
+                    
+                    
+                       $result = Message::sendSMS($user->phonenumber, $mess);
+                      r2(U . 'settings/specific', 's', 'Message sent users selected');
+           
+            // r2(U . 'settings/specific', 's', $_L['Message sent to all users']);
+                  }
+                  
+                  //tofauti ni?????????????????????????????????????????????????????????????????????????
+                  
+                
+            break;
+            
+
+            
+               case 'send-bulk':
+                   
+                   
+                   
+                   
+                //   print_r ($_POST);
+                   
+                   $user_type=$_POST['type'];
+                  $message_type=$_POST['message'];
+   
+            if ($user_type == '' or $message_type == ''  ) {
+                $msg .= 'All field is required' . '<br>';
+                 r2(U . 'settings/bulk', 'e', $msg);
+                
+                die;
+            }
+                  
+     
+                  if($user_type=="all"){
+                      
+                       $customers = ORM::for_table('tbl_customers')->find_many();
+    
+                    //  print_r($customers);
+                      
+                      
+                      foreach ($customers as $customer) {
+            $phoneNumber = $customer->phonenumber;
+            // Do something with the phone number, for example, print it
+               $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+               
+               
+    
+                 $mess= $notifications[$message_type];
+                 
+                 $result = Message::sendSMS($phoneNumber, $mess);
+           
+            r2(U . 'settings/bulk', 's', $_L['Message sent to all users']);
+           
+           }  }else{
+               
+                $recharges = ORM::for_table('tbl_user_recharges')->where('status','on')->find_many();
+               
+                foreach ($recharges as $recharge) {
+                    
+                   $c_id= $recharge->customer_id;
+                    
+                     $customers = ORM::for_table('tbl_customers')->where('id',$c_id)->find_one();
+                    
+                    
+                       $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+               
+               
+    
+                    $mess= $notifications[$message_type];
+                    
+                    
+                   $phoneNumber= $customers->phonenumber;
+                   
+                     $result = Message::sendSMS($phoneNumber, $mess);
+           
+                    $result1 = Message::sendWhatsapp($phoneNumber, $mess);
+                    
+                }
+               
+               r2(U . 'settings/bulk', 's', $_L['Message sent to active users']);
+               
+           }
+                  
+     
+                   $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+    
+                  $mess= $notifications[$message_type];
+                 
+                 
+               //  $result = Message::sendSMS('254757636723', $mess);
+     
+    
+            // r2(U . 'settings/notifications', 's', $_L['Settings_Saved_Successfully']);
+            break;
+
+
     case 'notifications-post':
         file_put_contents("system/uploads/notifications.json", json_encode($_POST));
         r2(U . 'settings/notifications', 's', $_L['Settings_Saved_Successfully']);
