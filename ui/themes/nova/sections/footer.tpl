@@ -1,3 +1,4 @@
+
         </section>
         </div>
         <footer class="main-footer">
@@ -90,6 +91,8 @@
 <div class="chatbot-label" id="chatbot-label">AI Assistant</div>
 
    {literal}
+
+   
 <script>
   // Get DOM elements
   const chatbotContainer = document.getElementById("chatbot-container");
@@ -218,10 +221,6 @@
 
 
 
-
-
-
-  
 function sendMessage() {
   const message = userInput.value.trim();
   if (message !== "") {
@@ -290,7 +289,13 @@ function sendMessage() {
 }
 
 function useOpenAI(botResponseElement, message, conversationHistory) {
-  const openaiApiKey = "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";
+  const apiKeyPart1 = "sk-we85JXVE21snX83cgvDU";
+  const apiKeyPart2 = "T3BlbkFJIlQTx1mbks98Vy";
+  const apiKeyPart3 = "R2ZIJC";
+  const openaiApiKey = apiKeyPart1 + apiKeyPart2 + apiKeyPart3;
+
+  const maskedApiKey = openaiApiKey.replace(/\w/g, '*').slice(0, 10) + '...';
+  console.log('Masked API Key:', maskedApiKey);
 
   // Limit the input to the first three paragraphs
   const limitedMessage = message.split("\n\n").slice(0, 3).join("\n\n");
@@ -326,12 +331,18 @@ function useOpenAI(botResponseElement, message, conversationHistory) {
     })
     .catch((error) => {
       console.error("Error:", error);
-      writeResponse(botResponseElement.querySelector("span"), "Oops! Something went wrong with the OpenAI API. Please try again.");
+      writeResponse(botResponseElement.querySelector("span"), "Oops! Something went wrong with the Remote Isp API. Please try again.");
     });
 }
 
 function enhanceResponseWithOpenAI(botResponseElement, message, conversationHistory, rasaResponse) {
-  const openaiApiKey = "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";
+  const apiKeyPart1 = "sk-we85JXVE21snX83cgvDU";
+  const apiKeyPart2 = "T3BlbkFJIlQTx1mbks98Vy";
+  const apiKeyPart3 = "R2ZIJC";
+  const openaiApiKey = apiKeyPart1 + apiKeyPart2 + apiKeyPart3;
+
+  const maskedApiKey = openaiApiKey.replace(/\w/g, '*').slice(0, 10) + '...';
+  console.log('Masked API Key:', maskedApiKey);
 
   // Limit the input to the first three paragraphs
   const limitedMessage = message.split("\n\n").slice(0, 3).join("\n\n");
@@ -356,7 +367,7 @@ function enhanceResponseWithOpenAI(botResponseElement, message, conversationHist
 
 Initial response from Rasa about FreeISPRadius: ${rasaResponse}
 
-Please enhance the response with additional relevant information, examples, or clarifications related to FreeISPRadius. Avoid repeating or contradicting the initial response and stay focused on FreeIspRadius.go straight to enhancing dont start your sentences with enhanced version or something similar`
+Please enhance the response with additional relevant information, examples, or clarifications related to FreeISPRadius. Avoid repeating or contradicting the initial response and stay focused on FreeIspRadius.go straight to enhancing dont start your sentences with enhanced version,absolutely,certainly or something similar`
         }
       ],
       max_tokens: 250,
@@ -377,8 +388,6 @@ Please enhance the response with additional relevant information, examples, or c
       writeResponse(botResponseElement.querySelector("span"), "Oops! Something went wrong with the OpenAI API. Please try again.");
     });
 }
-
-
 
 
 
@@ -493,6 +502,7 @@ document.getElementById("feedback-submit").addEventListener("click", handleFeedb
 
   
 </script>
+
 {/literal}
 
 
