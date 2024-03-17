@@ -391,9 +391,7 @@ VALUES
 (41, 'minimum_transfer', '10'),
 (42, 'allow_balance_transfer', 'yes'),
 (43, 'enable_balance', 'yes'),
-(44, 'api_key_part1', 'sk-we85JXVE21snX83cgvDUT3'),
-(45, 'api_key_part2', 'BlbkFJIlQTx1mbks98VyR2ZIJC'),
-(46, 'theme', 'nova');
+(44, 'theme', 'nova');
 --
 
 -- Dumping data untuk tabel `tbl_users`

@@ -307,7 +307,7 @@ function useOpenAI(botResponseElement, message, conversationHistory) {
       "Authorization": `Bearer ${openaiApiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo-instruct",
       messages: [
         {
           role: "system",
@@ -354,7 +354,7 @@ function enhanceResponseWithOpenAI(botResponseElement, message, conversationHist
       "Authorization": `Bearer ${openaiApiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo-instruct",
       messages: [
         {
           role: "system",
