@@ -6,69 +6,96 @@
             <div class="box-body box-profile">
                 <img class="profile-user-img img-responsive img-circle"
                     src="https://robohash.org/{$d['id']}?set=set3&size=100x100&bgset=bg1"
-                    onerror="this.src='system/uploads/user.default.jpg'" alt="avatar">
+                    onerror="this.src='{$UPLOAD_PATH}/user.default.jpg'" alt="avatar">
 
                 <h3 class="profile-username text-center">{$d['fullname']}</h3>
 
                 <ul class="list-group list-group-unbordered">
                     <li class="list-group-item">
-                        <b>{$_L['Username']}</b> <span class="pull-right">{$d['username']}</span>
+                        <b>{Lang::T('Username')}</b> <span class="pull-right">{$d['username']}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>{$_L['Phone_Number']}</b> <span class="pull-right">{$d['phonenumber']}</span>
+                        <b>{Lang::T('Phone Number')}</b> <span class="pull-right">{$d['phonenumber']}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>{$_L['Email']}</b> <span class="pull-right">{$d['email']}</span>
+                        <b>{Lang::T('Email')}</b> <span class="pull-right">{$d['email']}</span>
                     </li>
                      <!-- Add the IP Address display here -->
-    <li class="list-group-item">
-        <b>IP Address</b> <span class="pull-right">{$d['ip_address']}</span>
-    </li>
+                    <li class="list-group-item">
+                        <b>IP Address</b> <span class="pull-right">{$d['ip_address']}</span>
+                    </li>
                 </ul>
                 <p class="text-muted">{Lang::nl2br($d['address'])}</p>
                 <ul class="list-group list-group-unbordered">
                     <li class="list-group-item">
-                        <b>{$_L['Password']}</b> <input type="password" value="{$d['password']}"
+                        <b>{Lang::T('Password')}</b> <input type="password" value="{$d['password']}"
                             style=" border: 0px; text-align: right;" class="pull-right"
                             onmouseleave="this.type = 'password'" onmouseenter="this.type = 'text'"
                             onclick="this.select()">
                     </li>
                     {if $d['pppoe_password'] != ''}
                         <li class="list-group-item">
-                            <b>PPPOE {$_L['Password']}</b> <input type="password" value="{$d['pppoe_password']}"
-                            style=" border: 0px; text-align: right;" class="pull-right"
-                            onmouseleave="this.type = 'password'" onmouseenter="this.type = 'text'"
-                            onclick="this.select()">
+                            <b>PPPOE {Lang::T('Password')}</b> <input type="password" value="{$d['pppoe_password']}"
+                                style=" border: 0px; text-align: right;" class="pull-right"
+                                onmouseleave="this.type = 'password'" onmouseenter="this.type = 'text'"
+                                onclick="this.select()">
                         </li>
                     {/if}
-					<li class="list-group-item">
+                    <!--Customers Attributes view start -->
+                    {if $customFields}
+                        {foreach $customFields as $customField}
+                            <li class="list-group-item">
+                                <b>{$customField.field_name}</b> <span class="pull-right">
+                                    {if strpos($customField.field_value, ':0') === false}
+                                        {$customField.field_value}
+                                    {else}
+                                        <b>{Lang::T('Paid')}</b>
+                                    {/if}
+                                </span>
+
+                            </li>
+                        {/foreach}
+                    {/if}
+                    <!--Customers Attributes view end -->
+                    <li class="list-group-item">
                         <b>{Lang::T('Service Type')}</b> <span class="pull-right">{Lang::T($d['service_type'])}</span>
                     </li>
                     <li class="list-group-item">
                         <b>{Lang::T('Balance')}</b> <span class="pull-right">{Lang::moneyFormat($d['balance'])}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>{Lang::T('Auto Renewal')}</b> <span
-                            class="pull-right">{if $d['auto_renewal']}yes{else}no{/if}</span>
+                        <b>{Lang::T('Auto Renewal')}</b> <span class="pull-right">
+                            {if $d['auto_renewal']}yes{else}no{/if}
+                        </span>
                     </li>
                     <li class="list-group-item">
-                        <b>{$_L['Created_On']}</b> <span
-                            class="pull-right">{Lang::dateTimeFormat($d['created_at'])}</span>
+                        <b>{Lang::T('Created On')}</b> <span class="pull-right">{Lang::dateTimeFormat($d['created_at'])}</span>
                     </li>
                     <li class="list-group-item">
-                        <b>{Lang::T('Last Login')}</b> <span
-                            class="pull-right">{Lang::dateTimeFormat($d['last_login'])}</span>
+                        <b>{Lang::T('Last Login')}</b> <span class="pull-right">{Lang::dateTimeFormat($d['last_login'])}</span>
                     </li>
-                </ul>
+{if $d['coordinates']}
+<li class="list-group-item">
+    <b>{Lang::T('Coordinates')}</b>
+    <span class="pull-right">
+        <i class="glyphicon glyphicon-road"></i>
+        <a style="color: black;" href="https://www.google.com/maps/dir//{$d['coordinates']}/" target="_blank">Get Directions</a>
+    </span>
+    <div style="height: 100px; overflow: hidden;">
+        <div id="map" style="width: 100%; height: 100%;"></div>
+    </div>
+</li>
+{/if}
                 <div class="row">
                     <div class="col-xs-4">
                         <a href="{$_url}customers/delete/{$d['id']}" id="{$d['id']}"
-                            class="btn btn-danger btn-block btn-sm" onclick="return confirm('{$_L['Delete']}?')"><span
-                                class="fa fa-trash"></span></a>
+                           class="btn btn-danger btn-block btn-sm" onclick="return confirm('{Lang::T('Delete')}?')">
+                           <span class="fa fa-trash"></span>
+                        </a>
                     </div>
                     <div class="col-xs-8">
                         <a href="{$_url}customers/edit/{$d['id']}"
-                            class="btn btn-warning btn-sm btn-block">{$_L['Edit']}</a>
+                           class="btn btn-warning btn-sm btn-block">{Lang::T('Edit')}</a>
                     </div>
                 </div>
             </div>
@@ -79,16 +106,13 @@
                     <h4 class="text-center">{$package['type']} - {$package['namebp']}</h4>
                     <ul class="list-group list-group-unbordered">
                         <li class="list-group-item">
-                            {Lang::T('Active')} <span
-                                class="pull-right">{if $package['status']=='on'}yes{else}no{/if}</span>
+                            {Lang::T('Active')} <span class="pull-right">{if $package['status']=='on'}yes{else}no{/if}</span>
                         </li>
                         <li class="list-group-item">
-                            {$_L['Created_On']} <span
-                                class="pull-right">{Lang::dateAndTimeFormat($package['recharged_on'],$package['recharged_time'])}</span>
+                            {Lang::T('Created On')} <span class="pull-right">{Lang::dateAndTimeFormat($package['recharged_on'],$package['recharged_time'])}</span>
                         </li>
                         <li class="list-group-item">
-                            {$_L['Expires_On']} <span
-                                class="pull-right">{Lang::dateAndTimeFormat($package['expiration'], $package['time'])}</span>
+                            {Lang::T('Expires On')} <span class="pull-right">{Lang::dateAndTimeFormat($package['expiration'], $package['time'])}</span>
                         </li>
                         <li class="list-group-item">
                             {$package['routers']} <span class="pull-right">{$package['method']}</span>
@@ -114,31 +138,71 @@
                 </div>
             </div>
         {else}
-            <a href="{$_url}prepaid/recharge/{$d['id']}"
-                class="btn btn-success btn-sm btn-block mt-1">{Lang::T('Recharge')}</a><br>
+            <a href="{$_url}prepaid/recharge/{$d['id']}" class="btn btn-success btn-sm btn-block mt-1">{Lang::T('Recharge')}</a><br>
         {/if}
-        <a href="{$_url}customers/list" class="btn btn-primary btn-sm btn-block mt-1">{Lang::T('Back')}</a><br>
+        <div class="row">
+            <div class="col-xs-4">
+                <a href="{$_url}customers/list" class="btn btn-primary btn-sm btn-block">{Lang::T('Back')}</a>
+            </div>
+            <div class="col-xs-4">
+                <a href="{$_url}customers/sync/{$d['id']}"
+                    onclick="return confirm('This will sync Customer to Mikrotik?')"
+                    class="btn btn-info btn-sm btn-block">{Lang::T('Sync')}</a>
+            </div>
+            <div class="col-xs-4">
+                <a href="{$_url}message/send/{$d['id']}" class="btn btn-success btn-sm btn-block">{Lang::T('Send Message')}</a>
+            </div>
+        </div>
     </div>
+    
     <div class="col-sm-8 col-md-8">
-        <ul class="nav nav-tabs">
-            <li role="presentation" {if $v=='order'}class="active" {/if}><a
-                    href="{$_url}customers/view/{$d['id']}/order">30 {Lang::T('Order History')}</a></li>
-            <li role="presentation" {if $v=='activation'}class="active" {/if}><a
-                    href="{$_url}customers/view/{$d['id']}/activation">30 {Lang::T('Activation History')}</a></li>
+<ul class="nav nav-tabs">
+    <li role="presentation" {if $v=='order' }class="active" {/if}><a href="{$_url}customers/view/{$d['id']}/order">30 {Lang::T('Order History')}</a></li>
+    <li role="presentation" {if $v=='activation' }class="active" {/if}><a href="{$_url}customers/view/{$d['id']}/activation">30 {Lang::T('Activation History')}</a></li>
+    <li role="presentation" {if $v=='traffic' }class="active" {/if}><a href="{$_url}customers/view/{$d['id']}/traffic">{Lang::T('Traffic Monitor')}</a></li>
+</ul>
         </ul>
         <div class="table-responsive" style="background-color: white;">
             <table id="datatable" class="table table-bordered table-striped">
+{if $v == 'traffic'}
+<div class="box box-solid">
+    <div class="box-header with-border">
+        <i class="fa fa-chart-line"></i>
+        <h3 class="box-title">{Lang::T('Traffic Monitor')}</h3>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-wrench"></i>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" id="refreshData">{Lang::T('Refresh Data')}</a></li>
+                    <li><a href="#" id="clearChart">{Lang::T('Clear Chart')}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="box-body">
+        <div class="chart-container">
+            <canvas id="trafficChart"></canvas>
+        </div>
+    </div>
+    <div class="overlay">
+        <i class="fa fa-refresh fa-spin"></i>
+    </div>
+</div>
+{/if}
                 {if Lang::arrayCount($activation)}
                     <thead>
                         <tr>
-                            <th>{$_L['Invoice']}</th>
-                            <th>{$_L['Username']}</th>
-                            <th>{$_L['Plan_Name']}</th>
-                            <th>{$_L['Plan_Price']}</th>
-                            <th>{$_L['Type']}</th>
-                            <th>{$_L['Created_On']}</th>
-                            <th>{$_L['Expires_On']}</th>
-                            <th>{$_L['Method']}</th>
+                            <th>{Lang::T('Invoice')}</th>
+                            <th>{Lang::T('Username')}</th>
+                            <th>{Lang::T('Plan Name')}</th>
+                            <th>{Lang::T('Plan Price')}</th>
+                            <th>{Lang::T('Type')}</th>
+                            <th>{Lang::T('Created On')}</th>
+                            <th>{Lang::T('Expires On')}</th>
+                            <th>{Lang::T('Method')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,15 +224,15 @@
                 {if Lang::arrayCount($order)}
                     <thead>
                         <tr>
-                            <th>{$_L['Plan_Name']}</th>
+                            <th>{Lang::T('Plan Name')}</th>
                             <th>{Lang::T('Gateway')}</th>
                             <th>{Lang::T('Routers')}</th>
-                            <th>{$_L['Type']}</th>
-                            <th>{$_L['Plan_Price']}</th>
-                            <th>{$_L['Created_On']}</th>
-                            <th>{$_L['Expires_On']}</th>
+                            <th>{Lang::T('Type')}</th>
+                            <th>{Lang::T('Plan Price')}</th>
+                            <th>{Lang::T('Created On')}</th>
+                            <th>{Lang::T('Expires On')}</th>
                             <th>{Lang::T('Date Done')}</th>
-                            <th>{$_L['Method']}</th>
+                            <th>{Lang::T('Method')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -182,12 +246,14 @@
                                 <td class="text-primary">{Lang::dateTimeFormat($ds['created_date'])}</td>
                                 <td class="text-danger">{Lang::dateTimeFormat($ds['expired_date'])}</td>
                                 <td class="text-success">{if $ds['status']!=1}{Lang::dateTimeFormat($ds['paid_date'])}{/if}</td>
-                                <td>{if $ds['status']==1}{$_L['UNPAID']}
-                                    {elseif $ds['status']==2}{$_L['PAID']}
-                                    {elseif $ds['status']==3}{$_L['FAILED']}
-                                    {elseif $ds['status']==4}{$_L['CANCELED']}
-                                    {elseif $ds['status']==5}{$_L['UNKNOWN']}
-                                    {/if}</td>
+                                <td>
+                                    {if $ds['status']==1}{Lang::T('UNPAID')}
+                                    {elseif $ds['status']==2}{Lang::T('PAID')}
+                                    {elseif $ds['status']==3}{Lang::T('FAILED')}
+                                    {elseif $ds['status']==4}{Lang::T('CANCELED')}
+                                    {elseif $ds['status']==5}{Lang::T('UNKNOWN')}
+                                    {/if}
+                                </td>
                             </tr>
                         {/foreach}
                     </tbody>
@@ -198,4 +264,117 @@
     </div>
 </div>
 
-{include file="sections/footer.tpl"}
+{if $d['coordinates']}
+{literal}
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+    function setupMap(lat, lon) {
+        var map = L.map('map').setView([lat, lon], 17);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png', {
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+        var marker = L.marker([lat, lon]).addTo(map);
+        
+        // Disable zoom on scroll
+        map.scrollWheelZoom.disable();
+    }
+    window.onload = function() {
+        {/literal}setupMap({$d['coordinates']});{literal}
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+<script>
+    var trafficChart;
+
+    function renderTrafficChart(trafficData) {
+        var ctx = document.getElementById('trafficChart').getContext('2d');
+        if (trafficChart) {
+            trafficChart.destroy();
+        }
+        trafficChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trafficData.labels,
+                datasets: [
+                    {
+                        label: 'TX',
+                        data: trafficData.rows.tx,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                    },
+                    {
+                        label: 'RX',
+                        data: trafficData.rows.rx,
+                        borderColor: 'rgb(53, 162, 235)',
+                        backgroundColor: 'rgba(53, 162, 235, 0.5)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Traffic (bits/s)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function fetchTrafficData() {
+        $('.overlay').show();
+        $.ajax({
+            url: '{$_url}mikrotik/monitor-traffic',
+            method: 'GET',
+            data: {
+                router: {$router},
+                interface: '{$d.ip_address}'
+            },
+            success: function(data) {
+                renderTrafficChart(data);
+                $('.overlay').hide();
+            },
+            error: function() {
+                alert('Error fetching traffic data');
+                $('.overlay').hide();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('#refreshData').on('click', function(e) {
+            e.preventDefault();
+            fetchTrafficData();
+        });
+
+        $('#clearChart').on('click', function(e) {
+            e.preventDefault();
+            if (trafficChart) {
+                trafficChart.data.labels = [];
+                trafficChart.data.datasets[0].data = [];
+                trafficChart.data.datasets[1].data = [];
+                trafficChart.update();
+            }
+        });
+
+        {if $v == 'traffic'}
+        fetchTrafficData();
+        {/if}
+    });
+</script>
+{/literal}
+{/if}

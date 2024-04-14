@@ -5,8 +5,9 @@ $conn = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
 function hotspot_settings() {
     global $ui, $conn;
     _admin();
-    $admin = Admin::_info();
+    //$admin = Admin::_info();
     $ui->assign('_title', 'Hotspot Dashboard');
+    $admin = Admin::_info();
     $ui->assign('_admin', $admin);
 
     // Check if form is submitted

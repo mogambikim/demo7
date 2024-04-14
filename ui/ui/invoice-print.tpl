@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>{$_title}</title>
+    <title>{$_title} - {$_c['CompanyName']}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="ui/ui/styles/bootstrap.min.css" rel="stylesheet">
@@ -28,19 +28,19 @@
                                 {$_c['phone']}<br>
                             </center>
                             ============================================<br>
-                            INVOICE: <b>{$d['invoice']}</b> - {$_L['Date']} : {$date}<br>
-                            {$_L['Sales']} : {$_admin['fullname']}<br>
+                            INVOICE: <b>{$d['invoice']}</b> - {Lang::T('Date')} : {$date}<br>
+                            {Lang::T('Sales')} : {$_admin['fullname']}<br>
                             ============================================<br>
-                            {$_L['Type']} : <b>{$d['type']}</b><br>
-                            {$_L['Plan_Name']} : <b>{$d['plan_name']}</b><br>
-                            {$_L['Plan_Price']} : <b>{Lang::moneyFormat($d['price'])}</b><br>
+                            {Lang::T('Type')} : <b>{$d['type']}</b><br>
+                            {Lang::T('Plan Name')} : <b>{$d['plan_name']}</b><br>
+                            {Lang::T('Plan Price')} : <b>{Lang::moneyFormat($d['price'])}</b><br>
                             <br>
-                            {$_L['Username']} : <b>{$d['username']}</b><br>
-                            {$_L['Password']} : **********<br>
+                            {Lang::T('Username')} : <b>{$d['username']}</b><br>
+                            {Lang::T('Password')} : **********<br>
                             {if $in['type'] != 'Balance'}
                                 <br>
-                                {$_L['Created_On']} : <b>{Lang::dateAndTimeFormat($d['recharged_on'],$d['recharged_time'])}</b><br>
-                                {$_L['Expires_On']} : <b>{Lang::dateAndTimeFormat($d['expiration'],$d['time'])}</b><br>
+                                {Lang::T('Created On')} : <b>{Lang::dateAndTimeFormat($d['recharged_on'],$d['recharged_time'])}</b><br>
+                                {Lang::T('Expires On')} : <b>{Lang::dateAndTimeFormat($d['expiration'],$d['time'])}</b><br>
                             {/if}
                             ============================================<br>
                             <center>{$_c['note']}</center>

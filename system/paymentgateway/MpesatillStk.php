@@ -92,9 +92,9 @@ function MpesatillStk_save_config()
         $d->save();
     }
 
-    _log('[' . $admin['username'] . ']: M-Pesa ' . $_L['Settings_Saved_Successfully'] . json_encode($_POST['mpesa_channel']), 'Admin', $admin['id']);
+    _log('[' . $admin['username'] . ']: M-Pesa ' . Lang::T('Settings Saved Successfully') . json_encode($_POST['mpesa_channel']), 'Admin', $admin['id']);
 
-    r2(U . 'paymentgateway/MpesatillStk', 's', $_L['Settings_Saved_Successfully']);
+    r2(U . 'paymentgateway/MpesatillStk', 's', Lang::T('Settings Saved Successfully'));
 }
 
 

@@ -35,7 +35,7 @@ function manualtillsave()
     }
 
     // Log the information
-  // _log('[' . $admin['username'] . ']: Manual till setting ' . $_L['Settings_Saved_Successfully'], 'Admin', $admin['id']);
+  // _log('[' . $admin['username'] . ']: Manual till setting ' . Lang::T('Settings Saved Successfully'), 'Admin', $admin['id']);
 
-   r2(U . 'plugin/tillnumber', 's', $_L['Settings_Saved_Successfully']);
+   r2(U . 'plugin/tillnumber', 's', Lang::T('Settings Saved Successfully'));
 }

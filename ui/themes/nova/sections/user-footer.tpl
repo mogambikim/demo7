@@ -53,7 +53,7 @@
         </span>
             </span>
             <span class="block text-[11px] text-slate-600 dark:text-slate-300">
-        {$_L['Logout']}
+        {Lang::T('Logout')}
       </span>
           </div>
         </a>
@@ -89,6 +89,33 @@
                 listAtts.forEach(function(el) {
                     $.get(el.getAttribute('api-get-text'), function(data) {
                         el.innerHTML = data;
+                    });
+                });
+                $(document).ready(function() {
+                    var listAtts = document.querySelectorAll(`button[type="submit"]`);
+                    listAtts.forEach(function(el) {
+                        if (el.addEventListener) { // all browsers except IE before version 9
+                            el.addEventListener("click", function() {
+                                $(this).html(
+                                    `<span class="loading"></span>`
+                                );
+                                setTimeout(() => {
+                                    $(this).prop("disabled", true);
+                                }, 100);
+                            }, false);
+                        } else {
+                            if (el.attachEvent) { // IE before version 9
+                                el.attachEvent("click", function() {
+                                    $(this).html(
+                                        `<span class="loading"></span>`
+                                    );
+                                    setTimeout(() => {
+                                        $(this).prop("disabled", true);
+                                    }, 100);
+                                });
+                            }
+                        }
+
                     });
                 });
             </script>

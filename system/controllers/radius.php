@@ -4,22 +4,22 @@
  *  by https://t.me/freeispradius
  **/
 _admin();
-$ui->assign('_title', $_L['Plugin Manager']);
+$ui->assign('_title', Lang::T('Plugin Manager'));
 $ui->assign('_system_menu', 'settings');
 
 $action = $routes['1'];
-$admin = Admin::_info();
+//$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-    r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
+    _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
 }
 
 switch ($action) {
 
     case 'nas-add':
-        $ui->assign('_system_menu', 'network');
+        $ui->assign('_system_menu', 'radius');
         $ui->assign('_title', "Network Access Server");
         $ui->assign('routers', ORM::for_table('tbl_routers')->find_many());
         $ui->display('radius-nas-add.tpl');
@@ -67,7 +67,7 @@ switch ($action) {
         }
         break;
     case 'nas-edit':
-        $ui->assign('_system_menu', 'network');
+        $ui->assign('_system_menu', 'radius');
         $ui->assign('_title', "Network Access Server");
 
         $id  = $routes['2'];
@@ -80,7 +80,7 @@ switch ($action) {
             $ui->assign('d', $d);
             $ui->display('radius-nas-edit.tpl');
         } else {
-            r2(U . 'radius/list', 'e', $_L['Account_Not_Found']);
+            r2(U . 'radius/list', 'e', Lang::T('Account Not Found'));
         }
 
         break;
@@ -131,7 +131,7 @@ switch ($action) {
             r2(U . 'radius/nas-list', 'e', 'NAS Not found');
         }
     default:
-        $ui->assign('_system_menu', 'network');
+        $ui->assign('_system_menu', 'radius');
         $ui->assign('_title', "Network Access Server");
         $name = _post('name');
         if (empty($name)) {

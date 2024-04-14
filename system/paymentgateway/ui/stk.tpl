@@ -52,7 +52,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <button class="btn btn-primary waves-effect waves-light" type="submit">{$_L['Save']}</button>
+                            <button class="btn btn-primary" type="submit">{Lang::T('Save Changes')}</button>
                         </div>
                     </div>
                         <pre>/ip hotspot walled-garden

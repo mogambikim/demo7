@@ -2,7 +2,7 @@
 <!-- user-activation-list -->
 <div class="card">
   <header class=" card-header noborder">
-    <h4 class="card-title">{$_L['List_Activated_Voucher']} </h4>
+    <h4 class="card-title">{Lang::T('List Activated Voucher')} </h4>
   </header>
   <div class="card-body px-6 pb-6">
     <div class="overflow-x-auto -mx-6">
@@ -11,13 +11,13 @@
           <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
             <thead class="bg-slate-200 dark:bg-slate-700">
               <tr>
-                <th scope="col" class=" table-th "> {$_L['Username']} </th>
-                <th scope="col" class=" table-th "> {$_L['Plan_Name']} </th>
-                <th scope="col" class=" table-th "> {$_L['Plan_Price']} </th>
-                <th scope="col" class=" table-th "> {$_L['Type']} </th>
-                <th scope="col" class=" table-th "> {$_L['Created_On']} </th>
-                <th scope="col" class=" table-th "> {$_L['Expires_On']} </th>
-                <th scope="col" class=" table-th "> {$_L['Method']} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Username')} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Plan Name')} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Plan Price')} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Type')} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Created On')} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Expires On')} </th>
+                <th scope="col" class=" table-th "> {Lang::T('Method')} </th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"> {foreach $d as $ds} <tr class="hover:bg-slate-200 dark:hover:bg-slate-700">

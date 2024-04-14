@@ -62,9 +62,9 @@
         $d->value = implode(',', $_POST['flutterwave_channel']);
         $d->save();
     }
-     _log('[' . $admin['username'] . ']: Flutterwave ' . $_L['Settings_Saved_Successfully'], 'Admin', $admin['id']);
+     _log('[' . $admin['username'] . ']: Flutterwave ' . Lang::T('Settings Saved Successfully'), 'Admin', $admin['id']);
 
-     r2(U . 'paymentgateway/flutterwave', 's', $_L['Settings_Saved_Successfully']);
+     r2(U . 'paymentgateway/flutterwave', 's', Lang::T('Settings Saved Successfully'));
  }
 
 function flutterwave_create_transaction($trx, $user)

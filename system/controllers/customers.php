@@ -5,24 +5,27 @@
  *  by https://t.me/freeispradius
  **/
 
-_admin();
-$ui->assign('_title', $_L['Customers']);
-$ui->assign('_system_menu', 'customers');
 
-$action = $routes['1'];
-$admin = Admin::_info();
-$ui->assign('_admin', $admin);
+ _admin();
+ $ui->assign('_title', Lang::T('Customer'));
+ $ui->assign('_system_menu', 'customers');
+ $action = $routes['1'];
+ $ui->assign('_admin', $admin);
+ 
+ if(empty($action)){
+     $action = 'list';
+ }
 
-
-if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-    r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
-}
-
-switch ($action) {
+ $leafletpickerHeader = <<<EOT
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+EOT;
+ 
+ switch ($action) {
     case 'list':
-       
         $search = _post('search');
-        run_hook('list_customers'); #HOOK
+        $filter = _get('filter', 'all');
+        run_hook('list_customers');
+
         if ($search != '') {
             $paginator = Paginator::build(ORM::for_table('tbl_customers'), [
                 'username' => '%' . $search . '%',
@@ -33,24 +36,60 @@ switch ($action) {
                 'service_type' => '%' . $search . '%'
             ], $search);
             $d = ORM::for_table('tbl_customers')
-                ->where_raw("(`username` LIKE '%$search%' OR `fullname` LIKE '%$search%' OR `phonenumber` LIKE '%$search%' OR `email` LIKE '%$search%' OR `ip_address` LIKE '%$search%')") // Added 'ip_address' to the search conditions
+                ->where_raw("`username` LIKE '%$search%' OR `fullname` LIKE '%$search%' OR `phonenumber` LIKE '%$search%' OR `email` LIKE '%$search%' OR `ip_address` LIKE '%$search%'")
                 ->offset($paginator['startpoint'])
                 ->limit($paginator['limit'])
                 ->order_by_asc('username')
                 ->find_many();
         } else {
-            $paginator = Paginator::build(ORM::for_table('tbl_customers'));
-            $d = ORM::for_table('tbl_customers')
-                ->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
+            $queryBuilder = ORM::for_table('tbl_customers');
+            _log('Query Builder initialized');
+
+            if ($filter == 'active') {
+                $queryBuilder->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
+                    ->where_gt('tbl_user_recharges.expiration', date('Y-m-d H:i:s'))
+                    ->group_by('tbl_customers.id');
+                _log('Filter: Active');
+            } elseif ($filter == 'expired') {
+                $queryBuilder->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
+                    ->where_lte('tbl_user_recharges.expiration', date('Y-m-d H:i:s'))
+                    ->group_by('tbl_customers.id');
+                _log('Filter: Expired');
+            } elseif ($filter == 'hotspot') {
+                $queryBuilder->where('service_type', 'Hotspot');
+                _log('Filter: Hotspot');
+            } elseif ($filter == 'static') {
+                $queryBuilder->where('service_type', 'Static');
+                _log('Filter: Static');
+            } elseif ($filter == 'pppoe') {
+                $queryBuilder->where('service_type', 'PPPoE');
+                _log('Filter: PPPoE');
+            } elseif ($filter == 'new') {
+                $queryBuilder->where_null('service_type');
+                _log('Filter: New');
+            }
+
+            _log('Last Query: ' . ORM::get_last_query());
+
+            $paginator = Paginator::build($queryBuilder);
+            _log('Paginator: ' . print_r($paginator, true));
+
+            $d = $queryBuilder->offset($paginator['startpoint'])
+                ->limit($paginator['limit'])
+                ->order_by_desc('id')
+                ->find_many();
+            _log('Customers: ' . print_r($d, true));
         }
 
+        $ui->assign('filter', $filter);
         $ui->assign('search', htmlspecialchars($search));
         $ui->assign('d', $d);
         $ui->assign('paginator', $paginator);
         $ui->display('customers.tpl');
         break;
-
-        case 'csv':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+            }
             $cs = ORM::for_table('tbl_customers')
             ->select('tbl_customers.id', 'id')
             ->select('tbl_customers.username', 'username')
@@ -88,6 +127,10 @@ switch ($action) {
             break;
 
     case 'add':
+		if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }    
+        $ui->assign('xheader', $leafletpickerHeader);
                 run_hook('view_add_customer'); #HOOK
                 $routers = ORM::for_table('tbl_routers')->find_many();
                 $ui->assign('routers', $routers); // Pass routers to the template
@@ -95,6 +138,9 @@ switch ($action) {
                 break;
             
     case 'recharge':
+		if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }        
         $id_customer  = $routes['2'];
         $b = ORM::for_table('tbl_user_recharges')->where('customer_id', $id_customer)->find_one();
         if ($b) {
@@ -106,6 +152,9 @@ switch ($action) {
         }
         r2(U . 'customers/view/' . $id_customer, 'e', 'Cannot find active plan');
     case 'deactivate':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
         $id_customer  = $routes['2'];
         $b = ORM::for_table('tbl_user_recharges')->where('customer_id', $id_customer)->find_one();
         if ($b) {
@@ -173,6 +222,11 @@ switch ($action) {
             $customer = ORM::for_table('tbl_customers')->find_one($id);
         }
         if ($customer) {
+            // Fetch the Customers Attributes values from the tbl_customer_custom_fields table
+            $customFields = ORM::for_table('tbl_customers_fields')
+                        ->where('customer_id', $customer['id'])
+                        ->find_many();
+        
             $v  = $routes['3'];
             if (empty($v) || $v == 'order') {
                 $v = 'order';
@@ -201,30 +255,45 @@ switch ($action) {
             $ui->assign('package', $package);
             $ui->assign('v', $v);
             $ui->assign('d', $customer);
+            $ui->assign('customFields', $customFields);
             $ui->display('customers-view.tpl');
         } else {
-            r2(U . 'customers/list', 'e', $_L['Account_Not_Found']);
+            r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
         }
         break;
         case 'edit':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
+                _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+            }            
             $id  = $routes['2'];
             run_hook('edit_customer'); #HOOK
             $d = ORM::for_table('tbl_customers')->find_one($id);
+        // Fetch the Customers Attributes values from the tbl_customers_fields table
+        $customFields = ORM::for_table('tbl_customers_fields')
+        ->where('customer_id', $id)
+        ->find_many();
             $routers = ORM::for_table('tbl_routers')->find_many();
             if ($d) {
                 $ui->assign('d', $d);
                 $ui->assign('routers', $routers); // Pass the routers to the template
+                $ui->assign('customFields', $customFields);
+                $ui->assign('xheader', $leafletpickerHeader);
                 $ui->display('customers-edit.tpl');
             } else {
-                r2(U . 'customers/list', 'e', $_L['Account_Not_Found']);
+                r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
             }
             break;
 
     case 'delete':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
         $id  = $routes['2'];
         run_hook('delete_customer'); #HOOK
         $d = ORM::for_table('tbl_customers')->find_one($id);
         if ($d) {
+            // Delete the associated Customers Attributes records from tbl_customer_custom_fields table
+            ORM::for_table('tbl_customers_fields')->where('customer_id', $id)->delete_many();
             $c = ORM::for_table('tbl_user_recharges')->where('username', $d['username'])->find_one();
             if ($c) {
                 $p = ORM::for_table('tbl_plans')->find_one($c['plan_id']);
@@ -262,13 +331,13 @@ switch ($action) {
                 } catch (Throwable $e) {
                 }
                 try {
-                    $c->delete();
+                    if($c) $c->delete();
                 } catch (Exception $e) {
                 } catch (Throwable $e) {
                 }
             }
 
-            r2(U . 'customers/list', 's', $_L['User_Delete_Ok']);
+            r2(U . 'customers/list', 's', Lang::T('User deleted Successfully'));
         }
         break;
 
@@ -281,6 +350,10 @@ switch ($action) {
         $address = _post('address');
         $phonenumber = _post('phonenumber');
         $service_type = _post('service_type');
+        $coordinates = _post('coordinates');
+                //post Customers Attributes
+                $custom_field_names = (array) $_POST['custom_field_name'];
+                $custom_field_values = (array) $_POST['custom_field_value'];
         $ip_address = _post('ip_address');
         $router_id = _post('router_id');
     if ($router_id == '') {
@@ -300,7 +373,7 @@ switch ($action) {
 
         $d = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
         if ($d) {
-            $msg .= $_L['account_already_exist'] . '<br>';
+            $msg .= Lang::T('Account already exist') . '<br>';
         }
 
         if ($msg == '') {
@@ -311,15 +384,36 @@ switch ($action) {
             $d->email = $email;
             $d->fullname = $fullname;
             $d->address = $address;
+            $d->created_by = $admin['id'];
             $d->phonenumber = Lang::phoneFormat($phonenumber);
             $d->service_type = $service_type;
+            $d->coordinates = $coordinates;
             $d->ip_address = $ip_address;
             $d->router_id = $router_id;
             $d->save();
+            
+            // Retrieve the customer ID of the newly created customer
+            $customerId = $d->id();
+           // Save Customers Attributes details
+            if (!empty($custom_field_names) && !empty($custom_field_values)) {
+                $totalFields = min(count($custom_field_names), count($custom_field_values));
+                for ($i = 0; $i < $totalFields; $i++) {
+                    $name = $custom_field_names[$i];
+                    $value = $custom_field_values[$i];
+
+                    if (!empty($name)) {
+                        $customField = ORM::for_table('tbl_customers_fields')->create();
+                        $customField->customer_id = $customerId;
+                        $customField->field_name = $name;
+                        $customField->field_value = $value;
+                        $customField->save();
+                    }
+                }
+            }
 
             // After saving the new customer
             // Load the notifications.json file
-            $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+            $notifications = json_decode(file_get_contents($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'notifications.json'), true);
             
             if (isset($notifications['account_created_sms'])) {
                 // Prepare the message text
@@ -331,7 +425,7 @@ switch ($action) {
                 Message::sendAccountCreateNotification($d->phonenumber, $d->fullname, $d->username, $d->password, $message, $config['user_notification_expired']);
             }
             
-            r2(U . 'customers/list', 's', $_L['account_created_successfully']);
+            r2(U . 'customers/list', 's', Lang::T('Account Created Successfully'));
         } else {
             r2(U . 'customers/add', 'e', $msg);
         }
@@ -346,6 +440,7 @@ switch ($action) {
         $address = _post('address');
         $phonenumber = Lang::phoneFormat(_post('phonenumber'));
         $service_type = _post('service_type');
+        $coordinates = _post('coordinates');
         $ip_address = _post('ip_address');
         $router_id = _post('router_id');
         if ($router_id == '') {
@@ -367,8 +462,12 @@ switch ($action) {
 
         $id = _post('id');
         $d = ORM::for_table('tbl_customers')->find_one($id);
+        //lets find user Customers Attributes using id
+        $customFields = ORM::for_table('tbl_customers_fields')
+         ->where('customer_id', $id)
+         ->find_many();       
         if (!$d) {
-            $msg .= $_L['Data_Not_Found'] . '<br>';
+            $msg .= Lang::T('Data Not Found') . '<br>';
         }
 
         $oldusername = $d['username'];
@@ -380,7 +479,7 @@ switch ($action) {
         if ($oldusername != $username) {
             $c = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
             if ($c) {
-                $msg .= $_L['account_already_exist'] . '<br>';
+                $msg .= Lang::T('Account already exist') . '<br>';
             }
             $userDiff = true;
         }
@@ -404,9 +503,57 @@ switch ($action) {
             $d->address = $address;
             $d->phonenumber = $phonenumber;
             $d->service_type = $service_type;
+            $d->coordinates = $coordinates;
             $d->ip_address = $ip_address;
             $d->router_id = $router_id; // Update router_id in the customer record
             $d->save();
+
+             // Update Customers Attributes values in tbl_customers_fields table
+             foreach ($customFields as $customField) {
+                $fieldName = $customField['field_name'];
+                if (isset($_POST['custom_fields'][$fieldName])) {
+                    $customFieldValue = $_POST['custom_fields'][$fieldName];
+                    $customField->set('field_value', $customFieldValue);
+                    $customField->save();
+                }
+            }
+
+            // Add new Customers Attributess
+            if (isset($_POST['custom_field_name']) && isset($_POST['custom_field_value'])) {
+                $newCustomFieldNames = $_POST['custom_field_name'];
+                $newCustomFieldValues = $_POST['custom_field_value'];
+
+                // Check if the number of field names and values match
+                if (count($newCustomFieldNames) == count($newCustomFieldValues)) {
+                    $numNewFields = count($newCustomFieldNames);
+
+                    for ($i = 0; $i < $numNewFields; $i++) {
+                        $fieldName = $newCustomFieldNames[$i];
+                        $fieldValue = $newCustomFieldValues[$i];
+
+                        // Insert the new Customers Attributes
+                        $newCustomField = ORM::for_table('tbl_customers_fields')->create();
+                        $newCustomField->set('customer_id', $id);
+                        $newCustomField->set('field_name', $fieldName);
+                        $newCustomField->set('field_value', $fieldValue);
+                        $newCustomField->save();
+                    }
+                }
+            }
+
+             // Delete Customers Attributess
+             if (isset($_POST['delete_custom_fields'])) {
+                $fieldsToDelete = $_POST['delete_custom_fields'];
+                foreach ($fieldsToDelete as $fieldName) {
+                    // Delete the Customers Attributes with the given field name
+                    ORM::for_table('tbl_customers_fields')
+                        ->where('field_name', $fieldName)
+                        ->where('customer_id', $id)
+                        ->delete_many();
+                }
+            }
+           
+
             if ($userDiff || $pppoeDiff || $passDiff) {
                 $c = ORM::for_table('tbl_user_recharges')->where('username', ($userDiff) ? $oldusername : $username)->find_one();
                 if ($c) {

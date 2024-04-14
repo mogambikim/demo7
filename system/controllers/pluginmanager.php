@@ -5,21 +5,21 @@
  **/
 
 _admin();
-$ui->assign('_title', $_L['Plugin Manager']);
+$ui->assign('_title', Lang::T('Plugin Manager'));
 $ui->assign('_system_menu', 'settings');
 
 $plugin_repository = 'https://hotspotbilling.github.io/Plugin-Repository/repository.json';
 
 $action = $routes['1'];
-$admin = Admin::_info();
+//$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-    r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
+    _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
 }
 
-$cache = File::pathFixer('system/cache/plugin_repository.json');
+$cache = $CACHE_PATH . File::pathFixer('/plugin_repository.json');
 if (file_exists($cache) && time() - filemtime($cache) < (24 * 60 * 60)) {
     $txt = file_get_contents($cache);
     $json = json_decode($txt, true);
@@ -36,16 +36,16 @@ if (file_exists($cache) && time() - filemtime($cache) < (24 * 60 * 60)) {
 switch ($action) {
 
     case 'install':
-        if(!is_writeable(File::pathFixer('system/cache/'))){
-            r2(U . "pluginmanager", 'e', 'Folder system/cache/ is not writable');
+        if (!is_writeable($CACHE_PATH)) {
+            r2(U . "pluginmanager", 'e', 'Folder cache/ is not writable');
         }
-        if(!is_writeable(File::pathFixer('system/plugin/'))){
-            r2(U . "pluginmanager", 'e', 'Folder system/plugin/ is not writable');
+        if (!is_writeable($PLUGIN_PATH)) {
+            r2(U . "pluginmanager", 'e', 'Folder plugin/ is not writable');
         }
         set_time_limit(-1);
         $tipe = $routes['2'];
         $plugin = $routes['3'];
-        $file = File::pathFixer('system/cache/') . $plugin . '.zip';
+        $file = $CACHE_PATH . File::pathFixer('/') . $plugin . '.zip';
         if (file_exists($file)) unlink($file);
         if ($tipe == 'plugin') {
             foreach ($json['plugins'] as $plg) {
@@ -64,19 +64,19 @@ switch ($action) {
 
                     $zip = new ZipArchive();
                     $zip->open($file);
-                    $zip->extractTo(File::pathFixer('system/cache/'));
+                    $zip->extractTo($CACHE_PATH);
                     $zip->close();
-                    $folder = File::pathFixer('system/cache/' . $plugin.'-main/');
-                    if(!file_exists($folder)){
-                        $folder = File::pathFixer('system/cache/' . $plugin.'-master/');
+                    $folder = $CACHE_PATH . File::pathFixer('/' . $plugin . '-main/');
+                    if (!file_exists($folder)) {
+                        $folder = $CACHE_PATH . File::pathFixer('/' . $plugin . '-master/');
                     }
                     if(!file_exists($folder)){
                         r2(U . "pluginmanager", 'e', 'Extracted Folder is unknown');
                     }
-                    File::copyFolder($folder, File::pathFixer('system/plugin/'), ['README.md','LICENSE']);
+                    File::copyFolder($folder, $PLUGIN_PATH . DIRECTORY_SEPARATOR, ['README.md', 'LICENSE']);
                     File::deleteFolder($folder);
                     unlink($file);
-                    r2(U . "pluginmanager", 's', 'Plugin '.$plugin.' has been installed');
+                    r2(U . "pluginmanager", 's', 'Plugin ' . $plugin . ' has been installed');
                     break;
                 }
             }
@@ -98,19 +98,19 @@ switch ($action) {
 
                     $zip = new ZipArchive();
                     $zip->open($file);
-                    $zip->extractTo(File::pathFixer('system/cache/'));
+                    $zip->extractTo($CACHE_PATH);
                     $zip->close();
-                    $folder = File::pathFixer('system/cache/' . $plugin.'-main/');
-                    if(!file_exists($folder)){
-                        $folder = File::pathFixer('system/cache/' . $plugin.'-master/');
+                    $folder = $CACHE_PATH . File::pathFixer('/' . $plugin . '-main/');
+                    if (!file_exists($folder)) {
+                        $folder = $CACHE_PATH . File::pathFixer('/' . $plugin . '-master/');
                     }
                     if(!file_exists($folder)){
                         r2(U . "pluginmanager", 'e', 'Extracted Folder is unknown');
                     }
-                    File::copyFolder($folder, File::pathFixer('system/paymentgateway/'), ['README.md','LICENSE']);
+                      File::copyFolder($folder, $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR, ['README.md', 'LICENSE']);
                     File::deleteFolder($folder);
                     unlink($file);
-                    r2(U . "paymentgateway", 's', 'Payment Gateway '.$plugin.' has been installed');
+                    r2(U . "paymentgateway", 's', 'Payment Gateway ' . $plugin . ' has been installed');
                     break;
                 }
             }

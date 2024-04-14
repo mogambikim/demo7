@@ -4,13 +4,52 @@
     <div class="col-sm-12">
         <div class="panel panel-hovered mb20 panel-primary">
       <div class="panel-heading">
-                <div class="btn-group pull-right">
-                    <a class="btn btn-primary btn-xs" title="save" href="{$_url}customers/csv"
-                        onclick="return confirm('This will export to CSV?')"><span
-                            class="glyphicon glyphicon-download" aria-hidden="true"></span> CSV</a>
-                </div>
-                {$_L['Manage_Accounts']}
+                {if in_array($_admin['user_type'],['SuperAdmin','Admin'])}
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-primary btn-xs" title="save" href="{$_url}customers/csv"
+                            onclick="return confirm('This will export to CSV?')"><span class="glyphicon glyphicon-download"
+                                aria-hidden="true"></span> CSV</a>
+                    </div>
+                {/if}
+                 {Lang::T('Manage Contact')}
             </div>
+<ul class="nav nav-tabs nav-justified">
+    <li class="{if $filter == 'all'}active{/if}">
+        <a href="{$_url}customers/list/?filter=all" class="bg-primary">
+            <i class="fa fa-users"></i> {Lang::T('All Users')}
+        </a>
+    </li>
+    <li class="{if $filter == 'active'}active{/if}">
+        <a href="{$_url}customers/list/?filter=active" class="bg-success">
+            <i class="fa fa-check-circle"></i> {Lang::T('Active Users')}
+        </a>
+    </li>
+    <li class="{if $filter == 'expired'}active{/if}">
+        <a href="{$_url}customers/list/?filter=expired" class="bg-danger">
+            <i class="fa fa-times-circle"></i> {Lang::T('Expired Users')}
+        </a>
+    </li>
+    <li class="{if $filter == 'hotspot'}active{/if}">
+        <a href="{$_url}customers/list/?filter=hotspot" class="bg-warning">
+            <i class="fa fa-wifi"></i> {Lang::T('Hotspot Users')}
+        </a>
+    </li>
+    <li class="{if $filter == 'static'}active{/if}">
+        <a href="{$_url}customers/list/?filter=static" class="bg-info">
+            <i class="fa fa-desktop"></i> {Lang::T('Static Users')}
+        </a>
+    </li>
+    <li class="{if $filter == 'pppoe'}active{/if}">
+        <a href="{$_url}customers/list/?filter=pppoe" class="bg-purple">
+            <i class="fa fa-exchange"></i> {Lang::T('PPPoE Users')}
+        </a>
+    </li>
+    <li class="{if $filter == 'new'}active{/if}">
+        <a href="{$_url}customers/list/?filter=new" class="bg-pink">
+            <i class="fa fa-plus-circle"></i> {Lang::T('New Users')}
+        </a>
+    </li>
+</ul>
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
                     <div class="col-md-8">
@@ -26,25 +65,25 @@
                         </form>
                     </div>
                     <div class="col-md-4">
-                        <a href="{$_url}customers/add" class="btn btn-primary btn-block waves-effect"><i
-                                class="ion ion-android-add"> </i> {$_L['Add_Contact']}</a>
+                        <a href="{$_url}customers/add" class="btn btn-primary btn-block"><i
+                                                     class="ion ion-android-add"> </i> {Lang::T('Add New Contact')}</a>
                     </div>&nbsp;
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive table_mobile">
                     <table class="table table-bordered table-striped table-condensed">
                         <thead>
                                      <tr>
-                            <th>{$_L['Username']}</th>
-                            <th>{$_L['Full_Name']}</th>
+                            <th>{Lang::T('Username')}</th>
+                            <th>{Lang::T('Full Name')}</th>
                             <th>{Lang::T('Balance')}</th>
-                            <th>{$_L['Phone_Number']}</th>
-                            <th>{$_L['Email']}</th>
-                            <th>{$_L['Package']}</th>
+                            <th>{Lang::T('Phone Number')}</th>
+                            <th>{Lang::T('Email')}</th>
+                            <th>{Lang::T('Package')}</th>
                             <th>{Lang::T('Service Type')}</th>
-                            <th>{$_L['Created_On']}</th>
-                            <th>{$_L['IP_Address']}</th> <!-- New IP Address column -->
+                            <th>{Lang::T('Created On')}</th>
+                            <th>{Lang::T('IP Address')}</th> <!-- New IP Address column -->
                         <th>Router</th> <!-- New Router column -->
-                            <th>{$_L['Manage']}</th>
+                            <th>{Lang::T('Manage')}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -68,11 +107,11 @@
     <a href="{$_url}customers/view/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
             class="btn btn-success btn-xs">&nbsp;&nbsp;{Lang::T('View')}&nbsp;&nbsp;</a>
     <a href="{$_url}prepaid/recharge/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
-            class="btn btn-primary btn-xs">{$_L['Recharge']}</a>
+            class="btn btn-primary btn-xs">{Lang::T('Recharge')}</a>
     <a href="{$_url}customers/edit/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
-            class="btn btn-warning btn-xs">{$_L['Edit']}</a>
+            class="btn btn-warning btn-xs">{Lang::T('Edit')}</a>
     <a href="{$_url}customers/delete/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
-            class="btn btn-danger btn-xs" onclick="return confirm('{$_L['Delete']}?')">{$_L['Delete']}</a>
+            class="btn btn-danger btn-xs"onclick="return confirm('{Lang::T('Delete')}?')">{Lang::T('Delete')}</a>
 </td>
                                 </tr>
                             {/foreach}

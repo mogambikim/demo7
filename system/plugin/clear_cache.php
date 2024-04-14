@@ -8,7 +8,7 @@ function clear_cache()
     _admin();
     $ui->assign('_title', 'Clear Cache');
     $ui->assign('_system_menu', 'settings');
-    $admin = Admin::_info();
+    //$admin = Admin::_info();
     $ui->assign('_admin', $admin);
 
     $ui->setCacheDir('ui/compiled'); // Set the cache directory path

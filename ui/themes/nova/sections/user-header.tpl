@@ -12,6 +12,8 @@
     <!-- BEGIN: Theme CSS-->
     <link rel="stylesheet" href="{$_theme}/assets/css/rt-plugins.css">
     <link rel="stylesheet" href="{$_theme}/assets/css/app.css">
+        </style>
+      </style>
     <!-- End : Theme CSS-->
     <script src="{$_theme}/assets/js/settings.js" sync></script>
     {if isset($xheader)}
@@ -19,6 +21,8 @@
     {/if}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.1/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.1/dist/sweetalert2.all.min.js"></script>
+        <link rel="stylesheet" href="ui/ui/styles/sweetalert2.min.css" />
+    <script src="ui/ui/scripts/sweetalert2.all.min.js"></script>
   </head>
   <body class=" font-inter dashcode-app" id="body_class">
     <main class="app-wrapper">
@@ -52,7 +56,7 @@
               <a href="{$_url}home" class="navItem {if $_system_menu eq 'home'} active {/if}">
                 <span class="flex items-center">
                   <iconify-icon class=" nav-icon" icon="heroicons-outline:home"></iconify-icon>
-                  <span>{$_L['Dashboard']}</span>
+                 <span>{Lang::T('Dashboard')}</span>
                 </span>
               </a>
             </li> {$_MENU_AFTER_DASHBOARD} {if $_c['disable_voucher'] != 'yes'} <li>
@@ -181,7 +185,7 @@
                     <button class="text-slate-800 dark:text-white focus:ring-0 focus:outline-none font-medium rounded-lg text-sm text-center
       inline-flex items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       <div class="lg:h-8 lg:w-8 h-7 w-7 rounded-full flex-1 ltr:mr-[10px] rtl:ml-[10px]">
-                        <img src="https://robohash.org/{$_user['id']}?set=set3&size=100x100&bgset=bg1" onerror="this.src='system/uploads/user.default.jpg'" alt="user" class="border-white block w-full h-full object-cover rounded-full border">
+                        <img src="https://robohash.org/{$_user['id']}?set=set3&size=100x100&bgset=bg1" onerror="this.src='{$UPLOAD_PATH}/user.default.jpg'" alt="user" class="border-white block w-full h-full object-cover rounded-full border">
                       </div>
                       <span class="flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">{$_user['fullname']}</span>
                       <svg class="w-[16px] h-[16px] dark:text-white hidden lg:inline-block text-base inline-block ml-[10px] rtl:mr-[10px]" aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -195,7 +199,7 @@
                         <li>
                           <a href="{$_url}accounts/profile" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
                             dark:text-white font-normal">
-                            <span class="font-Inter">{$_L['My_Account']}
+                            <span class="font-Inter">{Lang::T('My Account')}
                           </a>
                           </span>
                           </a>
@@ -203,13 +207,13 @@
                         <li>
                           <a href="{$_url}accounts/change-password" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
-                            <span class="font-Inter">{$_L['Change_Password']}</span>
+                            <span class="font-Inter">{Lang::T('Change Password')}</span>
                           </a>
                         </li>
                         <li>
                           <a href="{$_url}logout" class="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 dark:hover:text-white font-inter text-sm text-slate-600
             dark:text-white font-normal">
-                            <span class="font-Inter">{$_L['Logout']}</span>
+                            <span class="font-Inter">{Lang::T('Logout')}</span>
                           </a>
                         </li>
                       </ul>

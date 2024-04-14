@@ -1,19 +1,18 @@
 <?php
 /**
- *  PHP Mikrotik Billing (https://freeispradius.com/)
- *  by https://t.me/freeispradius
+ *  PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
+ *  by https://t.me/ibnux
  **/
 
 _admin();
-$ui->assign('_title', $_L['Bandwidth_Plans']);
+$ui->assign('_title', Lang::T('Bandwidth Plans'));
 $ui->assign('_system_menu', 'services');
 
 $action = $routes['1'];
-$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-	r2(U."dashboard",'e',$_L['Do_Not_Access']);
+	r2(U."dashboard",'e',Lang::T('You do not have permission to access this page'));
 }
 
 switch ($action) {
@@ -35,15 +34,22 @@ switch ($action) {
         break;
 
     case 'add':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
         run_hook('view_add_bandwidth'); #HOOK
         $ui->display('bandwidth-add.tpl');
         break;
 
     case 'edit':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
         $id  = $routes['2'];
         run_hook('view_edit_bandwith'); #HOOK
         $d = ORM::for_table('tbl_bandwidth')->find_one($id);
         if($d){
+            $ui->assign('burst',explode(" ", $d['burst']));
             $ui->assign('d',$d);
             $ui->display('bandwidth-edit.tpl');
         }else{
@@ -52,63 +58,40 @@ switch ($action) {
         break;
 
     case 'delete':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
         $id  = $routes['2'];
         run_hook('delete_bandwidth'); #HOOK
         $d = ORM::for_table('tbl_bandwidth')->find_one($id);
         if($d){
             $d->delete();
-            r2(U . 'bandwidth/list', 's', $_L['Delete_Successfully']);
+            r2(U . 'bandwidth/list', 's', Lang::T('Data Deleted Successfully'));
         }
         break;
 
     case 'add-post':
-
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
         $name = _post('name');
-$rate_down = _post('rate_down');
-$rate_down_unit = _post('rate_down_unit');
-$rate_up = _post('rate_up');
-$rate_up_unit = _post('rate_up_unit');
-      // ...existing code...
-
-
-
-      $enable_burst = _post('enable_burst');
-      if (isset($enable_burst) && $enable_burst === 'on') {
-          $burst_limit_for_upload = _post('burst_limit_for_upload');
-          $burst_limit_for_upload = isset($burst_limit_for_upload) && $burst_limit_for_upload !== '' ? $burst_limit_for_upload : 0;
-      
-          $burst_limit_for_upload_unit = _post('burst_limit_for_upload_unit');
-          $burst_limit_for_download = _post('burst_limit_for_download');
-          $burst_limit_for_download = isset($burst_limit_for_download) && $burst_limit_for_download !== '' ? $burst_limit_for_download : 0;
-      
-          $burst_limit_for_download_unit = _post('burst_limit_for_download_unit');
-          $burst_threshold_for_upload = _post('burst_threshold_for_upload');
-          $burst_threshold_for_upload = isset($burst_threshold_for_upload) && $burst_threshold_for_upload !== '' ? $burst_threshold_for_upload : 0;
-      
-          $burst_threshold_for_upload_unit = _post('burst_threshold_for_upload_unit');
-          $burst_threshold_for_download = _post('burst_threshold_for_download');
-          $burst_threshold_for_download = isset($burst_threshold_for_download) && $burst_threshold_for_download !== '' ? $burst_threshold_for_download : 0;
-      
-          $burst_threshold_for_download_unit = _post('burst_threshold_for_download_unit');
-          $burst_time_for_upload = _post('burst_time_for_upload'); // Assuming time is in seconds
-          $burst_time_for_upload = isset($burst_time_for_upload) && $burst_time_for_upload !== '' ? $burst_time_for_upload : 0;
-      
-          $burst_time_for_download = _post('burst_time_for_download'); // Assuming time is in seconds
-          $burst_time_for_download = isset($burst_time_for_download) && $burst_time_for_download !== '' ? $burst_time_for_download : 0;
-      } else {
-          $burst_limit_for_upload = null;
-          $burst_limit_for_upload_unit = null;
-          $burst_limit_for_download = null;
-          $burst_limit_for_download_unit = null;
-          $burst_threshold_for_upload = null;
-          $burst_threshold_for_upload_unit = null;
-          $burst_threshold_for_download = null;
-          $burst_threshold_for_download_unit = null;
-          $burst_time_for_upload = null;
-          $burst_time_for_download = null;
-      }
-    // ...rest of the code for database insertion...
+        $rate_down = _post('rate_down');
+        $rate_down_unit = _post('rate_down_unit');
+		$rate_up = _post('rate_up');
+		$rate_up_unit = _post('rate_up_unit');
         run_hook('add_bandwidth'); #HOOK
+        $isBurst = true;
+        $burst = "";
+        if(isset($_POST['burst'])){
+            foreach($_POST['burst'] as $b){
+                if(empty($b)){
+                    $isBurst = false;
+                }
+            }
+            if($isBurst){
+                $burst = implode(' ', $_POST['burst']);
+            };
+        }
         $msg = '';
         if(Validator::Length($name,16,4) == false){
             $msg .= 'Name should be between 5 to 15 characters'. '<br>';
@@ -119,86 +102,47 @@ $rate_up_unit = _post('rate_up_unit');
 
         $d = ORM::for_table('tbl_bandwidth')->where('name_bw',$name)->find_one();
         if($d){
-            $msg .= $_L['BW_already_exist']. '<br>';
+            $msg .= Lang::T('Name Bandwidth Already Exist'). '<br>';
         }
 
         if($msg == ''){
             $d = ORM::for_table('tbl_bandwidth')->create();
             $d->name_bw = $name;
-$d->rate_down = $rate_down;
-$d->rate_down_unit = $rate_down_unit;
-$d->rate_up = $rate_up;
-$d->rate_up_unit = $rate_up_unit;
-$d->burst_limit_for_upload = $burst_limit_for_upload;
-$d->burst_limit_for_upload_unit = $burst_limit_for_upload_unit;
-$d->burst_limit_for_download = $burst_limit_for_download;
-$d->burst_limit_for_download_unit = $burst_limit_for_download_unit;
-$d->burst_threshold_for_upload = $burst_threshold_for_upload;
-$d->burst_threshold_for_upload_unit = $burst_threshold_for_upload_unit;
-$d->burst_threshold_for_download = $burst_threshold_for_download;
-$d->burst_threshold_for_download_unit = $burst_threshold_for_download_unit;
-$d->burst_time_for_upload = $burst_time_for_upload;
-$d->burst_time_for_download = $burst_time_for_download;
-
+            $d->rate_down = $rate_down;
+            $d->rate_down_unit = $rate_down_unit;
+            $d->rate_up = $rate_up;
+            $d->rate_up_unit = $rate_up_unit;
+            $d->burst = $burst;
             $d->save();
 
-            r2(U . 'bandwidth/list', 's', $_L['Created_Successfully']);
+            r2(U . 'bandwidth/list', 's', Lang::T('Data Created Successfully'));
         }else{
             r2(U . 'bandwidth/add', 'e', $msg);
         }
         break;
 
     case 'edit-post':
-    // ...existing code...
-    $name = _post('name');
-    $rate_down = _post('rate_down');
-    $rate_down_unit = _post('rate_down_unit');
-    $rate_up = _post('rate_up');
-    $rate_up_unit = _post('rate_up_unit');
-
-    //////////////////////
-    //////////////////////
-    $enable_burst = _post('enable_burst');
-    if (isset($enable_burst) && $enable_burst === 'on') {
-        // ...existing code...
-        $d->burst_limit_for_upload = isset($burst_limit_for_upload) && $burst_limit_for_upload !== '' ? $burst_limit_for_upload : 0;
-        $d->burst_limit_for_upload_unit = $burst_limit_for_upload_unit;
-        $d->burst_limit_for_download = isset($burst_limit_for_download) && $burst_limit_for_download !== '' ? $burst_limit_for_download : 0;
-        $d->burst_limit_for_download_unit = $burst_limit_for_download_unit;
-        $d->burst_threshold_for_upload = isset($burst_threshold_for_upload) && $burst_threshold_for_upload !== '' ? $burst_threshold_for_upload : 0;
-        $d->burst_threshold_for_upload_unit = $burst_threshold_for_upload_unit;
-        $d->burst_threshold_for_download = isset($burst_threshold_for_download) && $burst_threshold_for_download !== '' ? $burst_threshold_for_download : 0;
-        $d->burst_threshold_for_download_unit = $burst_threshold_for_download_unit;
-        $d->burst_time_for_upload = isset($burst_time_for_upload) && $burst_time_for_upload !== '' ? $burst_time_for_upload : 0;
-        $d->burst_time_for_download = isset($burst_time_for_download) && $burst_time_for_download !== '' ? $burst_time_for_download : 0;
-    } else {
-        $d->burst_limit_for_upload = null;
-        $d->burst_limit_for_upload_unit = null;
-        $d->burst_limit_for_download = null;
-        $d->burst_limit_for_download_unit = null;
-        $d->burst_threshold_for_upload = null;
-        $d->burst_threshold_for_upload_unit = null;
-        $d->burst_threshold_for_download = null;
-        $d->burst_threshold_for_download_unit = null;
-        $d->burst_time_for_upload = null;
-        $d->burst_time_for_download = null;
-    }
-    
-    $d->save();
-
-/////////////////////////////
-//////////////////////////
-
-
-
-
-
-
-    ////////////////////////
-    //////////////////////////
-
-    // ...rest of the code for database insertion...
-        run_hook('edit_bandwidth'); #HOOK
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+        }
+        $name = _post('name');
+        $rate_down = _post('rate_down');
+        $rate_down_unit = _post('rate_down_unit');
+		$rate_up = _post('rate_up');
+		$rate_up_unit = _post('rate_up_unit');
+		run_hook('edit_bandwidth'); #HOOK
+        $isBurst = true;
+        $burst = "";
+        if(isset($_POST['burst'])){
+            foreach($_POST['burst'] as $b){
+                if(empty($b)){
+                    $isBurst = false;
+                }
+            }
+            if($isBurst){
+                $burst = implode(' ', $_POST['burst']);
+            };
+        }
         $msg = '';
         if(Validator::Length($name,16,4) == false){
             $msg .= 'Name should be between 5 to 15 characters'. '<br>';
@@ -208,13 +152,13 @@ $d->burst_time_for_download = $burst_time_for_download;
         $d = ORM::for_table('tbl_bandwidth')->find_one($id);
         if($d){
         }else{
-            $msg .= $_L['Data_Not_Found']. '<br>';
+            $msg .= Lang::T('Data Not Found'). '<br>';
         }
 
         if($d['name_bw'] != $name){
             $c = ORM::for_table('tbl_bandwidth')->where('name_bw',$name)->find_one();
             if($c){
-                $msg .= $_L['BW_already_exist']. '<br>';
+                $msg .= Lang::T('Name Bandwidth Already Exist'). '<br>';
             }
         }
 
@@ -224,20 +168,10 @@ $d->burst_time_for_download = $burst_time_for_download;
             $d->rate_down_unit = $rate_down_unit;
             $d->rate_up = $rate_up;
             $d->rate_up_unit = $rate_up_unit;
-            $d->burst_limit_for_upload = $burst_limit_for_upload;
-            $d->burst_limit_for_upload_unit = $burst_limit_for_upload_unit;
-            $d->burst_limit_for_download = $burst_limit_for_download;
-            $d->burst_limit_for_download_unit = $burst_limit_for_download_unit;
-            $d->burst_threshold_for_upload = $burst_threshold_for_upload;
-            $d->burst_threshold_for_upload_unit = $burst_threshold_for_upload_unit;
-            $d->burst_threshold_for_download = $burst_threshold_for_download;
-            $d->burst_threshold_for_download_unit = $burst_threshold_for_download_unit;
-            $d->burst_time_for_upload = $burst_time_for_upload;
-            $d->burst_time_for_download = $burst_time_for_download;
-            
+            $d->burst = $burst;
             $d->save();
 
-            r2(U . 'bandwidth/list', 's', $_L['Updated_Successfully']);
+            r2(U . 'bandwidth/list', 's', Lang::T('Data Updated Successfully'));
         }else{
             r2(U . 'bandwidth/edit/'.$id, 'e', $msg);
         }

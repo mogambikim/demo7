@@ -18,10 +18,14 @@ class Paginator
         $page = (int)(empty(_get('p')) ? 1 : _get('p'));
         $pagination = "";
         foreach($colVal as $k=>$v) {
-            if(strpos($v,'%') === false) {
+            if(!is_array($v) && strpos($v,'%') === false) {
                 $table = $table->where($k, $v);
             }else{
-                $table = $table->where_like($k, $v);
+                if(is_array($v)){
+                    $table = $table->where_in($k, $v);
+                }else{
+                    $table = $table->where_like($k, $v);
+                }
             }
         }
         $totalReq = $table->count();
@@ -78,11 +82,11 @@ class Paginator
             }
 
             if ($page < $counter - 1) {
-                $pagination .= "<li><a href='{$url}&p=$next&q=$query'>" . $_L['Next'] . "</a></li>";
-                $pagination .= "<li><a href='{$url}&p=$lastpage&q=$query'>" . $_L['Last'] . "</a></li>";
+                $pagination .= "<li><a href='{$url}&p=$next&q=$query'>" . Lang::T('Next') . "</a></li>";
+                $pagination .= "<li><a href='{$url}&p=$lastpage&q=$query'>" . Lang::T('Last') . "</a></li>";
             } else {
-                $pagination .= "<li class='disabled'><a class='disabled'>" . $_L['Next'] . "</a></li>";
-                $pagination .= "<li class='disabled'><a class='disabled'>" . $_L['Last'] . "</a></li>";
+                $pagination .= "<li class='disabled'><a class='disabled'>" . Lang::T('Next') . "</a></li>";
+                $pagination .= "<li class='disabled'><a class='disabled'>" . Lang::T('Last') . "</a></li>";
             }
             $pagination .= "</ul>";
 
@@ -184,11 +188,11 @@ class Paginator
             }
 
             if ($page < $counter - 1) {
-                $pagination .= "<li><a href='{$url}$next'>" . $_L['Next'] . "</a></li>";
-                $pagination .= "<li><a href='{$url}$lastpage'>" . $_L['Last'] . "</a></li>";
+                $pagination .= "<li><a href='{$url}$next'>" . Lang::T('Next') . "</a></li>";
+                $pagination .= "<li><a href='{$url}$lastpage'>" . Lang::T('Last') . "</a></li>";
             } else {
-                $pagination .= "<li class='disabled'><a class='disabled'>" . $_L['Next'] . "</a></li>";
-                $pagination .= "<li class='disabled'><a class='disabled'>" . $_L['Last'] . "</a></li>";
+                $pagination .= "<li class='disabled'><a class='disabled'>" . Lang::T('Next') . "</a></li>";
+                $pagination .= "<li class='disabled'><a class='disabled'>" . Lang::T('Last') . "</a></li>";
             }
             $pagination .= "</ul>";
 
@@ -278,11 +282,11 @@ class Paginator
             }
 
             if ($page < $counter - 1) {
-                $pagination .= "<li><a href='{$url}$next'>" . $_L['Next'] . "</a></li>";
-                $pagination .= "<li><a href='{$url}$lastpage'>" . $_L['Last'] . "</a></li>";
+                $pagination .= "<li><a href='{$url}$next'>" . Lang::T('Next') . "</a></li>";
+                $pagination .= "<li><a href='{$url}$lastpage'>" . Lang::T('Last') . "</a></li>";
             } else {
-                $pagination .= "<li class='disabled'><a class='disabled'>" . $_L['Next'] . "</a></li>";
-                $pagination .= "<li class='disabled'><a class='disabled'>" . $_L['Last'] . "</a></li>";
+                $pagination .= "<li class='disabled'><a class='disabled'>" . Lang::T('Next') . "</a></li>";
+                $pagination .= "<li class='disabled'><a class='disabled'>" . Lang::T('Last') . "</a></li>";
             }
             $pagination .= "</ul>";
 

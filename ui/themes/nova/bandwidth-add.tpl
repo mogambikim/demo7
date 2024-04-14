@@ -1,20 +1,20 @@
 {include file="sections/header.tpl"}
 
-		<div class="row">
-			<div class="col-sm-12 col-md-12">
-				<div class="panel panel-primary panel-hovered panel-stacked mb30">
-					<div class="panel-heading">{$_L['Add_Bandwidth']}</div>
-						<div class="panel-body">
-			
-                <form class="form-horizontal" method="post" role="form" action="{$_url}bandwidth/add-post">            
-                    <div class="form-group">
-						<label class="col-md-2 control-label">{$_L['BW_Name']}</label>
+<div class="row">
+	<div class="col-sm-12 col-md-12">
+		<div class="panel panel-primary panel-hovered panel-stacked mb30">
+			<div class="panel-heading">{Lang::T('Add New Bandwidth')}</div>
+			<div class="panel-body">
+
+				<form class="form-horizontal" method="post" role="form" action="{$_url}bandwidth/add-post">
+					<div class="form-group">
+						<label class="col-md-2 control-label">{Lang::T('Bandwidth Name')}</label>
 						<div class="col-md-6">
 							<input type="text" class="form-control" id="name" name="name">
 						</div>
-                    </div>
-                    <div class="form-group">
-						<label class="col-md-2 control-label">{$_L['Rate_Download']}</label>
+					</div>
+					<div class="form-group">
+						<label class="col-md-2 control-label">{Lang::T('Rate Download')}</label>
 						<div class="col-md-4">
 							<input type="text" class="form-control" id="rate_down" name="rate_down">
 						</div>
@@ -24,9 +24,9 @@
 								<option value="Mbps">Mbps</option>
 							</select>
 						</div>
-                    </div>
-                    <div class="form-group">
-						<label class="col-md-2 control-label">{$_L['Rate_Upload']}</label>
+					</div>
+					<div class="form-group">
+						<label class="col-md-2 control-label">{Lang::T('Rate Upload')}</label>
 						<div class="col-md-4">
 							<input type="text" class="form-control" id="rate_up" name="rate_up">
 						</div>
@@ -36,134 +36,49 @@
 								<option value="Mbps">Mbps</option>
 							</select>
 						</div>
-                    </div>
-
-					<!-- ...existing form fields... -->
-
+					</div>
 					<div class="form-group">
-    <label class="col-md-2 control-label">Enable Burst Options</label>
-    <div class="col-md-6">
-        <input type="checkbox" id="enable_burst" name="enable_burst">
-    </div>
-</div>
-<div id="burst_options" style="display: none;">
-
-
-
-<div class="form-group">
-    <label class="col-md-2 control-label">Burst Limit for Upload(Kbps)</label>
-    <div class="col-md-4">
-        <input type="text" class="form-control" id="burst_limit_for_upload" name="burst_limit_for_upload">
-    </div>
-	<div class="col-md-2">
-							<select class="form-control" id="burst_limit_for_upload_unit" name="burst_limit_for_upload_unit">
-								<option value="Kbps">Kbps</option>
-								<option value="Mbps">Mbps</option>
-							</select>
+						<label class="col-md-2 control-label">Burst Limit</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="burst[]" placeholder="[Burst/Limit]">
 						</div>
-</div>
-
-
-<div class="form-group">
-    <label class="col-md-2 control-label">Burst Limit For Download (Kbps)</label>
-    <div class="col-md-4">
-        <input type="text" class="form-control" id="burst_limit_for_download" name="burst_limit_for_download">
-    </div>
-
-	<div class="col-md-2">
-							<select class="form-control" id="burst_limit_for_download_unit" name="burst_limit_for_download_unit">
-								<option value="Kbps">Kbps</option>
-								<option value="Mbps">Mbps</option>
-							</select>
+					</div>
+					<div class="form-group">
+						<label class="col-md-2 control-label">Burst Threshold</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="burst[]" placeholder="[Burst/Threshold]">
 						</div>
-</div>
-
-
-<div class="form-group">
-    <label class="col-md-2 control-label">Burst Threshold For Upload (Kbps)</label>
-    <div class="col-md-4">
-        <input type="text" class="form-control" id="burst_threshold_for_upload" name="burst_threshold_for_upload">
-    </div>
-	<div class="col-md-2">
-							<select class="form-control" id="burst_threshold_for_upload_unit" name="burst_threshold_for_upload_unit">
-								<option value="Kbps">Kbps</option>
-								<option value="Mbps">Mbps</option>
-							</select>
+					</div>
+					<div class="form-group">
+						<label class="col-md-2 control-label">Burst Time</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="burst[]" placeholder="[Burst/Time]">
 						</div>
-</div>
-
-
-<div class="form-group">
-    <label class="col-md-2 control-label">Burst Threshold for Download (Kbps)</label>
-    <div class="col-md-4">
-        <input type="text" class="form-control" id="burst_threshold_for_download" name="burst_threshold_for_download">
-    </div>
-	<div class="col-md-2">
-							<select class="form-control" id="burst_threshold_for_download_unit" name="burst_threshold_for_download_unit">
-								<option value="Kbps">Kbps</option>
-								<option value="Mbps">Mbps</option>
-							</select>
+					</div>
+					<div class="form-group">
+						<label class="col-md-2 control-label">Priority</label>
+						<div class="col-md-6">
+							<input type="number" class="form-control" name="burst[]" placeholder="[Priority]">
 						</div>
-</div>
-
-<div class="form-group">
-    <label class="col-md-2 control-label">Burst Time for Upload(Kbps)</label>
-    <div class="col-md-4">
-        <input type="text" class="form-control" id="burst_time_for_upload" name="burst_time_for_upload">
-    </div>
-
-	<div class="col-md-2">
-							<select class="form-control" id="nul1l_unit" name="null_1unit">
-								<option value="Kbps">Kbps</option>
-								<option value="Mbps">Mbps</option>
-							</select>
+					</div>
+					<div class="form-group">
+						<label class="col-md-2 control-label">Limit At</label>
+						<div class="col-md-6">
+							<input type="text" class="form-control" name="burst[]" placeholder="[Limit/At]">
 						</div>
-</div>
-
-
-<div class="form-group">
-    <label class="col-md-2 control-label">Burst Time for Download (Kbps)</label>
-    <div class="col-md-4">
-        <input type="text" class="form-control" id="burst_time_for_download" name="burst_time_for_download">
-    </div>
-
-	<div class="col-md-2">
-							<select class="form-control" id="null_unit" name="null_unit">
-								<option value="Kbps">Kbps</option>
-								<option value="Mbps">Mbps</option>
-							</select>
-						</div>
-</div>
-</div>
-
-<!-- Repeat similar structure for Burst Limit, Burst Threshold, and Burst Time for both Upload and Download -->
-
-<!-- ...rest of the form... -->
-
-
+					</div>
 					<div class="form-group">
 						<div class="col-lg-offset-2 col-lg-10">
-							<button class="btn btn-primary waves-effect waves-light" type="submit">{$_L['Submit']}</button>
-							Or <a href="{$_url}bandwidth/list">{$_L['Cancel']}</a>
+							<button class="btn btn-primary"
+								type="submit">{Lang::T('Submit')}</button>
+							Or <a href="{$_url}bandwidth/list">{Lang::T('Cancel')}</a>
 						</div>
 					</div>
-                </form>
-				
-					</div>
-				</div>
+				</form>
+
 			</div>
 		</div>
-
-		<script>
-    document.getElementById('enable_burst').addEventListener('change', function() {
-        var burstSection = document.getElementById('burst_options');
-        if(this.checked) {
-            burstSection.style.display = 'block';
-        } else {
-            burstSection.style.display = 'none';
-        }
-    });
-</script>
-
+	</div>
+</div>
 
 {include file="sections/footer.tpl"}

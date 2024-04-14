@@ -7,12 +7,12 @@
             <div class="inner">
                 <h4><sup>{$_c['currency_code']}</sup>
                     {number_format($iday,0,$_c['dec_point'],$_c['thousands_sep'])}</h4>
-                <p>{$_L['Income_Today']}</p>
+                <p>{Lang::T('Income Today')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-bag"></i>
             </div>
-            <a href="{$_url}reports/by-date" class="small-box-footer">{$_L['View_Reports']} <i
+           <a href="{$_url}reports/by-date" class="small-box-footer">{Lang::T('View Reports')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
@@ -22,12 +22,12 @@
                 <h4><sup>{$_c['currency_code']}</sup>
                     {number_format($imonth,0,$_c['dec_point'],$_c['thousands_sep'])}</h4>
 
-                <p>{$_L['Income_This_Month']}</p>
+                <p>{Lang::T('Income This Month')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="{$_url}reports/by-period" class="small-box-footer">{$_L['View_Reports']} <i
+           <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
@@ -36,12 +36,12 @@
             <div class="inner">
                 <h4>{$u_act}/{$u_all}</h4>
 
-                <p>{$_L['Users_Active']}</p>
+               <p>{Lang::T('Users Active')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-person"></i>
             </div>
-            <a href="{$_url}prepaid/list" class="small-box-footer">{$_L['View_All']} <i
+            <a href="{$_url}prepaid/list" class="small-box-footer">{Lang::T('View All')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
@@ -50,29 +50,38 @@
             <div class="inner">
                 <h4>{$c_all}</h4>
 
-                <p>{$_L['Total_Users']}</p>
+                <p>{Lang::T('Total Users')}</p>
             </div>
             <div class="icon">
                 <i class="fa fa-users"></i>
             </div>
-            <a href="{$_url}customers/list" class="small-box-footer">{$_L['View_All']} <i
+           <a href="{$_url}customers/list" class="small-box-footer">{Lang::T('View All')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
 </div>
-<!-- solid sales graph -->
-{if $_c['hide_mrc'] != 'yes'}
-    <div class="box box-solid ">
-        <div class="box-header">
-            <i class="fa fa-th"></i>
+<div class="row">
+    <div class="col-md-7">
 
-            <h3 class="box-title">{Lang::T('Monthly Registered Customers')}</h3>
+        <!-- solid sales graph -->
+        {if $_c['hide_mrc'] != 'yes'}
+            <div class="box box-solid ">
+                <div class="box-header">
+                    <i class="fa fa-th"></i>
 
-            <div class="box-tools pull-right">
-                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn bg-teal btn-sm" data-widget="remove"><i class="fa fa-times"></i>
-                </button>
+                    <h3 class="box-title">{Lang::T('Monthly Registered Customers')}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                        <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
+                                class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body border-radius-none">
+                    <canvas class="chart" id="chart" style="height: 250px;"></canvas>
+                </div>
             </div>
         </div>
         <div class="box-body border-radius-none">
@@ -87,13 +96,19 @@
         <div class="box-header">
             <i class="fa fa-inbox"></i>
 
-            <h3 class="box-title">{Lang::T('Total Monthly Sales')}</h3>
+                    <h3 class="box-title">{Lang::T('Total Monthly Sales')}</h3>
 
-            <div class="box-tools pull-right">
-                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn bg-teal btn-sm" data-widget="remove"><i class="fa fa-times"></i>
-                </button>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                        <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
+                                class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body border-radius-none">
+                    <canvas class="chart" id="chart" style="height: 250px;"></canvas>
+                </div>
             </div>
         </div>
         <div class="box-body border-radius-none">
@@ -108,10 +123,10 @@
                 <div class="panel panel-primary mb20 panel-hovered project-stats table-responsive">
                     <div class="panel-heading">Vouchers Stock</div>
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-condensed">
                             <thead>
                                 <tr>
-                                    <th>{$_L['Plan_Name']}</th>
+                                    <th>{Lang::T('Plan Name')}</th>
                                     <th>unused</th>
                                     <th>used</th>
                                 </tr>
@@ -135,17 +150,43 @@
                 </div>
             {/if}
         {/if}
+        {if isset($interfaces) && isset($trafficData)}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-header">
+                <i class="fa fa-chart-line"></i>
+                <h3 class="box-title">Traffic Graph</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="form-group">
+                    <label for="interfaceSelect">Select Interface:</label>
+                    <select id="interfaceSelect" class="form-control">
+                        {foreach $interfaces as $interface}
+                        <option value="{$interface.name}" {if $selectedInterface == $interface.name}selected{/if}>{$interface.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{/if}
         {if $_c['hide_uet'] != 'yes'}
             <div class="panel panel-warning mb20 panel-hovered project-stats table-responsive">
-                <div class="panel-heading">{$_L['User_Expired_Today']}</div>
+                      <div class="panel-heading">{Lang::T('Users Expiring Today')}</div>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-condensed">
                         <thead>
                             <tr>
                                 <th>Id</th>
-                                <th>{$_L['Username']}</th>
-                                <th>{$_L['Created_On']}</th>
-                                <th>{$_L['Expires_On']}</th>
+                                 <th>{Lang::T('Username')}</th>
+                                 <th>{Lang::T('Created On')}</th>
+                                <th>{Lang::T('Expires On')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -185,13 +226,13 @@
         {/if}
         {if $_c['hide_al'] != 'yes'}
             <div class="panel panel-info panel-hovered mb20 activities">
-                <div class="panel-heading"><a href="{$_url}logs">{$_L['Activity_Log']}</a></div>
+                <div class="panel-heading"><a href="{$_url}logs">{Lang::T('Activity Log')}</a></div>
                 <div class="panel-body">
                     <ul class="list-unstyled">
                         {foreach $dlog as $dlogs}
                             <li class="primary">
                                 <span class="point"></span>
-                                <span class="time small text-muted">{time_elapsed_string($dlogs['date'],true)}</span>
+                                <span class="time small text-muted">{Lang::timeElapsed($dlogs['date'],true)}</span>
                                 <p>{$dlogs['description']}</p>
                             </li>
                         {/foreach}

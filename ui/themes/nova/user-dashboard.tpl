@@ -3,7 +3,7 @@
 <div class="space-y-5">
   <!-- BEGIN: BreadCrumb -->
   <div class="flex justify-between flex-wrap items-center mb-6">
-    <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4 mb-1 sm:mb-0">{$_L['Account_Information']}</h4>
+    <h4 class="font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4 mb-1 sm:mb-0">{Lang::T('Your Account Information')}</h4>
     <div class="flex sm:space-x-4 space-x-2 sm:justify-end items-center rtl:space-x-reverse"> {if $_c['disable_voucher'] != 'yes'} <button class="btn inline-flex justify-center btn-outline-success rounded-[25px] btn-sm m-1 active" data-bs-toggle="modal" data-bs-target="#voucher_modal">
         <span class="flex items-center">
           <iconify-icon class="text-xl ltr:mr-2 rtl:ml-2" icon="heroicons-outline:credit-card"></iconify-icon>
@@ -103,7 +103,7 @@
                 {/if}
             {/foreach}
         {else}
-            <span class="block text-sm">{$_L['Plan_Name']}</span><span class="block">{Lang::T('Buy Package')}</span>
+            <span class="block text-sm">{Lang::T('Plan Name')}</span><span class="block">{Lang::T('Buy Package')}</span>
         {/if}
     </span>
 </h4>
@@ -143,13 +143,13 @@
                     </li>
                     <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
                       <div class="flex justify-between">
-                        <span>{$_L['Plan_Name']}</span>
+                        <span>{Lang::T('Plan Name')}</span>
                         <span>{$unpaid['plan_name']}</span>
                       </div>
                     </li>
                     <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
                       <div class="flex justify-between">
-                        <span>{$_L['Plan_Price']}</span>
+                        <span>{Lang::T('Plan Price')}</span>
                         <span>{$unpaid['price']}</span>
                       </div>
                     </li>
@@ -193,7 +193,7 @@
         <div class="lg:col-span-4 col-span-12 space-y-5">
           <div class="card">
             <header class="card-header">
-              <h4 class="card-title"> {$_L['Announcement']} </h4>
+              <h4 class="card-title"> {Lang::T('Announcement')} </h4>
               <div></div>
             </header>
             <div class="card-body p-6">
@@ -221,15 +221,15 @@
                           <table class="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700">
                             <tbody class="bg-white dark:bg-slate-800 ">
                               <tr>
-                                <td class="table-td "> {$_L['Username']}&nbsp;: <br> {$_user['username']} </td>
-                                <td class="table-td "> {$_L['Password']}&nbsp;: <br>
+                                <td class="table-td "> {Lang::T('Username')}&nbsp;: <br> {$_user['username']} </td>
+                                <td class="table-td "> {Lang::T('Password')}&nbsp;: <br>
                                   <input type="password" value="{$_user['password']}" style="width:100%; border: 0px; color: red;" onmouseleave="this.type = 'password'" onmouseenter="this.type = 'text'" onclick="this.select()">
                                 </td>
                                 <td class="table-td  "> {Lang::T('Balance')}&nbsp;: <br> {if $_c['enable_balance'] == 'yes'} {Lang::moneyFormat($_user['balance'])} {else} N/A {/if} </td>
                               </tr>
                                {if $_bills}
                               <tr>
-                                <td class="table-td ">{$_L['Plan_Name']}&nbsp;: <br>{foreach $_bills as $_bill}
+                                <td class="table-td ">{Lang::T('Plan Name')}&nbsp;: <br>{foreach $_bills as $_bill}
                                     {$_bill['namebp']} &nbsp;
                                     {if $_bill['status'] == 'on'}
                                             <a class="flex-none" href="{$_url}home&deactivate={$_bill['id']}"
@@ -241,8 +241,8 @@
 
                                     {/if}<br>
                                 {/foreach}</td>
-                                <td class="table-td ">{$_L['Created_On']} <br> {if $_bill['time'] ne ''}{Lang::dateAndTimeFormat($_bill['recharged_on'],$_bill['recharged_time'])} {/if} </td>
-                                <td class="table-td  "> {$_L['Expires_On']}&nbsp;: <br> {if $_bill['time'] ne ''}{Lang::dateAndTimeFormat($_bill['expiration'],$_bill['time'])}{/if} </td>
+                                <td class="table-td ">{Lang::T('Created On')} <br> {if $_bill['time'] ne ''}{Lang::dateAndTimeFormat($_bill['recharged_on'],$_bill['recharged_time'])} {/if} </td>
+                                <td class="table-td  "> {Lang::T('Expires On')}&nbsp;: <br> {if $_bill['time'] ne ''}{Lang::dateAndTimeFormat($_bill['expiration'],$_bill['time'])}{/if} </td>
                               </tr>
                               <tr>
                                 <td class="table-td "> {Lang::T('Current IP')}&nbsp;: <br> {if $nux_ip} <br> {$nux_ip} {else} N/A {/if} </td>
@@ -330,7 +330,7 @@
       <div class="relative bg-white rounded-lg shadow dark:bg-slate-700">
         <!-- Modal header -->
         <div class="flex items-center justify-between p-5 border-b rounded-t dark:border-slate-600 bg-black-500">
-          <h3 class="text-xl font-medium text-white dark:text-white capitalize"> {$_L['Voucher_Activation']} </h3>
+          <h3 class="text-xl font-medium text-white dark:text-white capitalize"> {Lang::T('Voucher Activation')} </h3>
           <button type="button" class="text-slate-400 bg-transparent hover:text-slate-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center
                                 dark:hover:bg-slate-600 dark:hover:text-white" data-bs-dismiss="modal">
             <svg aria-hidden="true" class="w-5 h-5" fill="#ffffff" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -346,17 +346,17 @@
             <div class="p-6 space-y-6">
               <div class="input-group">
                 <label for="voucher" class="text-sm font-Inter font-normal text-slate-900 block">
-                  <h6>{$_L['Code_Voucher']}</h6>
+                  <h6>{Lang::T('Code Voucher')}</h6>
                 </label>
                 <div class="relative">
-                  <input type="text" id="code" name="code" required placeholder="{$_L['Enter_Voucher_Code']}" class="text-sm font-Inter font-normal text-slate-600 block w-full py-3 px-4 focus:!outline-none focus:!ring-0 border
+                  <input type="text" id="code" name="code" required placeholder="{Lang::T('Enter voucher code here')}" class="text-sm font-Inter font-normal text-slate-600 block w-full py-3 px-4 focus:!outline-none focus:!ring-0 border
                               !border-slate-400 rounded-md mt-2">
                 </div>
               </div>
               <!-- Modal footer -->
               <div class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
                 <button type="button" data-bs-dismiss="modal" class="btn  btn-outline-primary rounded-[25px]">Cancel</button>
-                <button type="submit" class="btn btn-outline-success rounded-[25px]">{$_L['Recharge']}</button>
+                <button type="submit" class="btn btn-outline-success rounded-[25px]">{Lang::T('Recharge')}</button>
               </div>
             </div>
           </form>
@@ -388,7 +388,7 @@
             <div class="p-6 space-y-6">
               <div class="input-group">
                 <label for="voucher" class="text-sm font-Inter font-normal text-slate-900 block">
-                  <h6>{$_L['Username']}</h6>
+                  <h6>{Lang::T('Username')}</h6>
                 </label>
                 <div class="relative">
                   <input type="text" id="username" name="username" required placeholder="input the receiver username" class="text-sm font-Inter font-normal text-slate-600 block w-full py-3 px-4 focus:!outline-none focus:!ring-0 border
@@ -397,7 +397,7 @@
                 <!-- Modal footer -->
                 <div class="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 rounded-b dark:border-slate-600">
                   <button type="button" data-bs-dismiss="modal" class="btn btn-outline-primary rounded-[25px]">Cancel</button>
-                  <button class="btn btn-outline-success rounded-[25px]" id="sendBtn" type="submit" name="send" onclick="return confirm('{Lang::T(" Are You Sure?")}')" value="plan">{$_L['Recharge']}</button>
+                  <button class="btn btn-outline-success rounded-[25px]" id="sendBtn" type="submit" name="send" onclick="return confirm('{Lang::T(" Are You Sure?")}')" value="plan">{Lang::T('Recharge')}</button>
                 </div>
               </div>
             </div>

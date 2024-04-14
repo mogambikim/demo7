@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
-    <title>{$_title} - {$_L['Login']}</title>
+     <title>{Lang::T('Login')} - {$_c['CompanyName']}</title>
     <link rel="icon" type="image/png" href="{$_theme}/images/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,21 +60,21 @@
             </div>
             <div class="text-center 2xl:mb-10 mb-5">
               <h4 class="font-medium">Sign In</h4>
-              <div class="text-slate-500 dark:text-slate-400 text-base"> {$_L['Sign_In_Member']} </div>
+              <div class="text-slate-500 dark:text-slate-400 text-base"> {Lang::T('Log in to Member Panel')} </div>
             </div>
             <!-- BEGIN: Login Form -->
             <form class="space-y-4" action="{$_url}login/post" method="post">
 <form class="space-y-4" action="{$_url}login/post" method="post">
   <div class="fromGroup">
-    <label class="block capitalize form-label">{$_L['Phone_Number']}</label>
+    <label class="block capitalize form-label">{Lang::T('Phone Number')}</label>
     <div class="relative ">
-      <input type="text" name="username" class="form-control py-2" required value="{$username|default:''}" placeholder="{if $_c['country_code_phone']!= ''}{$_c['country_code_phone']}{/if} {$_L['Phone_Number']}">
+      <input type="text" name="username" class="form-control py-2" required value="{$username|default:''}" placeholder="{if $_c['country_code_phone']!= ''}{$_c['country_code_phone']}{/if} {Lang::T('Phone Number')}">
     </div>
   </div>
   <div class="fromGroup">
-    <label class="block capitalize form-label">{$_L['Password']}</label>
+    <label class="block capitalize form-label">{Lang::T('Password')}</label>
     <div class="relative ">
-      <input type="password" name="password" class="form-control py-2" required value="{$password|default:''}" placeholder="{$_L['Password']}">
+      <input type="password" name="password" class="form-control py-2" required value="{$password|default:''}" placeholder="{Lang::T('Password')}">
     </div>
   </div>
               <div class="flex justify-between">
@@ -84,10 +84,10 @@
                 </label>
                 <a class="text-sm text-slate-800 dark:text-slate-400 leading-6 font-medium" href="">Forgot Password? </a>
               </div>
-              <button type="submit" class="btn btn-dark block w-full text-center">{$_L['Login']}</button>
+              <button type="submit" class="btn btn-dark block w-full text-center">{Lang::T('Login')}</button>
             </form>
             <!-- END: Login Form -->
-            <div class="mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-6 uppercase text-sm text-center"> Don't have Account? <a href="{$_url}register" class="text-slate-900 dark:text-white font-medium hover:underline"> {$_L['Register']}</a>
+            <div class="mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-6 uppercase text-sm text-center"> Don't have Account? <a href="{$_url}register" class="text-slate-900 dark:text-white font-medium hover:underline"> {Lang::T('Register')}</a>
             </div>
           </div>
         </div>

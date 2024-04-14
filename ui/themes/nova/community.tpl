@@ -137,7 +137,7 @@
                 <h3 class="box-title">FREEISPRADIUS</h3>
             </div>
             <div class="box-body">
-                {$_L['Welcome_Text_Admin']}
+             <b>FreeIspRadius</b> is a billing Static, Hotspot and PPPOE for Mikrotik using PHP and Mikrotik API to comunicate with router. If you get more profit with this application, please donate us.<br>Watch project <a href="https://freeispradius.com" target="_blank">in here</a>
             </div>
            
             <div class="box-footer">

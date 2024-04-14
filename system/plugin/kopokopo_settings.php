@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../config.php';
 register_menu("KopoKopo Settings", true, "kopokopo_settings", 'SETTINGS', '');
 $conn = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
 // rest of your code...
+
 function get_option($option_name, $default = '') {
     global $conn;
     try {
@@ -50,6 +51,8 @@ function kopokopo_settings()
     _admin();
     $ui->assign('_title', 'KopoKopo Settings');
     $ui->assign('_system_menu', 'settings');
+    $admin = Admin::_info();
+    $ui->assign('_admin', $admin);
 
     $message = '';
 
@@ -90,7 +93,7 @@ function kopokopo_settings()
     // Assign the success message to the UI
     $ui->assign('message', $message);
 
-    $admin = Admin::_info();
+    //$admin = Admin::_info();
     $ui->assign('_admin', $admin);
     $ui->display('kopokopo_settings.tpl');
 }

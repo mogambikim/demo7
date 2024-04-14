@@ -5,29 +5,7 @@
  **/
 
 
-// on some server, it getting error because of slash is backwards
-function _autoloader($class)
-{
-    if (strpos($class, '_') !== false) {
-        $class = str_replace('_', DIRECTORY_SEPARATOR, $class);
-        if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php')) {
-            include __DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php';
-        } else {
-            $class = str_replace("\\", DIRECTORY_SEPARATOR, $class);
-            if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php'))
-                include __DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php';
-        }
-    } else {
-        if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php')) {
-            include __DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php';
-        } else {
-            $class = str_replace("\\", DIRECTORY_SEPARATOR, $class);
-            if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php'))
-                include __DIR__ . DIRECTORY_SEPARATOR . 'autoload' . DIRECTORY_SEPARATOR . $class . '.php';
-        }
-    }
-}
-spl_autoload_register('_autoloader');
+include "../init.php";
 
 
 if (php_sapi_name() !== 'cli') {

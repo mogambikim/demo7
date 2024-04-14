@@ -19,13 +19,13 @@ $ui->assign('_user', $user);
 switch ($action) {
     case 'voucher':
         $ui->assign('_system_menu', 'voucher');
-        $ui->assign('_title', $_L['Order_Voucher']);
+        $ui->assign('_title', Lang::T('Order Voucher'));
         run_hook('customer_view_order'); #HOOK
         $ui->display('user-order.tpl');
         break;
     case 'history':
         $ui->assign('_system_menu', 'history');
-        $paginator = Paginator::build(ORM::for_table('tbl_payment_gateway'),['username'=>$user['username']]);
+        $paginator = Paginator::build(ORM::for_table('tbl_payment_gateway'), ['username' => $user['username']]);
         $d = ORM::for_table('tbl_payment_gateway')
             ->where('username', $user['username'])
             ->order_by_desc('id')
@@ -47,14 +47,14 @@ switch ($action) {
             $ui->assign('plans_balance', $plans_balance);
             $ui->display('user-orderBalance.tpl');
             break;
-        case 'package':
-            if (strpos($user['email'], '@') === false) {
-                r2(U . 'accounts/profile', 'e', Lang::T("Please enter your email address"));
-            }
-            $ui->assign('_title', 'Order Plan');
-            $ui->assign('_system_menu', 'package');
-            if (!empty($_SESSION['nux-router'])) {
-                if ($_SESSION['nux-router'] == 'radius') {
+            case 'package':
+                if (strpos($user['email'], '@') === false) {
+                    r2(U . 'accounts/profile', 'e', Lang::T("Please enter your email address"));
+                }
+                $ui->assign('_title', 'Order Plan');
+                $ui->assign('_system_menu', 'package');
+                if (!empty($_SESSION['nux-router'])) {
+                    if ($_SESSION['nux-router'] == 'radius') {
                     $radius_pppoe = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 1)->where('type', 'PPPOE')->where('allow_purchase', 'yes')->find_many();
                     $radius_hotspot = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 1)->where('type', 'Hotspot')->where('allow_purchase', 'yes')->find_many();
                     $radius_static = ORM::for_table('tbl_plans')->where('enabled', '1')->where('is_radius', 1)->where('type', 'Static')->where('allow_purchase', 'yes')->find_many();
@@ -140,11 +140,11 @@ switch ($action) {
             r2(U . "order/buy/" . (($trx['routers_id'] == 0) ? $trx['routers'] : $trx['routers_id']) . '/' . $trx['plan_id'], 'w', Lang::T("Checking payment"));
         }
         if ($routes['3'] == 'check') {
-            if (!file_exists('system/paymentgateway/' . $trx['gateway'] . '.php')) {
+            if (!file_exists($PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $trx['gateway'] . '.php')) {
                 r2(U . 'order/view/' . $trxid, 'e', Lang::T("No Payment Gateway Available"));
             }
             run_hook('customer_check_payment_status'); #HOOK
-            include 'system/paymentgateway/' . $trx['gateway'] . '.php';
+            include $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $trx['gateway'] . '.php';
             call_user_func($trx['gateway'] . '_validate_config');
             call_user_func($config['payment_gateway'] . '_get_status', $trx, $user);
         } else if ($routes['3'] == 'cancel') {
@@ -174,7 +174,7 @@ switch ($action) {
         $ui->display('user-orderView.tpl');
         break;
     case 'pay':
-        if ($_c['enable_balance'] != 'yes' && $config['allow_balance_transfer'] != 'yes') {
+        if ($config['enable_balance'] != 'yes') {
             r2(U . "order/package", 'e', Lang::T("Balance not enabled"));
         }
         $plan = ORM::for_table('tbl_plans')->where('enabled', '1')->find_one($routes['3']);
@@ -217,7 +217,7 @@ if($plan['allow_purchase'] != 'yes'){
         }
         break;
     case 'send':
-        if ($_c['enable_balance'] != 'yes') {
+        if ($config['enable_balance'] != 'yes') {
             r2(U . "order/package", 'e', Lang::T("Balance not enabled"));
         }
         $ui->assign('_title', Lang::T('Buy for friend'));
@@ -316,15 +316,34 @@ if($plan['allow_purchase'] != 'yes'){
         if (strpos($user['email'], '@') === false) {
             r2(U . 'accounts/profile', 'e', Lang::T("Please enter your email address"));
         }
-        if ($config['payment_gateway'] == 'none') {
+        if (!file_exists($PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $config['payment_gateway'] . '.php')) {
             r2(U . 'home', 'e', Lang::T("No Payment Gateway Available"));
         }
-        if (!file_exists('system/paymentgateway/' . $config['payment_gateway'] . '.php')) {
-            r2(U . 'home', 'e', Lang::T("No Payment Gateway Available"));
+        require_once $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $config['payment_gateway'] . '.php';
+        $files = scandir($PAYMENTGATEWAY_PATH);
+        foreach ($files as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) == 'php') {
+                $pgs[] = str_replace('.php', '', $file);
+            }
+        }
+        $ui->assign('pgs', $pgs);
+        $ui->assign('route2', $routes[2]);
+        $ui->assign('route3', $routes[3]);
+
+        //$ui->assign('plan', $plan);
+        $ui->display('user-selectGateway.tpl');
+        break;
+
+    case 'pay_now':
+        $gateway = $_POST['gateway'];
+        //$routes[2] = $_GET['route2'];
+        //$routes[3] = $_GET['route3'];
+        if ($gateway == 'none') {
+            r2(U . 'order/buy/' . $routes[2] . '/' . $routes[3], 'e', Lang::T("No Payment Gateway Selected"));
         }
         run_hook('customer_buy_plan'); #HOOK
-        include 'system/paymentgateway/' . $config['payment_gateway'] . '.php';
-        call_user_func($config['payment_gateway'] . '_validate_config');
+        include $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $gateway . '.php';
+        call_user_func($gateway . '_validate_config');
 
         if ($routes['2'] == 'radius') {
             $router['id'] = 0;

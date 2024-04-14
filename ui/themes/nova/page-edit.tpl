@@ -15,13 +15,13 @@
                 <div class="panel-footer">
                     <a href="javascript:saveIt()" class="btn btn-primary btn-block">SAVE</a>
                     <br>
-                    <p class="help-block">{$_L['Info_Page']}</p>
+                    <p class="help-block">{Lang::T('info Page')}</p>
                     <input type="text" class="form-control" onclick="this.select()" readonly
                         value="{$app_url}/pages/{$PageFile}.html">
                 </div>
             {else}
                 <div class="panel-footer">
-                    {$_L['Failed_Save_Page']}
+                    {Lang::T('Failed to Save Pages')}
                 </div>
             {/if}
             {if $PageFile=='Voucher'}

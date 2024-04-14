@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
-    <title>{$_title} - {$_L['Register']}</title>
+    <title>{Lang::T('Register')} - {$_c['CompanyName']}</title>
     <link rel="icon" type="image/png" href="{$_theme}/images/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="{$_theme}/assets/css/app.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.1/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.1/dist/sweetalert2.all.min.js"></script>
+        <link rel="stylesheet" href="ui/ui/styles/sweetalert2.min.css" />
+    <script src="ui/ui/scripts/sweetalert2.all.min.js"></script>
     <!-- START : Theme Config js-->
     <script src="{$_theme}/assets/js/settings.js" sync></script>
     <!-- END : Theme Config js-->
@@ -59,7 +61,7 @@
               </a>
             </div>
             <div class="text-center 2xl:mb-10 mb-5">
-              <h4 class="font-medium">{$_L['Register_Member']}</h4>
+              <h4 class="font-medium">{Lang::T('Register Member')}</h4>
               <div class="text-slate-500 dark:text-slate-400 text-base">
                 <small></small>
               </div>
@@ -92,7 +94,7 @@
                     </div>
                     <div class="bar-line"></div>
                     <div class="circle-box">
-                      <span class="w-max">{$_L['Password']}</span>
+                      <span class="w-max">{Lang::T('Password')}</span>
                     </div>
                   </div>
                   <div class="  relative z-[1] items-center item flex flex-start flex-1
@@ -129,15 +131,15 @@
                         <h4 class="text-base text-slate-800 dark:text-slate-300 my-6">Enter Your Account Details</h4>
                       </div>
                       <div class="input-area">
-                        <label for="" class="form-label">{$_L['Phone_Number']}*</label>
-                        <input name="username" type="text" class="form-control" placeholder="{if $_c['country_code_phone']!= ''}{$_c['country_code_phone']}{/if} {$_L['Phone_Number']}">
+                        <label for="" class="form-label">{Lang::T('Phone Number')}*</label>
+                        <input name="username" type="text" class="form-control" placeholder="{if $_c['country_code_phone']!= ''}{$_c['country_code_phone']}{/if} {Lang::T('Phone Number')}">
                       </div>
                       <div class="input-area">
-                        <label for="" class="form-label">{$_L['Full_Name']}*</label>
+                        <label for="" class="form-label">{Lang::T('Full Name')}*</label>
                         <input type="text" required class="form-control" id="fullname" value="{$fullname}" name="fullname" placeholder="Enter your full name">
                       </div>
                       <div class="input-area">
-                        <label for="" class="form-label">{$_L['Email']}*</label>
+                        <label for="" class="form-label">{Lang::T('Email')}*</label>
                         <input id="email" required type="text" class="form-control" placeholder="xxxxxxx@xxxx.xx" value="{$email}" name="email">
                       </div>
                     </div>
@@ -145,14 +147,14 @@
                   <div class="wizard-form-step" data-step="2">
                     <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5">
                       <div class="lg:col-span-3 md:col-span-2 col-span-1">
-                        <h4 class="text-base text-slate-800 dark:text-slate-300 my-6">{$_L['Password']}</h4>
+                        <h4 class="text-base text-slate-800 dark:text-slate-300 my-6">{Lang::T('Password')}</h4>
                       </div>
                       <div class="input-area">
-                        <label for="" class="form-label">{$_L['Password']}*</label>
+                        <label for="" class="form-label">{Lang::T('Password')}*</label>
                         <input type="password" required class="form-control" id="password" name="password">
                       </div>
                       <div class="input-area">
-                        <label for="" class="form-label">{$_L['Confirm_Password']}*</label>
+                        <label for="" class="form-label">{Lang::T('Confirm Password')}*</label>
                         <input type="password" required class="form-control" id="cpassword" name="cpassword">
                       </div>
                     </div>
@@ -163,7 +165,7 @@
                         <h4 class="text-base text-slate-800 dark:text-slate-300 my-6">Address</h4>
                       </div>
                       <div class="input-area lg:col-span-3 md:col-span-2 col-span-1">
-                        <label for="" class="form-label">{$_L['Address']}*</label>
+                        <label for="" class="form-label">{Lang::T('Address')}*</label>
                         <textarea name="address" required id="address" rows="3" class="form-control" value="{$address}"></textarea>
                       </div>
                     </div>
@@ -193,7 +195,7 @@
               </div>
             </div>
             <!-- END: Login Form -->
-            <div class="mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-6 uppercase text-sm text-center"> Already registered? <a href="{$_url}login" class="text-slate-900 dark:text-white font-medium hover:underline"> {$_L['Login']}</a>
+            <div class="mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-6 uppercase text-sm text-center"> Already registered? <a href="{$_url}login" class="text-slate-900 dark:text-white font-medium hover:underline"> {Lang::T('Login')}</a>
             </div>
           </div>
         </div>

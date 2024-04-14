@@ -15,8 +15,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">{Lang::T('Expired Notification ')}</label>
                         <div class="col-md-6">
-                            <textarea class="form-control" id="expired"
-                                name="expired"
+                            <textarea class="form-control" id="expired" name="expired"
                                 placeholder="Hello [[name]], your internet package [[package]] has  expired"
                                 rows="3">{if $_json['expired']!=''}{Lang::htmlspecialchars($_json['expired'])}{else}Hello [[name]], your internet package [[package]] has  expired.{/if}</textarea>
                         </div>
@@ -149,8 +148,8 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <button class="btn btn-success btn-block waves-effect waves-light"
-                        type="submit">{$_L['Save']}</button>
+                            <button class="btn btn-success"
+                        type="submit">{Lang::T('Save Changes')}</button>
                 </div>
             </div>
         </div>

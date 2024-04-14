@@ -5,15 +5,15 @@
  **/
 
 _admin();
-$ui->assign('_title', $_L['Static_Plans']);
+$ui->assign('_title', Lang::T('Static Plans'));
 $ui->assign('_system_menu', 'services');
 
 $action = $routes['1'];
-$admin = Admin::_info();
+//$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-	r2(U."dashboard",'e',$_L['Do_Not_Access']);
+	r2(U."dashboard",'e',Lang::T('You do not have permission to access this page'));
 }
 
 use PEAR2\Net\RouterOS;
@@ -23,7 +23,7 @@ require_once 'system/autoload/PEAR2/Autoload.php';
 
 switch ($action) {
 	case 'lists':
-	    $ui->assign('_title', $_L['Static_IP_Plans']);
+	    $ui->assign('_title', Lang::T('Static Ip Plans'));
 	    $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/static-ip.js"></script>');
 
 	    $name = _post('name');
@@ -47,7 +47,7 @@ switch ($action) {
 
 
 	    case 'add':
-	        $ui->assign('_title', $_L['Static_IP_Plans']);
+	        $ui->assign('_title', Lang::T('Static Ip Plans'));
 	        $d = ORM::for_table('tbl_bandwidth')->find_many();
 	        $ui->assign('d', $d);
 	        $r = ORM::for_table('tbl_routers')->find_many();
@@ -57,7 +57,7 @@ switch ($action) {
 	        break;
 
 	    case 'edit':
-	        $ui->assign('_title', $_L['Static_IP_Plans']);
+	        $ui->assign('_title', Lang::T('Static Ip Plans'));
 	        $id = $routes['2'];
 	        $d = ORM::for_table('tbl_plans')->find_one($id);
 	        if ($d) {
@@ -71,7 +71,7 @@ switch ($action) {
 	            run_hook('view_edit_static'); // Update the hook for editing static IP
 	            $ui->display('static-edit.tpl'); // Ensure this template exists for editing static IP plans
 	        } else {
-	            r2(U . 'services/static', 'e', $_L['Account_Not_Found']);
+	            r2(U . 'services/static', 'e', Lang::T('Account Not Found'));
 	        }
 	        break;
 
@@ -99,9 +99,9 @@ switch ($action) {
 	            $d->delete();
 
 
-	                r2(U . 'static/lists', 's', $_L['Delete_Successfully']);
+	                r2(U . 'static/lists', 's', Lang::T('Data Deleted Successfully'));
 	            } else {
-	                r2(U . 'static/lists', 'e', $_L['Account_Not_Found']);
+	                r2(U . 'static/lists', 'e', Lang::T('Account Not Found'));
 	            }
 	            break;
 
@@ -128,15 +128,15 @@ switch ($action) {
 	                    $msg .= 'The price must be a number' . '<br>';
 	                }
 	                if ($name == '' or $id_bw == '' or $price == '' or $validity == '') {
-	                    $msg .= $_L['All_field_is_required'] . '<br>';
+	                    $msg .= Lang::T('All field is required') . '<br>';
 	                }
 	                if ($routers == '') {
-	                    $msg .= $_L['All_field_is_required'] . '<br>';
+	                    $msg .= Lang::T('All field is required') . '<br>';
 	                }
 
 	                $d = ORM::for_table('tbl_plans')->where('name_plan', $name)->find_one();
 	                if ($d) {
-	                    $msg .= $_L['Plan_already_exist'] . '<br>';
+	                    $msg .= Lang::T('Name Plan Already Exist') . '<br>';
 	                }
 	                run_hook('add_static'); // Update the hook for static IP
 
@@ -220,7 +220,7 @@ switch ($action) {
 	                        }
 	                    }
 	        //check here too how its structured on our case should be static or something services/dtatic
-	                    r2(U . 'static/lists', 's', $_L['Created_Successfully']);
+	                    r2(U . 'static/lists', 's', Lang::T('Data Created Successfully'));
 	                } else {
 	                    r2(U . 'static/add', 'e', $msg);
 	                }
@@ -248,13 +248,13 @@ switch ($action) {
 	            $msg .= 'The price must be a number' . '<br>';
 	        }
 	        if ($name == '' or $id_bw == '' or $price == '' or $validity == '' or $pool == '') {
-	            $msg .= $_L['All_field_is_required'] . '<br>';
+	            $msg .= Lang::T('All field is required') . '<br>';
 	        }
 
 	        $d = ORM::for_table('tbl_plans')->where('id', $id)->find_one();
 	        if ($d) {
 	        } else {
-	            $msg .= $_L['Data_Not_Found'] . '<br>';
+	            $msg .= Lang::T('Data Not Found') . '<br>';
 	        }
 
 	        //check below
@@ -302,7 +302,7 @@ switch ($action) {
 							$d->allow_purchase = $allow_purchase;
 	            $d->save();
 	//check here needs more
-	            r2(U . 'static/lists', 's', $_L['Updated_Successfully']);
+	            r2(U . 'static/lists', 's', Lang::T('Data Updated Successfully'));
 	        } else {
 	            r2(U . 'static/edit/' . $id, 'e', $msg);
 	        }

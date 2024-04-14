@@ -41,9 +41,9 @@ function MpesaPaybill_save_config()
    
 
 
-    _log('[' . $admin['username'] . ']: M-Pesa ' . $_L['Settings_Saved_Successfully'] . json_encode($_POST['mpesa_channel']), 'Admin', $admin['id']);
+    _log('[' . $admin['username'] . ']: M-Pesa ' . Lang::T('Settings Saved Successfully') . json_encode($_POST['mpesa_channel']), 'Admin', $admin['id']);
 
-    r2(U . 'paymentgateway/MpesaPaybill', 's', $_L['Settings_Saved_Successfully']);
+    r2(U . 'paymentgateway/MpesaPaybill', 's', Lang::T('Settings Saved Successfully'));
 }
 
 

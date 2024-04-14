@@ -9,11 +9,10 @@
  **/
 
 _admin();
-$ui->assign('_title', $_L['Network']);
+$ui->assign('_title', Lang::T('Network'));
 $ui->assign('_system_menu', 'network');
 
 $action = $routes['1'];
-$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 switch ($action) {

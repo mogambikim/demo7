@@ -19,7 +19,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{$_L['Routers']}</label>
+                        <label class="col-md-2 control-label">{Lang::T('Routers')}</label>
                         <div class="col-md-6">
                             <select id="server" name="server" class="form-control select2" >
                                 <option value=''>Select routers</option>
@@ -33,7 +33,7 @@
                     <div class="form-group" id="selectAccountGroup">
                         <label class="col-md-2 control-label">Select User(s)</label>
                         <div class="col-md-6">
-                            <select id="personSelect" class="form-control select2" name="id_customer[]" multiple style="width: 100%" data-placeholder="{$_L['Select_Customer']}...">
+                            <select id="personSelect" class="form-control select2" name="id_customer[]" multiple style="width: 100%" data-placeholder="{Lang::T('Select Customer')}...">
                               
                                      <!-- Filter users based on the selected router ID -->
                                         <option data-router="" value="" class="user-option black-option"></option>
@@ -56,8 +56,8 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <button class="btn btn-success waves-effect waves-light" type="submit">Send Now</button>
-                            Or <a href="{$_url}settings/specific">{$_L['Cancel']}</a>
+                            <button class="btn btn-success" type="submit">Send Now</button>
+                            Or <a href="{$_url}settings/specific">{Lang::T('Cancel')}</a>
                         </div>
                     </div>
                 </form>

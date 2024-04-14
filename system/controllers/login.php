@@ -1,15 +1,12 @@
 <?php
 
 /**
- *  PHP Mikrotik Billing (https://freeispradius.com/)
- *  by https://t.me/freeispradius
+ *  PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
+ *  by https://t.me/ibnux
  **/
 
-// Check if the username and password parameters exist in the URL
-if (isset($_GET['username']) && isset($_GET['password'])) {
-    // Autofill the login form with the username and password
-    $username = $_GET['username'];
-    $password = $_GET['password'];
+if(User::getID()){
+    r2(U.'home');
 }
 
 if (isset($routes['1'])) {
@@ -32,30 +29,22 @@ switch ($do) {
                     User::setCookie($d['id']);
                     $d->last_login = date('Y-m-d H:i:s');
                     $d->save();
-                    _log($username . ' ' . $_L['Login_Successful'], 'User', $d['id']);
-    
-                  // After successful login
-if (isset($_POST['redirect'])) {
-    // Redirect to the specified page
-    r2(U . $_POST['redirect']);
-} else {
-    // Normal redirect after login
-    r2(U . 'home');
-}
+                    _log($username . ' ' . Lang::T('Login Successful'), 'User', $d['id']);
+                    _alert(Lang::T('Login Successful'),'success', "home");
                 } else {
-                    _msglog('e', $_L['Invalid_Username_or_Password']);
-                    _log($username . ' ' . $_L['Failed_Login'], 'User');
+                    _msglog('e', Lang::T('Invalid Username or Password'));
+                    _log($username . ' ' . Lang::T('Failed Login'), 'User');
                     r2(U . 'login');
                 }
             } else {
-                _msglog('e', $_L['Invalid_Username_or_Password']);
+                _msglog('e', Lang::T('Invalid Username or Password'));
                 r2(U . 'login');
             }
         } else {
-            _msglog('e', $_L['Invalid_Username_or_Password']);
+            _msglog('e', Lang::T('Invalid Username or Password'));
             r2(U . 'login');
         }
-    
+
         break;
 
     case 'activation':
@@ -63,7 +52,7 @@ if (isset($_POST['redirect'])) {
         $username = _post('username');
         $v1 = ORM::for_table('tbl_voucher')->where('code', $voucher)->find_one();
         if ($v1) {
-             // voucher exists, check customer exists or not
+            // voucher exists, check customer exists or not
             $user = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
             if (!$user) {
                 $d = ORM::for_table('tbl_customers')->create();
@@ -79,7 +68,8 @@ if (isset($_POST['redirect'])) {
                         r2(U . 'login', 'e', Lang::T('Voucher activation failed'));
                     }
                 } else {
-                 r2(U . 'login', 'e', Lang::T('Voucher activation failed') . '.');
+                    _alert(Lang::T('Login Successful'),'success', "dashboard");
+                    r2(U . 'login', 'e', Lang::T('Voucher activation failed') . '.');
                 }
             }
             if ($v1['status'] == 0) {
@@ -96,26 +86,26 @@ if (isset($_POST['redirect'])) {
                     $user->save();
                     // add customer to mikrotik
                     if (!empty($_SESSION['nux-mac']) && !empty($_SESSION['nux-ip'])) {
-                        try{
+                        try {
                             $m = Mikrotik::info($v1['routers']);
                             $c = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
                             Mikrotik::logMeIn($c, $user['username'], $user['password'], $_SESSION['nux-ip'], $_SESSION['nux-mac']);
-                            if(!empty($config['voucher_redirect'])){
+                            if (!empty($config['voucher_redirect'])) {
                                 r2($config['voucher_redirect'], 's', Lang::T("Voucher activation success, you are connected to internet"));
-                            }else{
+                            } else {
                                 r2(U . "login", 's', Lang::T("Voucher activation success, you are connected to internet"));
                             }
                         } catch (Exception $e) {
-                            if(!empty($config['voucher_redirect'])){
+                            if (!empty($config['voucher_redirect'])) {
                                 r2($config['voucher_redirect'], 's', Lang::T("Voucher activation success, now you can login"));
-                            }else{
+                            } else {
                                 r2(U . "login", 's', Lang::T("Voucher activation success, now you can login"));
                             }
                         }
                     }
-                    if(!empty($config['voucher_redirect'])){
+                    if (!empty($config['voucher_redirect'])) {
                         r2($config['voucher_redirect'], 's', Lang::T("Voucher activation success, now you can login"));
-                    }else{
+                    } else {
                         r2(U . "login", 's', Lang::T("Voucher activation success, now you can login"));
                     }
                 } else {
@@ -131,47 +121,43 @@ if (isset($_POST['redirect'])) {
                     $user->last_login = date('Y-m-d H:i:s');
                     $user->save();
                     if (!empty($_SESSION['nux-mac']) && !empty($_SESSION['nux-ip'])) {
-                        try{
+                        try {
                             $m = Mikrotik::info($v1['routers']);
                             $c = Mikrotik::getClient($m['ip_address'], $m['username'], $m['password']);
                             Mikrotik::logMeIn($c, $user['username'], $user['password'], $_SESSION['nux-ip'], $_SESSION['nux-mac']);
-                            if(!empty($config['voucher_redirect'])){
+                            if (!empty($config['voucher_redirect'])) {
                                 r2($config['voucher_redirect'], 's', Lang::T("Voucher activation success, you are connected to internet"));
-                            }else{
+                            } else {
                                 r2(U . "login", 's', Lang::T("Voucher activation success, now you can login"));
                             }
                         } catch (Exception $e) {
-                            if(!empty($config['voucher_redirect'])){
+                            if (!empty($config['voucher_redirect'])) {
                                 r2($config['voucher_redirect'], 's', Lang::T("Voucher activation success, now you can login"));
-                            }else{
+                            } else {
                                 r2(U . "login", 's', Lang::T("Voucher activation success, now you can login"));
                             }
                         }
-                    }else{
-                        if(!empty($config['voucher_redirect'])){
+                    } else {
+                        if (!empty($config['voucher_redirect'])) {
                             r2($config['voucher_redirect'], 's', Lang::T("Voucher activation success, you are connected to internet"));
-                        }else{
+                        } else {
                             r2(U . "login", 's', Lang::T("Voucher activation success, now you can login"));
                         }
                     }
                 } else {
                     // voucher used by other customer
-                    r2(U . 'login', 'e', $_L['Voucher_Not_Valid']);
+                    r2(U . 'login', 'e', Lang::T('Voucher Not Valid'));
                 }
             }
         } else {
-                   _msglog('e', $_L['Invalid_Username_or_Password']);
+            _msglog('e', Lang::T('Invalid Username or Password'));
             r2(U . 'login');
         }
-        default:
+    default:
         run_hook('customer_view_login'); #HOOK
-        if($config['disable_registration']=='yes'){
-            $ui->assign('username', isset($username) ? htmlspecialchars($username) : '');
-            $ui->assign('password', isset($password) ? htmlspecialchars($password) : '');
+        if ($config['disable_registration'] == 'yes') {
             $ui->display('user-login-noreg.tpl');
-        }else{
-            $ui->assign('username', isset($username) ? htmlspecialchars($username) : '');
-            $ui->assign('password', isset($password) ? htmlspecialchars($password) : '');
+        } else {
             $ui->display('user-login.tpl');
         }
         break;

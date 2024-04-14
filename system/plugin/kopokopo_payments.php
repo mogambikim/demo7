@@ -1,8 +1,6 @@
 <?php
-/**
- 
- *
- **/
+/*
+
 register_menu("Kopokopo Payments", true, "kopokopo_payments", 'REPORTS', '');
 
 //require 'system/vendor/autoload.php';
@@ -15,12 +13,12 @@ function kopokopo_payments()
     _admin();
     $ui->assign('_title', 'KopoKopo Payments');
     $ui->assign('_system_menu', 'reports');
-    $admin = Admin::_info();
+    //$admin = Admin::_info();
     $ui->assign('_admin', $admin);
     $action = $routes['1'];
 
     if ($admin['user_type'] != 'Admin' and $admin['user_type'] != 'Sales') {
-    r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
+    r2(U . "dashboard", 'e', Lang::T('You do not have permission to access this page'));
     }
 
 
@@ -217,3 +215,4 @@ function kopokopo_payments_validate()
   };
 
 }
+ 

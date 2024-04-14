@@ -146,29 +146,69 @@ class Message
         $processId = getmypid();
         $threadId = getRealThreadID();
 
-        if (!empty($config['wa_url'])) {
-            $waurl = str_replace('[number]', urlencode($phone), $config['wa_url']);
+        if (!empty($config['wa_url'])) {            $waurl = str_replace('[number]', urlencode(Lang::phoneFormat($phone)), $config['wa_url']);
             $waurl = str_replace('[text]', urlencode($txt), $waurl);
             Http::getData($waurl);
         }
     }
-
-    public static function sendPackageNotification($phone, $name, $package, $price, $message, $via)
+    public static function sendEmail($to, $subject, $body)
     {
+        global $config;
+        run_hook('send_email'); #HOOK
+        if (empty($config['smtp_host'])) {
+            $attr = "";
+            if (!empty($config['mail_from'])) {
+                $attr .= "From: " . $config['mail_from'] . "\r\n";
+            }
+            if (!empty($config['mail_reply_to'])) {
+                $attr .= "Reply-To: " . $config['mail_reply_to'] . "\r\n";
+            }
+            mail($to, $subject, $body, $attr);
+        } else {
+            $mail = new PHPMailer();
+            $mail->isSMTP();
+            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $mail->Host       = $config['smtp_host'];
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $config['smtp_user'];
+            $mail->Password   = $config['smtp_pass'];
+            $mail->SMTPSecure = $config['smtp_ssltls'];
+            $mail->Port       = $config['smtp_port'];
+            if (!empty($config['mail_from'])) {
+                $mail->setFrom($config['mail_from']);
+            }
+            if (!empty($config['mail_reply_to'])) {
+                $mail->addReplyTo($config['mail_reply_to']);
+            }
+            $mail->isHTML(false);
+            $mail->addAddress($to);
+            $mail->Subject = $subject;
+            $mail->Body    = $body;
+            $mail->send();
+            die();
+        }
+    }
+    public static function sendPackageNotification($customer, $package, $price, $message, $via)
+    {
+        global $u;
         $processId = getmypid();
         $threadId = getRealThreadID();
 
-        $msg = str_replace('[[name]]', $name, $message);
+        $msg = str_replace('[[name]]', $customer['fullname'], $message);
+        $msg = str_replace('[[username]]', $customer['username'], $msg);
         $msg = str_replace('[[package]]', $package, $msg);
         $msg = str_replace('[[price]]', $price, $msg);
+        if($u){
+            $msg = str_replace('[[expired_date]]', Lang::dateAndTimeFormat($u['expiration'], $u['time']), $msg);
+        }
         if (
-            !empty($phone) && strlen($phone) > 5
+            !empty($customer['phonenumber']) && strlen($customer['phonenumber']) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
         ) {
             if ($via == 'sms') {
-                Message::sendSMS($phone, $msg);
+                Message::sendSMS($customer['phonenumber'], $msg);
             } else if ($via == 'wa') {
-                Message::sendWhatsapp($phone, $msg);
+                Message::sendWhatsapp($customer['phonenumber'], $msg);
             }
         }
         return "$via: $msg";
@@ -204,15 +244,21 @@ class Message
         $textInvoice = str_replace('[[phone]]', $config['phone'], $textInvoice);
         $textInvoice = str_replace('[[invoice]]', $trx['invoice'], $textInvoice);
         $textInvoice = str_replace('[[date]]', Lang::dateAndTimeFormat($trx['recharged_on'], $trx['recharged_time']), $textInvoice);
+        if (!empty($trx['note'])) {
+            $textInvoice = str_replace('[[note]]', $trx['note'], $textInvoice);
+        }
         $gc = explode("-", $trx['method']);
         $textInvoice = str_replace('[[payment_gateway]]', trim($gc[0]), $textInvoice);
         $textInvoice = str_replace('[[payment_channel]]', trim($gc[1]), $textInvoice);
         $textInvoice = str_replace('[[type]]', $trx['type'], $textInvoice);
         $textInvoice = str_replace('[[plan_name]]', $trx['plan_name'], $textInvoice);
-        $textInvoice = str_replace('[[plan_price]]', Lang::moneyFormat($trx['price']), $textInvoice);
+        $textInvoice = str_replace('[[plan_price]]',  Lang::moneyFormat($trx['price']), $textInvoice);
         $textInvoice = str_replace('[[name]]', $cust['fullname'], $textInvoice);
+        $textInvoice = str_replace('[[note]]', $cust['note'], $textInvoice);
         $textInvoice = str_replace('[[user_name]]', $trx['username'], $textInvoice);
         $textInvoice = str_replace('[[user_password]]', $cust['password'], $textInvoice);
+        $textInvoice = str_replace('[[username]]', $trx['username'], $textInvoice);
+        $textInvoice = str_replace('[[password]]', $cust['password'], $textInvoice);
         $textInvoice = str_replace('[[expired_date]]', Lang::dateAndTimeFormat($trx['expiration'], $trx['time']), $textInvoice);
         $textInvoice = str_replace('[[footer]]', $config['note'], $textInvoice);
 

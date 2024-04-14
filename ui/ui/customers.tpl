@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-hovered mb20 panel-primary">
-            <div class="panel-heading">{$_L['Manage_Accounts']}</div>
+            <div class="panel-heading">{Lang::T('Manage Accounts')}</div>
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
                     <div class="col-md-8">
@@ -19,23 +19,23 @@
                         </form>
                     </div>
                     <div class="col-md-4">
-                        <a href="{$_url}customers/add" class="btn btn-primary btn-block waves-effect"><i
-                                class="ion ion-android-add"> </i> {$_L['Add_Contact']}</a>
+                        <a href="{$_url}customers/add" class="btn btn-primary btn-block"><i
+                                                     class="ion ion-android-add"> </i> {Lang::T('Add New Contact')}</a>
                     </div>&nbsp;
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-condensed">
                         <thead>
                             <tr>
-                                <th>{$_L['Username']}</th>
-                                <th>{$_L['Full_Name']}</th>
+                                <th>{Lang::T('Username')}</th>
+                                <th>{Lang::T('Full Name')}</th>
                                 <th>{Lang::T('Balance')}</th>
-                                <th>{$_L['Phone_Number']}</th>
-                                <th>{$_L['Email']}</th>
-                                <th>{$_L['Package']}</th>
+                                <th>{Lang::T('Phone Number')}</th>
+                                <th>{Lang::T('Email')}</th>
+                                <th>{Lang::T('Package')}</th>
                                 <th>{Lang::T('Service Type')}</th>
-                                <th>{$_L['Created_On']}</th>
-                                <th>{$_L['Manage']}</th>
+                                 <th>{Lang::T('Created On')}</th>
+                                <th>{Lang::T('Manage')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,7 +55,7 @@
                                             <a href="{$_url}customers/view/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
                                                 class="btn btn-success btn-xs">&nbsp;&nbsp;{Lang::T('View')}&nbsp;&nbsp;</a>
                                             <a href="{$_url}prepaid/recharge/{$ds['id']}" id="{$ds['id']}" style="margin: 0px;"
-                                                class="btn btn-primary btn-xs">{$_L['Recharge']}</a>
+                                               class="btn btn-primary btn-xs">{Lang::T('Recharge')}</a>
                                     </td>
                                 </tr>
                             {/foreach}

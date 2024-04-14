@@ -44,9 +44,9 @@ function BankStkPush_save_config()
         $d->save();
     }
 
-    _log('[' . $admin['username'] . ']: Stk Bank details ' . $_L['Settings_Saved_Successfully'], 'Admin', $admin['id']);
+    _log('[' . $admin['username'] . ']: Stk Bank details ' . Lang::T('Settings Saved Successfully'), 'Admin', $admin['id']);
 
-    r2(U . 'paymentgateway/BankStkPush', 's', $_L['Settings_Saved_Successfully']);
+    r2(U . 'paymentgateway/BankStkPush', 's', Lang::T('Settings Saved Successfully'));
 }
 
 

@@ -278,7 +278,7 @@
           </li>
           <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
             <div class="flex justify-between">
-              <span>{$_L['Balance']}</span>
+              <span>{Lang::T('Balance')}</span>
               <span>{Lang::moneyFormat($trx['price'])}</span>
             </div>
           </li> {else} <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
@@ -299,13 +299,13 @@
             </div>
           </li> {/if} <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
             <div class="flex justify-between">
-              <span>{$_L['Plan_Name']}</span>
+              <span>{Lang::T('Plan Name')}</span>
               <span>{$plan['name_plan']}</span>
             </div>
           </li>
           <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
             <div class="flex justify-between">
-              <span>{$_L['Plan_Price']}</span>
+              <span>{Lang::T('Plan Price')}</span>
               <span>{Lang::moneyFormat($plan['price'])}</span>
             </div>
           </li>
@@ -331,13 +331,13 @@
             </div>
           </li> {/if} {/if} {/if} <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
             <div class="flex justify-between">
-              <span>{$_L['Plan_Validity']}</span>
+              <span>{Lang::T('Plan Validity')}</span>
               <span>{$plan['validity']} {$plan['validity_unit']}  </span>
             </div>
           </li>
           <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">
             <div class="flex justify-between">
-              <span>{$_L['Bandwidth_Plans']}</span>
+              <span>{Lang::T('Bandwidth Plans')}</span>
               <span>{$bandw['name_bw']} <br>{$bandw['rate_down']}{$bandw['rate_down_unit']}/{$bandw['rate_up']}{$bandw['rate_up_unit']} </span>
             </div>
           </li> {/if} {/if} <br> {if $trx['status']==1} <li class="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase">

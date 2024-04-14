@@ -15,15 +15,15 @@
                                     <span class="fa fa-search"></span>
                                 </div>
                                 <input type="text" name="name" class="form-control" value="{$name}"
-                                    placeholder="{$_L['Search_by_Name']}...">
+                                    placeholder="{Lang::T('Search by Name')}...">
                                 <div class="input-group-btn">
-                                    <button class="btn btn-success" type="submit">{$_L['Search']}</button>
+                                    <button class="btn btn-success" type="submit">{Lang::T('Search')}</button>
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="col-md-4">
-                        <a href="{$_url}radius/nas-add" class="btn btn-primary btn-block waves-effect"><i
+                        <a href="{$_url}radius/nas-add" class="btn btn-primary btn-block"><i
                                 class="ion ion-android-add"> </i> New NAS</a>
                     </div>&nbsp;
                 </div>
@@ -39,7 +39,7 @@
                                 <th>Server</th>
                                 <th>Community</th>
                                 <th>Routers</th>
-                                <th>{$_L['Manage']}</th>
+                                <th>{Lang::T('Manage')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,10 +54,10 @@
                                     <td>{$ds['community']}</td>
                                     <td>{$ds['routers']}</td>
                                     <td align="center">
-                                        <a href="{$_url}radius/nas-edit/{$ds['id']}" class="btn btn-info btn-xs">{$_L['Edit']}</a>
+                                         <a href="{$_url}radius/nas-edit/{$ds['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
                                         <a href="{$_url}radius/nas-delete/{$ds['id']}" id="{$ds['id']}"
-                                            onclick="return confirm('{$_L['Delete']}?')"
-                                            class="btn btn-danger btn-xs">{$_L['Delete']}</a>
+                                             class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
+                                            class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
                                     </td>
                                 </tr>
                             {/foreach}

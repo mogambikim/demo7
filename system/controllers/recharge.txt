@@ -1,0 +1,177 @@
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=Hotspot, server=test., planId=2, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=2, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 22
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=4, type=Hotspot, server=test., planId=2, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=4, server=test., planId=2, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 23
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=PPPOE, server=test., planId=1, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=1, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 24
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=PPPOE, server=test., planId=1, using=zero
+All required fields are present
+Customer information: {}
+Using: zero, Enable Balance: yes
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=1, gateway=Recharge Zero, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 25
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=4, type=PPPOE, server=test., planId=1, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=4, server=test., planId=1, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 26
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=PPPOE, server=test., planId=1, using=default
+All required fields are present
+Customer information: {}
+Using: default, Enable Balance: yes
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=1, gateway=Recharge, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 27
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=PPPOE, server=test., planId=1, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=1, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=4, type=Hotspot, server=test., planId=2, using=default
+All required fields are present
+Customer information: {}
+Using: default, Enable Balance: yes
+Variables before calling Package::rechargeUser: id_customer=4, server=test., planId=2, gateway=Recharge, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 29
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=PPPOE, server=test., planId=1, using=zero
+All required fields are present
+Customer information: {}
+Using: zero, Enable Balance: yes
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=1, gateway=Recharge Zero, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Invoice created for transaction ID: 30
+Before displaying invoice.tpl
+After displaying invoice.tpl
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=4, type=Hotspot, server=test., planId=2, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=4, server=test., planId=2, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice
+Dummy log entry
+Executing recharge-post case
+User admin has permission to access the recharge post page
+Recharge fields: id_customer=3, type=PPPOE, server=test., planId=1, using=balance
+All required fields are present
+Customer information: {}
+Using: balance, Enable Balance: yes
+Selected plan: {}
+Variables before calling Package::rechargeUser: id_customer=3, server=test., planId=1, gateway=Recharge Balance, channel=Administrator
+Before calling Package::rechargeUser
+Package::rechargeUser function called successfully
+Before calling Balance::min
+Balance::min function called successfully
+Transaction details: {}
+Before calling Package::createInvoice

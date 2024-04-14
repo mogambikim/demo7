@@ -6,7 +6,7 @@
 session_start();
 include "config.php";
 
-if(empty($update_url)){
+if (empty($update_url)) {
     $update_url = 'https://github.com/Gomez1996/mikrotik/archive/refs/heads/master.zip';
 }
 
@@ -34,7 +34,7 @@ if (!extension_loaded('zip')) {
 
 
 $file = pathFixer('system/cache/phpnuxbill.zip');
-$folder = pathFixer('system/cache/phpnuxbill-'.basename($update_url, ".zip").'/');
+$folder = pathFixer('system/cache/phpnuxbill-' . basename($update_url, ".zip") . '/');
 
 if (empty($step)) {
     $step++;
@@ -103,9 +103,9 @@ if (empty($step)) {
         foreach ($updates as $version => $queries) {
             if (!in_array($version, $dones)) {
                 foreach ($queries as $q) {
-                    try{
-                    $db->exec($q);
-                    }catch(PDOException $e){
+                    try {
+                        $db->exec($q);
+                    } catch (PDOException $e) {
                         //ignore, it exists already
                     }
                 }
@@ -116,6 +116,13 @@ if (empty($step)) {
     }
     $step++;
 } else {
+    $path = 'ui/compiled/';
+    $files = scandir($path);
+    foreach ($files as $file) {
+        if (is_file($path . $file)) {
+            unlink($path . $file);
+        }
+    }
     $version = json_decode(file_get_contents('version.json'), true)['version'];
     $continue = false;
 }
@@ -180,7 +187,6 @@ function deleteFolder($path)
 
     <link rel="stylesheet" href="ui/ui/fonts/ionicons/css/ionicons.min.css">
     <link rel="stylesheet" href="ui/ui/fonts/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="ui/ui/fonts/MaterialDesign/css/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="ui/ui/styles/modern-AdminLTE.min.css">
     

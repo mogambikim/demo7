@@ -60,9 +60,9 @@
         $d->value = implode(',', $_POST['paystack_channel']);
         $d->save();
     }
-     _log('[' . $admin['username'] . ']: paystack ' . $_L['Settings_Saved_Successfully'], 'Admin', $admin['id']);
+     _log('[' . $admin['username'] . ']: paystack ' . Lang::T('Settings Saved Successfully'), 'Admin', $admin['id']);
 
-     r2(U . 'paymentgateway/paystack', 's', $_L['Settings_Saved_Successfully']);
+     r2(U . 'paymentgateway/paystack', 's', Lang::T('Settings Saved Successfully'));
  }
 
 function paystack_create_transaction($trx, $user)

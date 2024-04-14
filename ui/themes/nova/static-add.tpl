@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-sm-12 col-md-12">
         <div class="panel panel-primary panel-hovered panel-stacked mb30">
-            <div class="panel-heading">{$_L['Add_Static_IP_Plan']}</div>
+            <div class="panel-heading">{Lang::T('Add Static Ip Plan')}</div>
             <div class="panel-body">
                 <form class="form-horizontal" method="post" role="form" action="{$_url}services/static-add-post">
                     <div class="form-group">
@@ -29,7 +29,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{$_L['Plan_Name']}</label>
+                        <label class="col-md-2 control-label">{Lang::T('Plan Name')}</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="name_plan" maxlength="40" name="name_plan">
                         </div>
@@ -37,10 +37,10 @@
                  <!-- Add Bandwidth Name dropdown -->
 <div class="form-group">
                         <label class="col-md-2 control-label"><a
-                                href="{$_url}bandwidth/add">{$_L['BW_Name']}</a></label>
+                                href="{$_url}bandwidth/add">{Lang::T('Bandwidth Name')}</a></label>
                         <div class="col-md-6">
                             <select id="id_bw" name="id_bw" class="form-control select2">
-                                <option value="">{$_L['Select_BW']}...</option>
+                                <option value="">{Lang::T('Select Bandwidth')}...</option>
                                 {foreach $d as $ds}
                                     <option value="{$ds['id']}">{$ds['name_bw']}</option>
                                 {/foreach}
@@ -48,7 +48,7 @@
     </div>
 </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{$_L['Plan_Price']}</label>
+                        <label class="col-md-2 control-label">{Lang::T('Plan Price')}</label>
                         <div class="col-md-6">
                             <div class="input-group">
                                 <span class="input-group-addon">{$_c['currency_code']}</span>
@@ -57,24 +57,24 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{$_L['Plan_Validity']}</label>
+                        <label class="col-md-2 control-label">{Lang::T('Plan Validity')}</label>
                         <div class="col-md-4">
                             <input type="text" class="form-control" id="validity" name="validity">
                         </div>
                         <div class="col-md-2">
                             <select class="form-control" id="validity_unit" name="validity_unit">
-                                <option value="Mins">{$_L['Mins']}</option>
-                                <option value="Hrs">{$_L['Hrs']}</option>
-                                <option value="Days">{$_L['Days']}</option>
-                                <option value="Months">{$_L['Months']}</option>
+                                <option value="Mins">{Lang::T('Mins')}</option>
+                                <option value="Hrs">{Lang::T('Hrs')}</option>
+                                <option value="Days">{Lang::T('Days')}</option>
+                                <option value="Months">{Lang::T('Months')}</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label"><a href="{$_url}routers/add">{$_L['Router_Name']}</a></label>
+                        <label class="col-md-2 control-label"><a href="{$_url}routers/add">{Lang::T('Router Name')}</a></label>
                         <div class="col-md-6">
                             <select id="routers" name="routers" required class="form-control select2">
-                                <option value=''>{$_L['Select_Routers']}</option>
+                              <option value=''>{Lang::T('Select Routers')}</option>
                                 {foreach $r as $rs}
                                     <option value="{$rs['name']}">{$rs['name']}</option>
                                 {/foreach}
@@ -83,18 +83,18 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label"><a href="{$_url}pool/add">{$_L['Pool']}</a></label>
+                                               <label class="col-md-2 control-label"><a href="{$_url}pool/add">{Lang::T('IP Pool')}</a></label>
                         <div class="col-md-6">
                             <select id="pool_name" name="pool_name" required class="form-control select2">
-                                <option value=''>{$_L['Select_Pool']}</option>
+                                <option value=''>{Lang::T('Select Pool')}</option>
                             </select>
                         </div>
                     </div>
                    
                     <div class="form-group">
                         <div class="col-md-offset-2 col-md-10">
-                            <button class="btn btn-primary waves-effect waves-light" type="submit">{$_L['Save']}</button>
-                            Or <a href="{$_url}services/static">{$_L['Cancel']}</a>
+                            <button class="btn btn-primary" type="submit">{Lang::T('Save Changes')}</button>
+                            Or <a href="{$_url}services/static">{Lang::T('Cancel')}</a>
                         </div>
                     </div>
                 </form>

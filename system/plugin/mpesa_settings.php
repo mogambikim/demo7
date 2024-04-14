@@ -11,6 +11,8 @@ function mpesa_settings()
     _admin();
     $ui->assign('_title', 'Mpesa Settings');
     $ui->assign('_system_menu', 'settings');
+    $admin = Admin::_info();
+    $ui->assign('_admin', $admin);
 
     $message = '';
 
@@ -42,7 +44,7 @@ function mpesa_settings()
     // Assign the success message to the UI
     $ui->assign('message', $message);
 
-    $admin = Admin::_info();
+    //$admin = Admin::_info();
     $ui->assign('_admin', $admin);
     $ui->display('mpesa_settings.tpl');
 }

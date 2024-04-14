@@ -61,9 +61,9 @@ function paypal_save_config()
         $d->value = $paypal_currency;
         $d->save();
     }
-    _log('[' . $admin['username'] . ']: Paypal ' . $_L['Settings_Saved_Successfully'], 'Admin', $admin['id']);
+    _log('[' . $admin['username'] . ']: Paypal ' . Lang::T('Settings Saved Successfully'), 'Admin', $admin['id']);
 
-    r2(U . 'paymentgateway/paypal', 's', $_L['Settings_Saved_Successfully']);
+    r2(U . 'paymentgateway/paypal', 's', Lang::T('Settings Saved Successfully'));
 }
 
 function paypal_create_transaction($trx, $user)

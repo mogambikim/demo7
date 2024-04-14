@@ -1,16 +1,12 @@
 <?php
 
 _admin();
-$ui->assign('_title', $_L['Recharge_Account']);
+$ui->assign('_title', Lang::T('Recharge Account'));
 $ui->assign('_system_menu', 'prepaid');
 
 $action = $routes['1'];
-$admin = Admin::_info();
+//$admin = Admin::_info();
 $ui->assign('_admin', $admin);
-
-if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Sales'])) {
-    r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
-}
 
 $select2_customer = <<<EOT
 <script>
@@ -33,6 +29,9 @@ EOT;
 
 switch ($action) {
     case 'sync':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         set_time_limit(-1);
         $plans = ORM::for_table('tbl_user_recharges')->where('status', 'on')->find_many();
         $log = '';
@@ -63,127 +62,205 @@ switch ($action) {
             }
             $log .= "DONE : $plan[username], $plan[namebp], $plan[type], $plan[routers]<br>";
         }
+        if ($isApi) {
+            showResult(true, $log);
+        }        
         r2(U . 'prepaid/list', 's', $log);
     case 'list':
         $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
-        $ui->assign('_title', $_L['Customers']);
-        $username = _post('username');
-        if ($username != '') {
-            $paginator = Paginator::build(ORM::for_table('tbl_user_recharges'), ['username' => '%' . $username . '%'], $username);
-            $d = ORM::for_table('tbl_user_recharges')->where_like('username', '%' . $username . '%')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
+        $ui->assign('_title', Lang::T('Customer'));
+        $search = _post('search');
+        if ($search != '') {
+            $paginator = Paginator::build(ORM::for_table('tbl_user_recharges'), ['username' => '%' . $search . '%'], $search);
+            $d = ORM::for_table('tbl_user_recharges')->where_like('username', '%' . $search . '%')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
         } else {
             $paginator = Paginator::build(ORM::for_table('tbl_user_recharges'));
-            $d = ORM::for_table('tbl_user_recharges')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
+            $d = ORM::for_table('tbl_user_recharges')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+        }
+        run_hook('view_list_billing'); #HOOK
+        if ($isApi) {
+            showResult(true, $action, $d, ['search' => $search]);            
         }
 
+
         $ui->assign('d', $d);
-        $ui->assign('cari', $username);
+        $ui->assign('search', $search);
         $ui->assign('paginator', $paginator);
-        run_hook('view_list_billing'); #HOOK
         $ui->display('prepaid.tpl');
         break;
 
-    case 'recharge':
-        $ui->assign('xfooter', $select2_customer);
-        $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
-        $ui->assign('p', $p);
-        $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
-        $ui->assign('r', $r);
-        if (isset($routes['2']) && !empty($routes['2'])) {
-            $ui->assign('cust', ORM::for_table('tbl_customers')->find_one($routes['2']));
-        }
-        run_hook('view_recharge'); #HOOK
-        $ui->display('recharge.tpl');
-        break;
-
-    case 'recharge-user':
-        $id = $routes['2'];
-        $ui->assign('id', $id);
-
-        $c = ORM::for_table('tbl_customers')->find_many();
-        $ui->assign('c', $c);
-        $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
-        $ui->assign('p', $p);
-        $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
-        $ui->assign('r', $r);
-        run_hook('view_recharge_customer'); #HOOK
-        $ui->display('recharge-user.tpl');
-        break;
-
-    case 'recharge-post':
-        $id_customer = _post('id_customer');
-        $type = _post('type');
-        $server = _post('server');
-        $plan = _post('plan');
-        $date_only = date("Y-m-d");
-        $time = date("H:i:s");
-
-        $msg = '';
-        if ($id_customer == '' or $type == '' or $server == '' or $plan == '') {
-            $msg .= 'All field is required' . '<br>';
-        }
-
-        if ($msg == '') {
-            if (Package::rechargeUser($id_customer, $server, $plan, "Recharge", $admin['fullname'])) {
-                $c = ORM::for_table('tbl_customers')->where('id', $id_customer)->find_one();
-                $in = ORM::for_table('tbl_transactions')->where('username', $c['username'])->order_by_desc('id')->find_one();
-                $ui->assign('in', $in);
-                $ui->assign('date', date("Y-m-d H:i:s"));
-                $ui->display('invoice.tpl');
-                     _log('[' . $admin['username'] . ']: ' . 'Recharge ' . $c['username'] . ' [' . $in['plan_name'] . '][' . Lang::moneyFormat($in['price']) . ']', $admin['user_type'], $admin['id']);
+        case 'recharge':
+            _log("Executing recharge case", 'info');
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                _log("User " . strval($admin['username']) . " does not have permission to access the recharge page", 'error');
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             } else {
-                r2(U . 'prepaid/recharge', 'e', "Failed to recharge account");
+                _log("User " . strval($admin['username']) . " has permission to access the recharge page", 'info');
+                $ui->assign('xfooter', $select2_customer);
+                $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
+                $ui->assign('p', $p);
+                $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
+                $ui->assign('r', $r);
+                if (isset($routes['2']) && !empty($routes['2'])) {
+                    $ui->assign('cust', ORM::for_table('tbl_customers')->find_one($routes['2']));
+                }
+                run_hook('view_recharge'); #HOOK
+                _log("Displaying recharge.tpl template", 'info');
+                $ui->display('recharge.tpl');
             }
-        } else {
-            r2(U . 'prepaid/recharge', 'e', $msg);
-        }
-        break;
-
-    case 'view':
-        $id = $routes['2'];
-        $d = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
-        $ui->assign('in', $d);
-
-        if (!empty($routes['3']) && $routes['3'] == 'send') {
-            $c = ORM::for_table('tbl_customers')->where('username', $d['username'])->find_one();
-            if ($c) {
-                Message::sendInvoice($c, $d);
-                r2(U . 'prepaid/view/' . $id, 's', "Success send to customer");
+            break;
+        
+        case 'recharge-user':
+            _log("Executing recharge-user case", 'info');
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                _log("User " . strval($admin['username']) . " does not have permission to access the recharge user page", 'error');
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            } else {
+                _log("User " . strval($admin['username']) . " has permission to access the recharge user page", 'info');
+                $id = $routes['2'];
+                $ui->assign('id', $id);
+                $c = ORM::for_table('tbl_customers')->find_many();
+                $ui->assign('c', $c);
+                $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
+                $ui->assign('p', $p);
+                $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
+                $ui->assign('r', $r);
+                run_hook('view_recharge_customer'); #HOOK
+                _log("Displaying recharge-user.tpl template", 'info');
+                $ui->display('recharge-user.tpl');
             }
-            r2(U . 'prepaid/view/' . $id, 'd', "Customer not found");
-        }
-        $ui->assign('_title', 'View Invoice');
-        $ui->assign('date', Lang::dateAndTimeFormat($d['recharged_on'], $d['recharged_time']));
-        $ui->display('invoice.tpl');
-        break;
-
+            break;
+        
+            case 'recharge-post':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                }
+                $id_customer = _post('id_customer');
+                $server = _post('server');
+                $planId = _post('plan');
+                $using = _post('using');
+        
+                $msg = '';
+                if ($id_customer == '' or $server == '' or $planId == '' or $using == '') {
+                    $msg .= Lang::T('All field is required') . '<br>';
+                }
+        
+                if ($msg == '') {
+                    $gateway = 'Recharge';
+                    $channel = $admin['fullname'];
+                    $cust = User::_info($id_customer);
+                    list($bills, $add_cost) = User::getBills($id_customer);
+                    if ($using == 'balance' && $config['enable_balance'] == 'yes') {
+                        $plan = ORM::for_table('tbl_plans')->find_one($planId);
+                        if (!$cust) {
+                            r2(U . 'prepaid/recharge', 'e', Lang::T('Customer not found'));
+                        }
+                        if (!$plan) {
+                            r2(U . 'prepaid/recharge', 'e', Lang::T('Plan not found'));
+                        }
+                        if ($cust['balance'] < ($plan['price'] + $add_cost)) {
+                            r2(U . 'prepaid/recharge', 'e', Lang::T('insufficient balance'));
+                        }
+                        $gateway = 'Recharge Balance';
+                    }
+                    if ($using == 'zero') {
+                        $add_cost = 0;
+                        $zero = 1;
+                        $gateway = 'Recharge Zero';
+                    }
+                    if (Package::rechargeUser($id_customer, $server, $planId, $gateway, $channel)) {
+                        if ($using == 'balance') {
+                            Balance::min($cust['id'], $plan['price'] + $add_cost);
+                        }
+                        $in = ORM::for_table('tbl_transactions')->where('username', $cust['username'])->order_by_desc('id')->find_one();
+                        Package::createInvoice($in);
+                        $ui->display('invoice.tpl');
+                        _log('[' . $admin['username'] . ']: ' . 'Recharge ' . $cust['username'] . ' [' . $in['plan_name'] . '][' . Lang::moneyFormat($in['price']) . ']', $admin['user_type'], $admin['id']);
+                    } else {
+                        r2(U . 'prepaid/recharge', 'e', "Failed to recharge account");
+                    }
+                } else {
+                    r2(U . 'prepaid/recharge', 'e', $msg);
+                }
+                break;
+        
+            case 'view':
+                $id = $routes['2'];
+                $in = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
+                $ui->assign('in', $in);
+                if (!empty($routes['3']) && $routes['3'] == 'send') {
+                    $c = ORM::for_table('tbl_customers')->where('username', $in['username'])->find_one();
+                    if ($c) {
+                        Message::sendInvoice($c, $in);
+                        r2(U . 'prepaid/view/' . $id, 's', "Success send to customer");
+                    }
+                    r2(U . 'prepaid/view/' . $id, 'd', "Customer not found");
+                }
+                Package::createInvoice($in);
+                $ui->assign('_title', 'View Invoice');
+                $ui->display('invoice.tpl');
+                break;
+        
+                
+                break;
+                case 'view':
+                    $id = $routes['2'];
+                    $in = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
+                    $ui->assign('in', $in);
+                    if (!empty($routes['3']) && $routes['3'] == 'send') {
+                        $c = ORM::for_table('tbl_customers')->where('username', $in['username'])->find_one();
+                        if ($c) {
+                            Message::sendInvoice($c, $in);
+                            r2(U . 'plan/view/' . $id, 's', "Success send to customer");
+                        }
+                        r2(U . 'plan/view/' . $id, 'd', "Customer not found");
+                    }
+                    Package::createInvoice($in);
+                    $ui->assign('_title', 'View Invoice');
+                    $ui->display('invoice.tpl');
+                    break;
 
     case 'print':
-        $id = _post('id');
-        $d = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
-        $ui->assign('d', $d);
+        $content = $_POST['content'];
+        if (!empty($content)) {
+            $ui->assign('content', $content);
+        }else{
+            $id = _post('id');
+            $d = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
+            $ui->assign('in', $d);
+            $ui->assign('date', Lang::dateAndTimeFormat($d['recharged_on'], $d['recharged_time']));
+        }
 
-        $ui->assign('date', Lang::dateAndTimeFormat($d['recharged_on'], $d['recharged_time']));
         run_hook('print_invoice'); #HOOK
         $ui->display('invoice-print.tpl');
         break;
 
     case 'edit':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $id  = $routes['2'];
         $d = ORM::for_table('tbl_user_recharges')->find_one($id);
         if ($d) {
             $ui->assign('d', $d);
+            if (in_array($admin['user_type'], array('SuperAdmin', 'Admin'))) {
             $p = ORM::for_table('tbl_plans')->where('enabled', '1')->where_not_equal('type', 'Balance')->find_many();
-            $ui->assign('p', $p);
-            run_hook('view_edit_customer_plan'); #HOOK
-            $ui->assign('_title', 'Edit Plan');
-            $ui->display('prepaid-edit.tpl');
         } else {
-            r2(U . 'services/list', 'e', $_L['Account_Not_Found']);
+            $p = ORM::for_table('tbl_plans')->where('enabled', '1')->where_not_equal('type', 'Balance')->find_many();
         }
-        break;
+        $ui->assign('p', $p);
+        run_hook('view_edit_customer_plan'); #HOOK
+        $ui->assign('_title', 'Edit Plan');
+        $ui->display('prepaid-edit.tpl');
+    } else {
+        r2(U . 'services/list', 'e', $_L['Account_Not_Found']);
+    }
+    break;
 
     case 'delete':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $id  = $routes['2'];
         $d = ORM::for_table('tbl_user_recharges')->find_one($id);
         if ($d) {
@@ -217,11 +294,14 @@ switch ($action) {
 
             $d->delete();
     _log('[' . $admin['username'] . ']: ' . 'Delete Plan for Customer ' . $c['username'] . '  [' . $in['plan_name'] . '][' . Lang::moneyFormat($in['price']) . ']', $admin['user_type'], $admin['id']);
-            r2(U . 'prepaid/list', 's', $_L['Delete_Successfully']);
+            r2(U . 'prepaid/list', 's', Lang::T('Data Deleted Successfully'));
         }
         break;
 
     case 'edit-post':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $username = _post('username');
         $id_plan = _post('id_plan');
         $recharged_on = _post('recharged_on');
@@ -232,7 +312,7 @@ switch ($action) {
         $d = ORM::for_table('tbl_user_recharges')->find_one($id);
         if ($d) {
         } else {
-            $msg .= $_L['Data_Not_Found'] . '<br>';
+            $msg .= Lang::T('Data Not Found') . '<br>';
         }
         $p = ORM::for_table('tbl_plans')->where('id', $id_plan)->where('enabled', '1')->find_one();
         if ($d) {
@@ -246,8 +326,8 @@ switch ($action) {
             //$d->recharged_on = $recharged_on;
             $d->expiration = $expiration;
             $d->time = $time;
-                    if($d['status'] == 'off'){
-                if(strtotime($expiration.' '.$time) > time()){
+                    if ($d['status'] == 'off') {
+                if (strtotime($expiration . ' ' . $time) > time()) {
                     $d->status = 'on';
                 }
             }
@@ -261,42 +341,76 @@ switch ($action) {
                 Package::changeTo($username, $id_plan, $id);
             }
             _log('[' . $admin['username'] . ']: ' . 'Edit Plan for Customer ' . $d['username'] . ' to [' . $d['namebp'] . '][' . Lang::moneyFormat($p['price']) . ']', $admin['user_type'], $admin['id']);
-            r2(U . 'prepaid/list', 's', $_L['Updated_Successfully']);
+            r2(U . 'prepaid/list', 's', Lang::T('Data Updated Successfully'));
         } else {
             r2(U . 'prepaid/edit/' . $id, 'e', $msg);
         }
         break;
 
     case 'voucher':
-        $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/voucher.js"></script>');
-        $ui->assign('_title', $_L['Prepaid_Vouchers']);
-        $code = _post('code');
-        if ($code != '') {
-            $ui->assign('code', $code);
-            $paginator = Paginator::build(ORM::for_table('tbl_voucher'), ['code' => '%' . $code . '%'], $code);
-            $d = ORM::for_table('tbl_plans')->where('enabled', '1')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where_like('tbl_voucher.code', '%' . $code . '%')
-                ->offset($paginator['startpoint'])
-                ->limit($paginator['limit'])
-                ->find_many();
+        $ui->assign('_title', Lang::T('Prepaid Vouchers'));
+        $limit = 10;
+        $page = _get('p', 0);
+        $pageNow = $page * $limit;
+        $search = _req('search');
+        if ($search != '') {
+            if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                $d = ORM::for_table('tbl_plans')->where('enabled', '1')
+                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where_like('tbl_voucher.code', '%' . $search . '%')
+                    ->offset($pageNow)
+                    ->limit($limit)
+                    ->findArray();
+            } else if ($admin['user_type'] == 'Agent') {
+                $sales = [];
+                $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+                foreach ($sls as $s) {
+                    $sales[] = $s['id'];
+                }
+                $sales[] = $admin['id'];
+                $d = ORM::for_table('tbl_plans')
+                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where_in('generated_by', $sales)
+                    ->where_like('tbl_voucher.code', '%' . $search . '%')
+                    ->offset($pageNow)
+                    ->limit($limit)
+                    ->findArray();
+            }
         } else {
-            $paginator = Paginator::build(ORM::for_table('tbl_voucher'));
-            $d = ORM::for_table('tbl_plans')->where('enabled', '1')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->offset($paginator['startpoint'])
-                ->limit($paginator['limit'])->find_many();
+            if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                $d = ORM::for_table('tbl_plans')->where('enabled', '1')
+                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->offset($pageNow)
+                    ->limit($limit)
+                    ->findArray();
+            } else if ($admin['user_type'] == 'Agent') {
+                $sales = [];
+                $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+                foreach ($sls as $s) {
+                    $sales[] = $s['id'];
+                }
+                $sales[] = $admin['id'];
+                $d = ORM::for_table('tbl_plans')
+                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where_in('generated_by', $sales)
+                    ->offset($pageNow)
+                    ->limit($limit)
+                    ->findArray();
+            }
         }
 
         $ui->assign('d', $d);
-        $ui->assign('_code', $code);
-        $ui->assign('paginator', $paginator);
+        $ui->assign('search', $search);
+        $ui->assign('page', $page);
         run_hook('view_list_voucher'); #HOOK
         $ui->display('voucher.tpl');
         break;
 
     case 'add-voucher':
-        $ui->assign('_title', $_L['Add_Voucher']);
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
+        $ui->assign('_title', Lang::T('Add Vouchers'));
         $c = ORM::for_table('tbl_customers')->find_many();
         $ui->assign('c', $c);
         $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
@@ -308,16 +422,19 @@ switch ($action) {
         break;
 
     case 'remove-voucher':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $d = ORM::for_table('tbl_voucher')->where_equal('status', '1')->findMany();
         if ($d) {
             $jml = 0;
             foreach ($d as $v) {
-                if(!ORM::for_table('tbl_user_recharges')->where_equal("method",'Voucher - '.$v['code'])->findOne()){
+                if (!ORM::for_table('tbl_user_recharges')->where_equal("method", 'Voucher - ' . $v['code'])->findOne()) {
                     $v->delete();
                     $jml++;
                 }
             }
-            r2(U . 'prepaid/voucher', 's', "$jml ".$_L['Delete_Successfully']);
+            r2(U . 'prepaid/voucher', 's', "$jml ".Lang::T('Data Deleted Successfully'));
         }
     case 'print-voucher':
         $from_id = _post('from_id');
@@ -341,21 +458,18 @@ switch ($action) {
                 ->where('tbl_voucher.status', '0')
                 ->where('tbl_plans.id', $planid)
                 ->where_gt('tbl_voucher.id', $from_id)
-                ->limit($limit)
-                ->find_many();
+                ->limit($limit);
             $vc = ORM::for_table('tbl_plans')
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
                 ->where('tbl_voucher.status', '0')
                 ->where('tbl_plans.id', $planid)
-                ->where_gt('tbl_voucher.id', $from_id)
-                ->count();
+                ->where_gt('tbl_voucher.id', $from_id);
         } else if ($from_id == 0 && $planid > 0) {
             $v = ORM::for_table('tbl_plans')
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
                 ->where('tbl_voucher.status', '0')
                 ->where('tbl_plans.id', $planid)
-                ->limit($limit)
-                ->find_many();
+                ->limit($limit);
             $vc = ORM::for_table('tbl_plans')
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
                 ->where('tbl_voucher.status', '0')
@@ -366,28 +480,37 @@ switch ($action) {
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
                 ->where('tbl_voucher.status', '0')
                 ->where_gt('tbl_voucher.id', $from_id)
-                ->limit($limit)
-                ->find_many();
+                ->limit($limit);
             $vc = ORM::for_table('tbl_plans')
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
                 ->where('tbl_voucher.status', '0')
-                ->where_gt('tbl_voucher.id', $from_id)
-                ->count();
+                ->where_gt('tbl_voucher.id', $from_id);
         } else {
             $v = ORM::for_table('tbl_plans')
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
                 ->where('tbl_voucher.status', '0')
-                ->limit($limit)
-                ->find_many();
+                ->limit($limit);
             $vc = ORM::for_table('tbl_plans')
                 ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->count();
+                ->where('tbl_voucher.status', '0');
+        }
+        if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            $v = $v->find_many();
+            $vc = $vc->count();
+        } else {
+            $sales = [];
+            $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+            foreach ($sls as $s) {
+                $sales[] = $s['id'];
+            }
+            $sales[] = $admin['id'];
+            $v = $v->where_in('generated_by', $sales)->find_many();
+            $vc = $vc->where_in('generated_by', $sales)->count();
         }
         $template = file_get_contents("pages/Voucher.html");
         $template = str_replace('[[company_name]]', $config['CompanyName'], $template);
 
-        $ui->assign('_title', $_L['Voucher_Hotspot']);
+        $ui->assign('_title', Lang::T('Hotspot Voucher'));
         $ui->assign('from_id', $from_id);
         $ui->assign('vpl', $vpl);
         $ui->assign('pagebreak', $pagebreak);
@@ -419,6 +542,9 @@ switch ($action) {
         $ui->display('print-voucher.tpl');
         break;
     case 'voucher-post':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }        
         $type = _post('type');
         $plan = _post('plan');
         $voucher_format = _post('voucher_format');
@@ -429,7 +555,7 @@ switch ($action) {
 
         $msg = '';
         if ($type == '' or $plan == '' or $server == '' or $numbervoucher == '' or $lengthcode == '') {
-            $msg .= $_L['All_field_is_required'] . '<br>';
+            $msg .= Lang::T('All field is required') . '<br>';
         }
         if (Validator::UnsignedNumber($numbervoucher) == false) {
             $msg .= 'The Number of Vouchers must be a number' . '<br>';
@@ -462,38 +588,102 @@ switch ($action) {
                 $d->type = $type;
                 $d->routers = $server;
                 $d->id_plan = $plan;
-                $d->code = $prefix.$code;
+                $d->code = $prefix . $code;
                 $d->user = '0';
                 $d->status = '0';
                 $d->generated_by = $admin['id'];
                 $d->save();
             }
 
-            r2(U . 'prepaid/voucher', 's', $_L['Voucher_Successfully']);
+            r2(U . 'prepaid/voucher', 's', Lang::T('Create Vouchers Successfully'));
         } else {
             r2(U . 'prepaid/add-voucher/' . $id, 'e', $msg);
         }
         break;
+        case 'voucher-view':
+            $id = $routes[2];
+            if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                $voucher = ORM::for_table('tbl_voucher')->find_one($id);
+            }else{
+                $sales = [];
+            $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+            foreach ($sls as $s) {
+                $sales[] = $s['id'];
+            }
+            $sales[] = $admin['id'];
+            $voucher = ORM::for_table('tbl_voucher')
+                ->find_one($id);
+            if (!in_array($voucher['generated_by'], $sales)) {
+                r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
+            }
+        }
+        if (!$voucher) {
+            r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
+            }
+            $plan = ORM::for_table('tbl_plans')->find_one($d['id_plan']);
+            if ($voucher && $plan) {
+                $content = Lang::pad($config['CompanyName'], ' ', 2) . "\n";
+                $content .= Lang::pad($config['address'], ' ', 2) . "\n";
+                $content .= Lang::pad($config['phone'], ' ', 2) . "\n";
+                $content .= Lang::pad("", '=') . "\n";
+                $content .= Lang::pads('ID', $voucher['id'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Code'), $voucher['code'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Plan Name'), $plan['name_plan'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Type'), $voucher['type'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Plan Price'), Lang::moneyFormat($plan['price']), ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Sales'), $admin['fullname'] . ' #' . $admin['id'], ' ') . "\n";
+                $content .= Lang::pad("", '=') . "\n";
+                $content .= Lang::pad($config['note'], ' ', 2) . "\n";
+                $ui->assign('print', $content);
+                $config['printer_cols'] = 30;
+                $content = Lang::pad($config['CompanyName'], ' ', 2) . "\n";
+                $content .= Lang::pad($config['address'], ' ', 2) . "\n";
+                $content .= Lang::pad($config['phone'], ' ', 2) . "\n";
+                $content .= Lang::pad("", '=') . "\n";
+                $content .= Lang::pads('ID', $voucher['id'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Code'), $voucher['code'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Plan Name'), $plan['name_plan'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Type'), $voucher['type'], ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Plan Price'), Lang::moneyFormat($plan['price']), ' ') . "\n";
+                $content .= Lang::pads(Lang::T('Sales'), $admin['fullname'] . ' #' . $admin['id'], ' ') . "\n";
+                $content .= Lang::pad("", '=') . "\n";
+                $content .= Lang::pad($config['note'], ' ', 2) . "\n";
+                $ui->assign('_title', Lang::T('View'));
+                $ui->assign('whatsapp', urlencode("```$content```"));
+                $ui->display('voucher-view.tpl');
+            }else{
+                r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
+            }
+            break;
 
     case 'voucher-delete':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $id  = $routes['2'];
         run_hook('delete_voucher'); #HOOK
         $d = ORM::for_table('tbl_voucher')->find_one($id);
         if ($d) {
             $d->delete();
-            r2(U . 'prepaid/voucher', 's', $_L['Delete_Successfully']);
+            r2(U . 'prepaid/voucher', 's', Lang::T('Data Deleted Successfully'));
         }
         break;
 
     case 'refill':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $ui->assign('xfooter', $select2_customer);
-        $ui->assign('_title', $_L['Refill_Account']);
+        $ui->assign('_title', Lang::T('Refill Account'));
         run_hook('view_refill'); #HOOK
         $ui->display('refill.tpl');
 
         break;
 
     case 'refill-post':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }        
         $code = _post('code');
         $user = ORM::for_table('tbl_customers')->where('id', _post('id_customer'))->find_one();
         $v1 = ORM::for_table('tbl_voucher')->where('code', $code)->where('status', 0)->find_one();
@@ -505,42 +695,70 @@ switch ($action) {
                 $v1->user = $user['username'];
                 $v1->save();
                 $in = ORM::for_table('tbl_transactions')->where('username', $user['username'])->order_by_desc('id')->find_one();
-                $ui->assign('in', $in);
-                $ui->assign('date', date("Y-m-d H:i:s"));
+                Package::createInvoice($in);
                 $ui->display('invoice.tpl');
             } else {
                 r2(U . 'prepaid/refill', 'e', "Failed to refill account");
             }
         } else {
-            r2(U . 'prepaid/refill', 'e', $_L['Voucher_Not_Valid']);
+            r2(U . 'prepaid/refill', 'e', Lang::T('Voucher Not Valid'));
         }
         break;
+
     case 'deposit':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
         $ui->assign('_title', Lang::T('Refill Balance'));
         $ui->assign('xfooter', $select2_customer);
         $ui->assign('p', ORM::for_table('tbl_plans')->where('enabled', '1')->where('type', 'Balance')->find_many());
         run_hook('view_deposit'); #HOOK
         $ui->display('deposit.tpl');
         break;
-    case 'deposit-post':
-        $user = _post('id_customer');
-        $plan = _post('id_plan');
-
-        run_hook('deposit_customer'); #HOOK
-        if (!empty($user) && !empty($plan)) {
-            if (Package::rechargeUser($user, 'balance', $plan, "Deposit", $admin['fullname'])) {
-                $c = ORM::for_table('tbl_customers')->where('id', $user)->find_one();
-                $in = ORM::for_table('tbl_transactions')->where('username', $c['username'])->order_by_desc('id')->find_one();
-                $ui->assign('in', $in);
-                $ui->assign('date', date("Y-m-d H:i:s"));
-                $ui->display('invoice.tpl');
-            } else {
-                r2(U . 'prepaid/refill', 'e', "Failed to refill account");
+        case 'deposit-post':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
-        } else {
-            r2(U . 'prepaid/refill', 'e', "All field is required");
-        }
-        break;
+            
+            $user = _post('id_customer');
+            $balance_amount = _post('balance_amount');
+            
+            run_hook('deposit_customer'); #HOOK
+            
+            if (!empty($user) && !empty($balance_amount)) {
+                $c = ORM::for_table('tbl_customers')->where('id', $user)->find_one();
+                if ($c) {
+                    $c->balance = $c->balance + $balance_amount;
+                    $c->save();
+                    
+                    // Log the transaction
+                    $transaction = ORM::for_table('tbl_transactions')->create();
+                    $transaction->invoice = 'INV-' . time(); // Generate a unique invoice number
+                    $transaction->username = $c['username'];
+                    $transaction->plan_name = 'Manual Deposit';
+                    $transaction->price = $balance_amount;
+                    $transaction->recharged_on = date('Y-m-d');
+                    $transaction->recharged_time = date('H:i:s');
+                    $transaction->expiration = date('Y-m-d');
+                    $transaction->time = date('H:i:s');
+                    $transaction->method = 'Deposit - ' . $admin['fullname'];
+                    $transaction->routers = 'balance';
+                    $transaction->type = 'Balance';
+                    $transaction->admin_id = $admin['id'];
+                    $transaction->save();
+                    
+                    // Get the transaction ID
+                    $transaction_id = $transaction->id();
+                    
+                    Package::createInvoice($transaction_id);
+                    $ui->display('invoice.tpl');
+                } else {
+                    r2(U . 'prepaid/refill', 'e', "Invalid customer selected");
+                }
+            } else {
+                r2(U . 'prepaid/refill', 'e', "All fields are required");
+            }
+            break;
     default:
         $ui->display('a404.tpl');
 }

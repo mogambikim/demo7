@@ -10,11 +10,11 @@ $ui->assign('_title', 'FreeIspRadius Logs');
 $ui->assign('_system_menu', 'logs');
 
 $action = $routes['1'];
-$admin = Admin::_info();
+//$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-    r2(U . "dashboard", 'e', $_L['Do_Not_Access']);
+    _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
 }
 
 

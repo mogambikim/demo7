@@ -7,12 +7,12 @@
             <div class="inner">
                 <h4><sup>{$_c['currency_code']}</sup>
                     {number_format($iday,0,$_c['dec_point'],$_c['thousands_sep'])}</h4>
-                <p>{$_L['Income_Today']}</p>
+                <p>{Lang::T('Income Today')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-bag"></i>
             </div>
-            <a href="{$_url}reports/by-date" class="small-box-footer">{$_L['View_Reports']} <i
+           <a href="{$_url}reports/by-date" class="small-box-footer">{Lang::T('View Reports')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
@@ -22,12 +22,12 @@
                 <h4><sup>{$_c['currency_code']}</sup>
                     {number_format($imonth,0,$_c['dec_point'],$_c['thousands_sep'])}</h4>
 
-                <p>{$_L['Income_This_Month']}</p>
+                <p>{Lang::T('Income This Month')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-stats-bars"></i>
             </div>
-            <a href="{$_url}reports/by-period" class="small-box-footer">{$_L['View_Reports']} <i
+           <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
@@ -36,12 +36,12 @@
             <div class="inner">
                 <h4>{$u_act}/{$u_all}</h4>
 
-                <p>{$_L['Users_Active']}</p>
+               <p>{Lang::T('Users Active')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-person"></i>
             </div>
-            <a href="{$_url}prepaid/list" class="small-box-footer">{$_L['View_All']} <i
+            <a href="{$_url}prepaid/list" class="small-box-footer">{Lang::T('View All')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
@@ -50,68 +50,71 @@
             <div class="inner">
                 <h4>{$c_all}</h4>
 
-                <p>{$_L['Total_Users']}</p>
+                <p>{Lang::T('Total Users')}</p>
             </div>
             <div class="icon">
                 <i class="fa fa-users"></i>
             </div>
-            <a href="{$_url}customers/list" class="small-box-footer">{$_L['View_All']} <i
+           <a href="{$_url}customers/list" class="small-box-footer">{Lang::T('View All')} <i
                     class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
 </div>
-<!-- solid sales graph -->
-{if $_c['hide_mrc'] != 'yes'}
-    <div class="box box-solid ">
-        <div class="box-header">
-            <i class="fa fa-th"></i>
-
-            <h3 class="box-title">{Lang::T('Monthly Registered Customers')}</h3>
-
-            <div class="box-tools pull-right">
-                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn bg-teal btn-sm" data-widget="remove"><i class="fa fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="box-body border-radius-none">
-            <canvas class="chart" id="chart" style="height: 250px;"></canvas>
-        </div>
-    </div>
-{/if}
-
-<!-- solid sales graph -->
-{if $_c['hide_tms'] != 'yes'}
-    <div class="box box-solid ">
-        <div class="box-header">
-            <i class="fa fa-inbox"></i>
-
-            <h3 class="box-title">{Lang::T('Total Monthly Sales')}</h3>
-
-            <div class="box-tools pull-right">
-                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn bg-teal btn-sm" data-widget="remove"><i class="fa fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="box-body border-radius-none">
-            <canvas class="chart" id="salesChart" style="height: 250px;"></canvas>
-        </div>
-    </div>
-{/if}
 <div class="row">
     <div class="col-md-7">
+
+        <!-- solid sales graph -->
+        {if $_c['hide_mrc'] != 'yes'}
+            <div class="box box-solid ">
+                <div class="box-header">
+                    <i class="fa fa-th"></i>
+
+                    <h3 class="box-title">{Lang::T('Monthly Registered Customers')}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                        <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
+                                class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body border-radius-none">
+                    <canvas class="chart" id="chart" style="height: 250px;"></canvas>
+                </div>
+            </div>
+        {/if}
+
+        <!-- solid sales graph -->
+        {if $_c['hide_tms'] != 'yes'}
+            <div class="box box-solid ">
+                <div class="box-header">
+                    <i class="fa fa-inbox"></i>
+
+                    <h3 class="box-title">{Lang::T('Total Monthly Sales')}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                        <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
+                                class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="box-body border-radius-none">
+                    <canvas class="chart" id="salesChart" style="height: 250px;"></canvas>
+                </div>
+                    </div>
+                       {/if}
         {if $_c['disable_voucher'] != 'yes' && $stocks['unused']>0 || $stocks['used']>0}
             {if $_c['hide_vs'] != 'yes'}
                 <div class="panel panel-primary mb20 panel-hovered project-stats table-responsive">
                     <div class="panel-heading">Vouchers Stock</div>
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-condensed">
                             <thead>
                                 <tr>
-                                    <th>{$_L['Plan_Name']}</th>
+                                    <th>{Lang::T('Plan Name')}</th>
                                     <th>unused</th>
                                     <th>used</th>
                                 </tr>
@@ -135,24 +138,74 @@
                 </div>
             {/if}
         {/if}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-header with-border">
+                <i class="fa fa-chart-line"></i>
+                <h3 class="box-title">Traffic Monitor</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-wrench"></i>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" id="refreshData">Refresh Data</a></li>
+                            <li><a href="#" id="clearChart">Clear Chart</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-6">
+<div class="form-group">
+    <label for="routerSelect">Select Router:</label>
+    <select id="routerSelect" class="form-control">
+        <option value="">Select Router</option>
+        {foreach $routers as $router}
+        <option value="{$router.id}" {if $selectedRouter == $router.id}selected{/if}>{$router.name}</option>
+        {/foreach}
+    </select>
+</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="interfaceSelect">Select Interface:</label>
+                            <select id="interfaceSelect" class="form-control">
+                                {foreach $interfaces as $interface}
+                                <option value="{$interface.name}" {if $selectedInterface == $interface.name}selected{/if}>{$interface.name}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </div>
+            <div class="overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+        </div>
+    </div>
+</div>
         {if $_c['hide_uet'] != 'yes'}
             <div class="panel panel-warning mb20 panel-hovered project-stats table-responsive">
-                <div class="panel-heading">{$_L['User_Expired_Today']}</div>
+                      <div class="panel-heading">{Lang::T('Users Expiring Today')}</div>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-condensed">
                         <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>{$_L['Username']}</th>
-                                <th>{$_L['Created_On']}</th>
-                                <th>{$_L['Expires_On']}</th>
+                                 <th>{Lang::T('Username')}</th>
+                                 <th>{Lang::T('Created On')}</th>
+                                <th>{Lang::T('Expires On')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {$no = 1}
                             {foreach $expire as $expired}
                                 <tr>
-                                    <td>{$no++}</td>
                                     <td><a href="{$_url}customers/viewu/{$expired['username']}">{$expired['username']}</a></td>
                                     <td>{Lang::dateAndTimeFormat($expired['recharged_on'],$expired['recharged_time'])}
                                     </td>
@@ -185,13 +238,13 @@
         {/if}
         {if $_c['hide_al'] != 'yes'}
             <div class="panel panel-info panel-hovered mb20 activities">
-                <div class="panel-heading"><a href="{$_url}logs">{$_L['Activity_Log']}</a></div>
+                <div class="panel-heading"><a href="{$_url}logs">{Lang::T('Activity Log')}</a></div>
                 <div class="panel-body">
                     <ul class="list-unstyled">
                         {foreach $dlog as $dlogs}
                             <li class="primary">
                                 <span class="point"></span>
-                                <span class="time small text-muted">{time_elapsed_string($dlogs['date'],true)}</span>
+                                <span class="time small text-muted">{Lang::timeElapsed($dlogs['date'],true)}</span>
                                 <p>{$dlogs['description']}</p>
                             </li>
                         {/foreach}
@@ -386,6 +439,113 @@
         });
 
     });
+</script>
+<script>
+
+$(document).ready(function() {
+    var trafficChart;
+    var trafficData = {$trafficData|json_encode};
+    var selectedRouter = {$selectedRouter|default:null};
+    var selectedInterface = {$selectedInterface|default:null};
+
+    function renderTrafficChart() {
+        var ctx = document.getElementById('trafficChart').getContext('2d');
+        trafficChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trafficData.labels,
+                datasets: [
+                    {
+                        label: 'TX',
+                        data: trafficData.rows.tx,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                    },
+                    {
+                        label: 'RX',
+                        data: trafficData.rows.rx,
+                        borderColor: 'rgb(53, 162, 235)',
+                        backgroundColor: 'rgba(53, 162, 235, 0.5)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Traffic (bits/s)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function fetchTrafficData(router, interface) {
+        $('.overlay').show();
+        $.ajax({
+            url: '{$_url}mikrotik/monitor-traffic',
+            method: 'GET',
+            data: {
+                router: router,
+                interface: interface
+            },
+            success: function(data) {
+                trafficData = data;
+                if (trafficChart) {
+                    trafficChart.data.labels = trafficData.labels;
+                    trafficChart.data.datasets[0].data = trafficData.rows.tx;
+                    trafficChart.data.datasets[1].data = trafficData.rows.rx;
+                    trafficChart.update();
+                } else {
+                    renderTrafficChart();
+                }
+                $('.overlay').hide();
+            },
+            error: function() {
+                alert('Error fetching traffic data');
+                $('.overlay').hide();
+            }
+        });
+    }
+
+    $('#routerSelect').on('change', function() {
+        selectedRouter = $(this).val();
+        fetchTrafficData(selectedRouter, selectedInterface);
+    });
+
+    $('#interfaceSelect').on('change', function() {
+        selectedInterface = $(this).val();
+        fetchTrafficData(selectedRouter, selectedInterface);
+    });
+
+    $('#refreshData').on('click', function(e) {
+        e.preventDefault();
+        fetchTrafficData(selectedRouter, selectedInterface);
+    });
+
+    $('#clearChart').on('click', function(e) {
+        e.preventDefault();
+        trafficChart.data.labels = [];
+        trafficChart.data.datasets[0].data = [];
+        trafficChart.data.datasets[1].data = [];
+        trafficChart.update();
+    });
+
+    if (selectedRouter && selectedInterface) {
+        fetchTrafficData(selectedRouter, selectedInterface);
+    }
+});
 </script>
 
 {include file="sections/footer.tpl"}
