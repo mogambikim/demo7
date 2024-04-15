@@ -598,5 +598,13 @@
     "Router_Monitor": "Router Monitor",
     "info_Page": "info Page",
     "Cache_cleared_successfully_": "Cache cleared successfully!",
-    "User_Expiring__Today": "User Expiring, Today"
+    "User_Expiring__Today": "User Expiring, Today",
+    "Manage_Accounts": "Manage Accounts",
+    "Search_Location": "Search Location",
+    "Edit_Balance": "Edit Balance",
+    "New_Balance": "New Balance",
+    "Close": "Close",
+    "Save": "Save",
+    "Activation": "Activation",
+    "Subscribers": "Subscribers"
 }

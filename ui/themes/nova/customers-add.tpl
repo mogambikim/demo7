@@ -107,6 +107,13 @@
     </div>
                     </div>
                 </div>
+<div class="form-group">
+    <label class="col-md-3 control-label">{Lang::T('Search Location')}</label>
+    <div class="col-md-9">
+        <input type="text" class="form-control" id="search-location" placeholder="Enter location">
+        <div id="location-suggestions"></div>
+    </div>
+</div>
 
                     <div class="form-group">
                         <label class="col-md-3 control-label">{Lang::T('Coordinates')}</label>
@@ -180,43 +187,94 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
- </script>
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script>
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
-            } else {
-                setupMap(51.505, -0.09);
-            }
-        }
+</script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+    var map;
+    var marker;
 
-        function showPosition(position) {
-            setupMap(position.coords.latitude, position.coords.longitude);
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showDefaultPosition);
+        } else {
+            showDefaultPosition();
         }
+    }
 
-        function setupMap(lat, lon) {
-            var map = L.map('map').setView([lat, lon], 13);
+    function showPosition(position) {
+        setupMap(position.coords.latitude, position.coords.longitude);
+    }
+
+    function showDefaultPosition() {
+        setupMap(-1.2921, 36.8219); // Default coordinates for Nairobi, Kenya
+    }
+
+    function setupMap(lat, lon) {
+        if (!map) {
+            map = L.map('map').setView([lat, lon], 13);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png', {
                 attribution:
                     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                    subdomains: 'abcd',
-                    maxZoom: 20
+                subdomains: 'abcd',
+                maxZoom: 20
             }).addTo(map);
-            var marker = L.marker([lat, lon]).addTo(map);
-            map.on('click', function(e){
-                var coord = e.latlng;
-                var lat = coord.lat;
-                var lng = coord.lng;
-                var newLatLng = new L.LatLng(lat, lng);
-                marker.setLatLng(newLatLng);
-                $('#coordinates').val(lat + ',' + lng);
-            });
         }
-        window.onload = function() {
-            getLocation();
+        if (marker) {
+            map.removeLayer(marker);
         }
-    </script>
+        marker = L.marker([lat, lon]).addTo(map);
+        map.setView([lat, lon], 13);
+        $('#coordinates').val(lat + ',' + lon);
+
+        // Add the click event listener to update the marker position
+        map.on('click', function(e) {
+            var coord = e.latlng;
+            var lat = coord.lat;
+            var lng = coord.lng;
+            marker.setLatLng([lat, lng]);
+            $('#coordinates').val(lat + ',' + lng);
+        });
+    }
+
+    window.onload = function() {
+        getLocation();
+    }
+
+    var searchInput = document.getElementById('search-location');
+    var suggestionContainer = document.getElementById('location-suggestions');
+
+    searchInput.addEventListener('input', function() {
+        var location = this.value;
+        if (location.length >= 3) {
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(location);
+            fetch(url)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    suggestionContainer.innerHTML = '';
+                    data.forEach(function(item) {
+                        var suggestion = document.createElement('div');
+                        suggestion.classList.add('location-suggestion');
+                        suggestion.textContent = item.display_name;
+                        suggestion.addEventListener('click', function() {
+                            searchInput.value = item.display_name;
+                            suggestionContainer.innerHTML = '';
+                            var lat = parseFloat(item.lat);
+                            var lon = parseFloat(item.lon);
+                            setupMap(lat, lon);
+                        });
+                        suggestionContainer.appendChild(suggestion);
+                    });
+                })
+                .catch(function(error) {
+                    console.log('Error:', error);
+                });
+        } else {
+            suggestionContainer.innerHTML = '';
+        }
+    });
+</script>
 {/literal}
 
 

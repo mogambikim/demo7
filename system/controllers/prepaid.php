@@ -705,60 +705,6 @@ switch ($action) {
         }
         break;
 
-    case 'deposit':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
-            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-        }
-        $ui->assign('_title', Lang::T('Refill Balance'));
-        $ui->assign('xfooter', $select2_customer);
-        $ui->assign('p', ORM::for_table('tbl_plans')->where('enabled', '1')->where('type', 'Balance')->find_many());
-        run_hook('view_deposit'); #HOOK
-        $ui->display('deposit.tpl');
-        break;
-        case 'deposit-post':
-            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
-                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-            }
-            
-            $user = _post('id_customer');
-            $balance_amount = _post('balance_amount');
-            
-            run_hook('deposit_customer'); #HOOK
-            
-            if (!empty($user) && !empty($balance_amount)) {
-                $c = ORM::for_table('tbl_customers')->where('id', $user)->find_one();
-                if ($c) {
-                    $c->balance = $c->balance + $balance_amount;
-                    $c->save();
-                    
-                    // Log the transaction
-                    $transaction = ORM::for_table('tbl_transactions')->create();
-                    $transaction->invoice = 'INV-' . time(); // Generate a unique invoice number
-                    $transaction->username = $c['username'];
-                    $transaction->plan_name = 'Manual Deposit';
-                    $transaction->price = $balance_amount;
-                    $transaction->recharged_on = date('Y-m-d');
-                    $transaction->recharged_time = date('H:i:s');
-                    $transaction->expiration = date('Y-m-d');
-                    $transaction->time = date('H:i:s');
-                    $transaction->method = 'Deposit - ' . $admin['fullname'];
-                    $transaction->routers = 'balance';
-                    $transaction->type = 'Balance';
-                    $transaction->admin_id = $admin['id'];
-                    $transaction->save();
-                    
-                    // Get the transaction ID
-                    $transaction_id = $transaction->id();
-                    
-                    Package::createInvoice($transaction_id);
-                    $ui->display('invoice.tpl');
-                } else {
-                    r2(U . 'prepaid/refill', 'e', "Invalid customer selected");
-                }
-            } else {
-                r2(U . 'prepaid/refill', 'e', "All fields are required");
-            }
-            break;
     default:
         $ui->display('a404.tpl');
 }

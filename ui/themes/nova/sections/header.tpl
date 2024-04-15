@@ -464,7 +464,7 @@
                 {$_MENU_AFTER_CUSTOMERS}
                 <li class="{if $_system_menu eq 'prepaid'}active{/if} treeview">
                     <a href="#">
-                        <i class="fa fa-ticket"></i> <span>{Lang::T('Services')}</span>
+                        <i class="fa fa-ticket"></i> <span>{Lang::T('Activation')}</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
@@ -483,9 +483,6 @@
                         {/if}
                         <li {if $_routes[1] eq 'recharge'}class="active" {/if}>
                             <a href="{$_url}prepaid/recharge">{Lang::T('Activate User')}</a>
-                        </li>
-                        <li {if $_routes[1] eq 'deposit'}class="active" {/if}>
-                            <a href="{$_url}prepaid/deposit">{Lang::T('Add Balance')}</a>
                         </li>
                         {$_MENU_PREPAID}
                     </ul>
@@ -647,12 +644,6 @@
                         </li>
                     {/if}
                     {if in_array($_admin['user_type'],['SuperAdmin','Admin','Agent'])}
-                        <li {if $_routes[1] eq 'bulk'}class="active" {/if}>
-                            <a href="{$_url}settings/bulk">{Lang::T('Send Bulk Sms')}</a>
-                        </li>
-                        <li {if $_routes[1] eq 'specific'}class="active" {/if}>
-                            <a href="{$_url}settings/specific">{Lang::T('SMS')}</a>
-                        </li>
                         <li {if $_routes[1] eq 'users'}class="active" {/if}>
                             <a href="{$_url}settings/users">{Lang::T('Administrator Users')}</a>
                         </li>

@@ -87,6 +87,53 @@ EOT;
         $ui->assign('paginator', $paginator);
         $ui->display('customers.tpl');
         break;
+        case 'edit-balance':
+            $customer_id = $routes['2'];
+            $customer = ORM::for_table('tbl_customers')->find_one($customer_id);
+        
+            if ($customer) {
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $balance = $_POST['balance'];
+                    $previous_balance = $customer->balance; // Store the previous balance
+        
+                    $customer->set('balance', $balance);
+                    $customer->save();
+        
+                    // Generate a unique transaction reference
+                    $transaction_ref = 'AdminEdit' . mt_rand(1000, 9999); // Using a random 4-digit number
+                    // Alternatively, you can use a sequence number:
+                    // $last_transaction = ORM::for_table('tbl_transactions')->order_by_desc('id')->find_one();
+                    // $transaction_ref = 'AdminEdit' . ($last_transaction ? $last_transaction->id + 1 : 1);
+        
+                    // Log the transaction
+                    $transaction = ORM::for_table('tbl_transactions')->create();
+                    $transaction->invoice = $transaction_ref;
+                    $transaction->username = $customer['username'];
+                    $transaction->plan_name = 'Manual Balance Edit';
+                    $transaction->price = $balance - $previous_balance; // Calculate the balance change
+                    $transaction->recharged_on = date('Y-m-d');
+                    $transaction->recharged_time = date('H:i:s');
+                    $transaction->expiration = date('Y-m-d');
+                    $transaction->time = date('H:i:s');
+                    $transaction->method = 'Balance Edit - ' . $admin['fullname'];
+                    $transaction->routers = 'balance';
+                    $transaction->type = 'Balance Edit';
+                    $transaction->admin_id = $admin['id'];
+                    $transaction->save();
+        
+                    // Redirect back to the customer list page after updating the balance
+                    r2(U . 'customers/list', 's', 'Balance updated successfully');
+                } else {
+                    // Display the edit balance form
+                    $ui->assign('customer', $customer);
+                    $ui->display('customers-edit-balance.tpl');
+                }
+            } else {
+                r2(U . 'customers/list', 'e', 'Customer not found');
+            }
+            break;
+
+            
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
                 _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
             }
@@ -261,29 +308,45 @@ EOT;
             r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
         }
         break;
+        
         case 'edit':
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
-                _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
-            }            
-            $id  = $routes['2'];
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+        
+            $id = $routes['2'];
             run_hook('edit_customer'); #HOOK
+        
             $d = ORM::for_table('tbl_customers')->find_one($id);
-        // Fetch the Customers Attributes values from the tbl_customers_fields table
-        $customFields = ORM::for_table('tbl_customers_fields')
-        ->where('customer_id', $id)
-        ->find_many();
-            $routers = ORM::for_table('tbl_routers')->find_many();
+            $customFields = ORM::for_table('tbl_customers_fields')
+                ->where('customer_id', $id)
+                ->find_many();
+        
             if ($d) {
                 $ui->assign('d', $d);
-                $ui->assign('routers', $routers); // Pass the routers to the template
                 $ui->assign('customFields', $customFields);
                 $ui->assign('xheader', $leafletpickerHeader);
+        
+                // Check if the form is submitted
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $balance = $_POST['balance'];
+                    $customer = ORM::for_table('tbl_customers')->find_one($id);
+                    if ($customer) {
+                        $customer->set('balance', $balance);
+                        $customer->save();
+                        // Handle success case
+                        _alert(Lang::T('Balance updated successfully'), 'success', $_url . 'customers/list');
+                    } else {
+                        // Handle failure case
+                        _alert(Lang::T('Failed to update balance'), 'danger');
+                    }
+                }
+        
                 $ui->display('customers-edit.tpl');
             } else {
                 r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
             }
             break;
-
     case 'delete':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
             _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");

@@ -51,6 +51,12 @@
                            </div>
                        </div>
                    </div>
+<div class="form-group">
+    <label class="col-md-2 control-label">{Lang::T('Balance')}</label>
+    <div class="col-md-6">
+        <input type="text" class="form-control" id="balance" name="balance" value="{$d['balance']}">
+    </div>
+</div>
                    <div class="form-group">
                        <label class="col-md-2 control-label">{Lang::T('Address')}</label>
                        <div class="col-md-6">
