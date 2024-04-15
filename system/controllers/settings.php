@@ -411,44 +411,43 @@ switch ($action) {
             }
             break;        
 
-    case 'users-edit':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
-            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
-        }
-        $ui->assign('_title', Lang::T('Edit User'));
-        $id  = $routes['2'];
-        if (empty($id)) {
-            $id = $admin['id'];
-        }        
-        if ($admin['id'] == $id) {
-            $d = ORM::for_table('tbl_users')->find_one($id);
-        } else {
-            if ($admin['user_type'] == 'SuperAdmin') {
-                $d = ORM::for_table('tbl_users')->find_one($id);
-                $ui->assign('agents', ORM::for_table('tbl_users')->where('user_type', 'Agent')->find_many());
-            } else if ($admin['user_type'] == 'Admin') {
-                $d = ORM::for_table('tbl_users')->where_any_is([
-                    ['user_type' => 'Report'],
-                    ['user_type' => 'Agent'],
-                    ['user_type' => 'Sales'],
-                    ['id' => $admin['id']]
-                ])->find_one($id);
-                $ui->assign('agents', ORM::for_table('tbl_users')->where('user_type', 'Agent')->find_many());
-            } else {
-                                // Agent cannot move Sales to other Agent
-                                $ui->assign('agents', ORM::for_table('tbl_users')->where('id', $admin['id'])->find_many());
-                $d = ORM::for_table('tbl_users')->where('root', $admin['id'])->find_one($id);
-            }
-        }
-        if ($d) {
-            $ui->assign('id', $id);
-            $ui->assign('d', $d);
-            run_hook('view_edit_admin'); #HOOK
-            $ui->display('users-edit.tpl');
-        } else {
-            r2(U . 'settings/users', 'e', Lang::T('Account Not Found'));
-        }
-        break;
+            case 'users-edit':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                }
+                $ui->assign('_title', Lang::T('Edit User'));
+                $id  = $routes['2'];
+                if (empty($id)) {
+                    $id = $admin['id'];
+                }
+                if ($admin['id'] == $id) {
+                    $d = ORM::for_table('tbl_users')->find_one($id);
+                } else {
+                    if ($admin['user_type'] == 'SuperAdmin') {
+                        $d = ORM::for_table('tbl_users')->find_one($id);
+                        $ui->assign('agents', ORM::for_table('tbl_users')->where('user_type', 'Agent')->find_many());
+                    } else if ($admin['user_type'] == 'Admin') {
+                        $d = ORM::for_table('tbl_users')->where_any_is([
+                            ['user_type' => 'Report'],
+                            ['user_type' => 'Agent'],
+                            ['user_type' => 'Sales']
+                        ])->find_one($id);
+                        $ui->assign('agents', ORM::for_table('tbl_users')->where('user_type', 'Agent')->find_many());
+                    } else {
+                        // Agent cannot move Sales to other Agent
+                        $ui->assign('agents', ORM::for_table('tbl_users')->where('id', $admin['id'])->find_many());
+                        $d = ORM::for_table('tbl_users')->where('root', $admin['id'])->find_one($id);
+                    }
+                }
+                if ($d) {
+                    $ui->assign('id', $id);
+                    $ui->assign('d', $d);
+                    run_hook('view_edit_admin'); #HOOK
+                    $ui->display('users-edit.tpl');
+                } else {
+                    r2(U . 'settings/users', 'e', Lang::T('Account Not Found'));
+                }
+                break;
 
     case 'users-delete':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {

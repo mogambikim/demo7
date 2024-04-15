@@ -36,7 +36,7 @@
                             <input type="text" class="form-control" id="ward" name="ward" placeholder="{Lang::T('Ward')}">
                         </div>
                     </div>
-                                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-6">
@@ -47,7 +47,7 @@
                         <label class="col-md-3 control-label">{Lang::T('User Type')}</label>
                         <div class="col-md-9">
                             <select name="user_type" id="user_type" class="form-control" onchange="checkUserType(this)">
-                                   {if $_admin['user_type'] eq 'Agent'}
+                                {if $_admin['user_type'] eq 'Agent'}
                                     <option value="Sales">{Lang::T('Sales')}</option>
                                 {/if}
                                 {if $_admin['user_type'] eq 'Admin' || $_admin['user_type'] eq 'SuperAdmin'}
@@ -62,7 +62,7 @@
                             </select>
                         </div>
                     </div>
-                                        <div class="form-group hidden" id="agentChooser">
+                    <div class="form-group hidden" id="agentChooser">
                         <label class="col-md-3 control-label">{Lang::T('Agent')}</label>
                         <div class="col-md-9">
                             <select name="root" id="root" class="form-control">
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                             <label class="col-md-3 control-label">{Lang::T('Username')}</label>
+                        <label class="col-md-3 control-label">{Lang::T('Username')}</label>
                         <div class="col-md-9">
                             <input type="text" class="form-control" id="username" name="username">
                         </div>
@@ -85,7 +85,6 @@
                             onmouseleave="this.type = 'password'" onmouseenter="this.type = 'text'">
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="col-md-5 control-label">{Lang::T('Send Notification')}</label>
                         <div class="col-md-7">
@@ -96,11 +95,12 @@
                             </select>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="form-group text-center">
-                        <button class="btn btn-block btn-primary" type="submit">{Lang::T('Save Changes')}</button>
+        <button class="btn btn-primary" type="submit">{Lang::T('Save Changes')}</button>
         Or <a href="{$_url}settings/users">{Lang::T('Cancel')}</a>
     </div>
 </form>

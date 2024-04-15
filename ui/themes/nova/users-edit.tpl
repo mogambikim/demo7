@@ -42,14 +42,14 @@
                                 placeholder="{Lang::T('Ward')}" value="{$d['ward']}">
                         </div>
                     </div>
-                   </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-6">
             <div
                 class="panel panel-{if $d['status'] != 'Active'}danger{else}primary{/if} panel-hovered panel-stacked mb30">
                 <div class="panel-heading">{Lang::T('Credentials')}</div>
-                <div class="panel-body">                 
+                <div class="panel-body">
                     {if ($_admin['id']) neq ($d['id'])}
                         <div class="form-group">
                             <label class="col-md-3 control-label">{Lang::T('Status')}</label>
@@ -87,7 +87,7 @@
                                 </select>
                             </div>
                         </div>
-                                                <div class="form-group {if $d['user_type'] neq 'Sales'}hidden{/if}" id="agentChooser">
+                        <div class="form-group {if $d['user_type'] neq 'Sales'}hidden{/if}" id="agentChooser">
                             <label class="col-md-3 control-label">{Lang::T('Agent')}</label>
                             <div class="col-md-9">
                                 <select name="root" id="root" class="form-control">
@@ -112,7 +112,6 @@
                             <span class="help-block">{Lang::T('Keep Blank to do not change Password')}</span>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label class="col-md-3 control-label">{Lang::T('Password')}</label>
                         <div class="col-md-9">
@@ -121,14 +120,16 @@
                             <span class="help-block">{Lang::T('Keep Blank to do not change Password')}</span>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="form-group text-center">
-                        <button class="btn btn-block btn-primary" type="submit">{Lang::T('Save Changes')}</button>
+        <button class="btn btn-primary" type="submit">{Lang::T('Save Changes')}</button>
         Or <a href="{$_url}settings/users">{Lang::T('Cancel')}</a>
     </div>
 </form>
+
 {literal}
     <script>
         function checkUserType($field){
@@ -140,5 +141,4 @@
         }
 </script>
 {/literal}
-
 {include file="sections/footer.tpl"}
