@@ -28,4 +28,3 @@ system/uploads/sms/**
 system/uploads/system/**
 !system/uploads/system/index.html
 /vendor/
-logs.txt

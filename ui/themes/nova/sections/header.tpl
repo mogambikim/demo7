@@ -541,7 +541,7 @@
             {$_MENU_AFTER_REPORTS}
             <li class="{if $_system_menu eq 'message'}active{/if} treeview">
                 <a href="#">
-                    <i class="ion ion-android-chat"></i> <span>{Lang::T('Send Message')}</span>
+                    <i class="ion ion-android-chat"></i> <span>{Lang::T('Notifications')}</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
