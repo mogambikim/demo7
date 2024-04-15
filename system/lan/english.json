@@ -606,5 +606,9 @@
     "Close": "Close",
     "Save": "Save",
     "Activation": "Activation",
-    "Subscribers": "Subscribers"
+    "Subscribers": "Subscribers",
+    "Notifications": "Notifications",
+    "Daily_Transactions": "Daily Transactions",
+    "Period_Transactions": "Period Transactions",
+    "Social_Spot": "Social Spot"
 }

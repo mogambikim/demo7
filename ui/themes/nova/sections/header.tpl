@@ -520,17 +520,17 @@
             {$_MENU_AFTER_SERVICES}
             <li class="{if $_system_menu eq 'reports'}active{/if} treeview">
                 <a href="#">
-                    <i class="ion ion-clipboard"></i> <span>{Lang::T('Reports')}</span>
+                    <i class="ion ion-clipboard"></i> <span>{Lang::T('Transactions')}</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                 </a>
                 <ul class="treeview-menu">
                     <li {if $_routes[1] eq 'daily-report'}class="active" {/if}>
-                        <a href="{$_url}reports/daily-report">{Lang::T('Daily Reports')}</a>
+                        <a href="{$_url}reports/daily-report">{Lang::T('Daily Transactions')}</a>
                     </li>
                     <li {if $_routes[1] eq 'by-period'}class="active" {/if}>
-                        <a href="{$_url}reports/by-period">{Lang::T('Period Reports')}</a>
+                        <a href="{$_url}reports/by-period">{Lang::T('Period Transactions')}</a>
                     </li>
                     <li {if $_routes[1] eq 'activation'}class="active" {/if}>
                         <a href="{$_url}reports/activation">{Lang::T('Activation History')}</a>
@@ -691,7 +691,7 @@
 <li {if $_system_menu eq 'community'}class="active" {/if}>
     <a href="{$_url}community">
         <i class="ion ion-chatboxes"></i>
-        <span class="text">{Lang::T('Community')}</span>
+        <span class="text">{Lang::T('Social Spot')}</span>
     </a>
 </li>
 {$_MENU_AFTER_COMMUNITY}
