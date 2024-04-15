@@ -661,12 +661,7 @@
                     {/if}
                 </ul>
             </li>
-            <li class="{if $_system_menu eq 'Router Monitor'}active{/if}">
-                <a href="{$_url}plugin/mikrotik_ui">
-                    <i class="ion ion-wifi"></i>
-                    <span class="text">{Lang::T('Router Monitor')}</span>
-                </a>
-            </li>
+
 {$_MENU_AFTER_SETTINGS}
 <li class="{if $_system_menu eq 'logs'}active{/if} treeview">
     <a href="#">
