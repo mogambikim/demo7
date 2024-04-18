@@ -43,42 +43,32 @@ EOT;
                 ->find_many();
         } else {
             $queryBuilder = ORM::for_table('tbl_customers');
-            _log('Query Builder initialized');
 
             if ($filter == 'active') {
                 $queryBuilder->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
                     ->where_gt('tbl_user_recharges.expiration', date('Y-m-d H:i:s'))
                     ->group_by('tbl_customers.id');
-                _log('Filter: Active');
             } elseif ($filter == 'expired') {
                 $queryBuilder->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
                     ->where_lte('tbl_user_recharges.expiration', date('Y-m-d H:i:s'))
                     ->group_by('tbl_customers.id');
-                _log('Filter: Expired');
             } elseif ($filter == 'hotspot') {
                 $queryBuilder->where('service_type', 'Hotspot');
-                _log('Filter: Hotspot');
             } elseif ($filter == 'static') {
                 $queryBuilder->where('service_type', 'Static');
-                _log('Filter: Static');
             } elseif ($filter == 'pppoe') {
                 $queryBuilder->where('service_type', 'PPPoE');
-                _log('Filter: PPPoE');
             } elseif ($filter == 'new') {
                 $queryBuilder->where_null('service_type');
-                _log('Filter: New');
             }
 
-            _log('Last Query: ' . ORM::get_last_query());
 
             $paginator = Paginator::build($queryBuilder);
-            _log('Paginator: ' . print_r($paginator, true));
 
             $d = $queryBuilder->offset($paginator['startpoint'])
                 ->limit($paginator['limit'])
                 ->order_by_desc('id')
                 ->find_many();
-            _log('Customers: ' . print_r($d, true));
         }
 
         $ui->assign('filter', $filter);
@@ -227,7 +217,6 @@ EOT;
                 $b->expiration = date('Y-m-d');
                 $b->time = date('H:i:s');
                 $b->save();
-                _log('Admin ' . $admin['username'] . ' Deactivate ' . $b['namebp'] . ' for ' . $b['username'], 'User', $b['customer_id']);
                 Message::sendTelegram('Admin ' . $admin['username'] . ' Deactivate ' . $b['namebp'] . ' for u' . $b['username']);
                 r2(U . 'customers/view/' . $id_customer, 's', 'Success deactivate customer to Mikrotik');
             }

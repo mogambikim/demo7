@@ -186,7 +186,7 @@ if (file_exists($cacheMSfile) && time() - filemtime($cacheMSfile) < 43200) {
 $logFile = 'logs.txt';
 
 // Check if the file is writable
-/*
+
 if (is_writable($logFile)) {
     // Log the attempt to include the mikrotik.php file
     if (error_log('Attempting to include mikrotik.php', 3, $logFile) === false) {
@@ -195,7 +195,7 @@ if (is_writable($logFile)) {
 } else {
     die('Log file is not writable');
 }
- */
+ 
 // Log the attempt to include the mikrotik.php file
 error_log('Attempting to include mikrotik.php', 3, $logFile);
 

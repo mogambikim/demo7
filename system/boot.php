@@ -1,14 +1,12 @@
 <?php
 
 /**
- 
+ * PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
 
  **/
 
 try {
-
     require_once 'init.php';
-
 } catch (Throwable $e) {
     $ui = new Smarty();
     $ui->setTemplateDir([
@@ -19,7 +17,7 @@ try {
     $ui->setCompileDir(File::pathFixer($UI_PATH . '/compiled/'));
     $ui->setConfigDir(File::pathFixer($UI_PATH . '/conf/'));
     $ui->setCacheDir(File::pathFixer($UI_PATH . '/cache/'));
-    $ui->assign("error_title", "FreeIspRadius Crash");
+    $ui->assign("error_title", "PHPNuxBill Crash");
     if (_auth()) {
         $ui->assign("error_message", $e->getMessage() . '<br>');
     } else {
@@ -27,7 +25,6 @@ try {
     }
     $ui->display('router-error.tpl');
     die();
-
 } catch (Exception $e) {
     $ui = new Smarty();
     $ui->setTemplateDir([
@@ -38,10 +35,10 @@ try {
     $ui->setCompileDir(File::pathFixer($UI_PATH . '/compiled/'));
     $ui->setConfigDir(File::pathFixer($UI_PATH . '/conf/'));
     $ui->setCacheDir(File::pathFixer($UI_PATH . '/cache/'));
-    $ui->assign("error_title", "FreeispRadius Crash");
+    $ui->assign("error_title", "PHPNuxBill Crash");
     if (_auth()) {
         $ui->assign("error_message", $e->getMessage() . '<br>');
-    }else{
+    } else {
         $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
     }
     $ui->display('router-error.tpl');
@@ -78,7 +75,6 @@ $ui->setConfigDir(File::pathFixer($UI_PATH . '/conf/'));
 $ui->setCacheDir(File::pathFixer($UI_PATH . '/cache/'));
 $ui->assign('app_url', APP_URL);
 $ui->assign('_domain', str_replace('www.', '', parse_url(APP_URL, PHP_URL_HOST)));
-//files were deleted here
 $ui->assign('_url', APP_URL . '/index.php?_route=');
 $ui->assign('_path', __DIR__);
 $ui->assign('_c', $config);
@@ -102,11 +98,6 @@ if (isset($_SESSION['notify'])) {
     unset($_SESSION['ntype']);
 }
 
-//file deleted here
-
-
-//code deleted here
-
 // Routing Engine
 $req = _get('_route');
 $routes = explode('/', $req);
@@ -117,7 +108,6 @@ if ($handler == '') {
 }
 $admin = Admin::_info();
 try {
-
     $sys_render = $root_path . File::pathFixer('system/controllers/' . $handler . '.php');
     if (file_exists($sys_render)) {
         $menus = array();

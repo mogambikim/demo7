@@ -5,28 +5,6 @@
  *  by https://t.me/freeispradius
  **/
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Custom error handler function
-function customErrorHandler($errno, $errstr, $errfile, $errline) {
-    $errorMessage = date('Y-m-d H:i:s') . " - Error: [$errno] $errstr in $errfile on line $errline\n";
-    file_put_contents('errors.log', $errorMessage, FILE_APPEND);
-}
-
-// Set the custom error handler
-set_error_handler("customErrorHandler");
-
-// Custom exception handler function
-function customExceptionHandler($exception) {
-    $errorMessage = date('Y-m-d H:i:s') . " - Exception: " . $exception->getMessage() . " in " . $exception->getFile() . " on line " . $exception->getLine() . "\n";
-    file_put_contents('errors.log', $errorMessage, FILE_APPEND);
-}
-
-// Set the custom exception handler
-set_exception_handler("customExceptionHandler");
-
 _auth();
 $ui->assign('_title', Lang::T('Dashboard'));
 

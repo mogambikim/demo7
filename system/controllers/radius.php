@@ -1,19 +1,19 @@
 <?php
+
 /**
- *  PHP Mikrotik Billing (https://freeispradius.com/)
- *  by https://t.me/freeispradius
+ *  PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
+ *  by https://t.me/ibnux
  **/
 _admin();
 $ui->assign('_title', Lang::T('Plugin Manager'));
 $ui->assign('_system_menu', 'settings');
 
 $action = $routes['1'];
-//$admin = Admin::_info();
 $ui->assign('_admin', $admin);
 
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-    _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
 }
 
 switch ($action) {
@@ -135,22 +135,15 @@ switch ($action) {
         $ui->assign('_title', "Network Access Server");
         $name = _post('name');
         if (empty($name)) {
-            $paginator = Paginator::build(ORM::for_table('nas', 'radius'));
-            $nas = ORM::for_table('nas', 'radius')->offset($paginator['startpoint'])->limit($paginator['limit'])->find_many();
+            $query = ORM::for_table('nas', 'radius');
+            $nas = Paginator::findMany($query);
         } else {
-            $paginator = Paginator::build(ORM::for_table('nas', 'radius'), [
-                'nasname' => '%'.$search.'%',
-                'shortname' => '%'.$search.'%',
-                'description' => '%'.$search.'%'
-            ]);
-            $nas = ORM::for_table('nas', 'radius')
-            ->where_like('nasname', $search)
-            ->where_like('shortname', $search)
-            ->where_like('description', $search)
-            ->offset($paginator['startpoint'])->limit($paginator['limit'])
-            ->find_many();
+            $query = ORM::for_table('nas', 'radius')
+                ->where_like('nasname', $search)
+                ->where_like('shortname', $search)
+                ->where_like('description', $search);
+            $nas = Paginator::findMany($query, ['name' => $name]);
         }
-        $ui->assign('paginator', $paginator);
         $ui->assign('name', $name);
         $ui->assign('nas', $nas);
         $ui->display('radius-nas.tpl');

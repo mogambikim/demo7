@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === "OPTIONS" || $_SERVER['REQUEST_METHOD'] === "
     die();
 }
 
-include "../init.php";
-
 $isApi = true;
+
+include "../init.php";
 
 // Dummy Class
 $ui = new class($key)
@@ -25,81 +25,101 @@ $ui = new class($key)
     var $assign = [];
     function display($key)
     {
+        global $req;
+        showResult(true, $req, $this->getAll());
     }
     function assign($key, $value)
     {
         $this->assign[$key] = $value;
     }
-
-    function get($key, )
+    function get($key)
     {
-        if(isset($this->assign[$key])){
+        if (isset($this->assign[$key])) {
             return $this->assign[$key];
         }
         return '';
+    }
+    function getTemplateVars($key)
+    {
+        if (isset($this->assign[$key])) {
+            return $this->assign[$key];
+        }
+        return '';
+    }
+    function getAll()
+    {
+        return $this->assign;
     }
 };
 
 $req = _get('r');
 # a/c.id.time.md5
 # md5(a/c.id.time.$api_secret)
-$token = _get('token');
+$token = _req('token');
 $routes = explode('/', $req);
 $handler = $routes[0];
 
-if(empty($token)){
-    showResult(false, Lang::T("Token is invalid"));
-}
+if (!empty($token)) {
+    if ($token == $config['api_key']) {
+        $admin = ORM::for_table('tbl_users')->where('user_type', 'SuperAdmin')->find_one($id);
+        if (empty($admin)) {
+            $admin = ORM::for_table('tbl_users')->where('user_type', 'Admin')->find_one($id);
+            if (empty($admin)) {
+                showResult(false, Lang::T("Token is invalid"));
+            }
+        }
+    } else {
+        # validate token
+        list($tipe, $uid, $time, $sha1) = explode('.', $token);
+        if (trim($sha1) != sha1($uid . '.' . $time . '.' . $api_secret)) {
+            showResult(false, Lang::T("Token is invalid"));
+        }
 
-if($token == $config['api_key']){
-    $admin = ORM::for_table('tbl_users')->where('user_type','SuperAdmin')->find_one($id);
-    if(empty($admin)){
-        $admin = ORM::for_table('tbl_users')->where('user_type','Admin')->find_one($id);
-        if(empty($admin)){
+        #cek token expiration
+        // 3 bulan
+        if ($time != 0 && time() - $time > 7776000) {
+            die("$time != " . (time() - $time));
+            showResult(false, Lang::T("Token Expired"), [], ['login' => true]);
+        }
+
+        if ($tipe == 'a') {
+            $_SESSION['aid'] = $uid;
+            $admin = Admin::_info();
+        } else if ($tipe == 'c') {
+            $_SESSION['uid'] = $uid;
+        } else {
+            showResult(false, Lang::T("Unknown Token"), [], ['login' => true]);
+        }
+    }
+
+    if (!isset($handler) || empty($handler)) {
+        showResult(true, Lang::T("Token is valid"));
+    }
+
+
+    if ($handler == 'isValid') {
+        showResult(true, Lang::T("Token is valid"));
+    }
+
+    if ($handler == 'me') {
+        $admin = Admin::_info();
+        if (!empty($admin['id'])) {
+            showResult(true, "", $admin);
+        } else {
             showResult(false, Lang::T("Token is invalid"));
         }
     }
 }else{
-    # validate token
-    list($tipe, $uid, $time, $md5) = explode('.', $token);
-    if ($md5 != md5($uid . '.' . $time . '.' . $api_secret)) {
-        showResult(false, Lang::T("Token is invalid"));
-    }
-
-    #cek token expiration
-    if ($time != 0 && time() > $time) {
-        showResult(false, Lang::T("Token Expired"), [], ['login' => true]);
-    }
-
-    if($tipe=='a'){
-        $_SESSION['aid'] = $uid;
-    }else if($tipe=='c'){
-        $_SESSION['uid'] = $uid;
-    }else{
-        showResult(false, Lang::T("Unknown Token"), [], ['login' => true]);
-    }
-}
-
-if(!isset($handler) || empty($handler)){
-    showResult(true, Lang::T("Token is valid"));
-}
-
-
-if($handler == 'isValid'){
-    showResult(true, Lang::T("Token is valid"));
-}
-
-function showResult($success, $message = '', $result = [], $meta = [])
-{
-    header("Content-Type: Application/json; charset=utf-8");
-    die(json_encode(array('success' => $success, 'message' => $message, 'result' => $result, 'meta' => $meta)));
+    unset($_COOKIE);
+    unset($_SESSION);
 }
 
 try {
-    $sys_render = File::pathFixer($root_path.'system/controllers/' . $handler . '.php');
+    $sys_render = File::pathFixer($root_path . 'system/controllers/' . $handler . '.php');
     if (file_exists($sys_render)) {
         include($sys_render);
-    }else{
+        showResult(true, $req, $ui->getAll());
+    } else {
         showResult(false, Lang::T('Command not found'));
     }
 } catch (Exception $e) {
