@@ -1,13 +1,13 @@
 <?php
 
-$shortcode = '127172';
-$consumerkey    = "dRRlMceQhGKdFtlFMYik0fCAVBzWKfWo";
-$consumersecret = "zOpcu6YtOqU2BQXu";
-$validationurl = "https://gicatechisp.freeispradius.com/validation_url.php";
-$confirmationurl = "https://gicatechisp.freeispradius.com/paybill_webhook.php";
+$shortcode = '4107471';
+$consumerkey    = "sedyMJK5ywTM5f1sSzQolJtyuJ3j6vMn";
+$consumersecret = "ExZgTr3oAFIfLGcA";
+$validationurl = "https://anchorbay.freeispradius.com/validation_url.php";
+$confirmationurl = "https://anchorbay.freeispradius.com/paybill_webhook.php";
 
-$authenticationurl = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-$registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl';
+$authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
+$registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
 $credentials = base64_encode($consumerkey . ':' . $consumersecret);
 
 $username = $consumerkey;

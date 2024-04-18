@@ -147,17 +147,7 @@ CREATE TABLE `tbl_banks` (
   `paybill` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-DROP TABLE IF EXISTS `tbl_kopokopo`;
-CREATE TABLE `tbl_kopokopo` (
-  `id` int NOT NULL,
-  `amount` varchar(50) NOT NULL,
-  `phonenumber` varchar(200) NOT NULL,
-  `transaction_id` varchar(20) NOT NULL,
-  `time_created` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Table structure for table `tbl_customers`
---
 
 
 DROP TABLE IF EXISTS `tbl_transactions`;

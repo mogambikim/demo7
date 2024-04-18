@@ -5,6 +5,28 @@
  *  by https://t.me/freeispradius
  **/
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Custom error handler function
+function customErrorHandler($errno, $errstr, $errfile, $errline) {
+    $errorMessage = date('Y-m-d H:i:s') . " - Error: [$errno] $errstr in $errfile on line $errline\n";
+    file_put_contents('errors.log', $errorMessage, FILE_APPEND);
+}
+
+// Set the custom error handler
+set_error_handler("customErrorHandler");
+
+// Custom exception handler function
+function customExceptionHandler($exception) {
+    $errorMessage = date('Y-m-d H:i:s') . " - Exception: " . $exception->getMessage() . " in " . $exception->getFile() . " on line " . $exception->getLine() . "\n";
+    file_put_contents('errors.log', $errorMessage, FILE_APPEND);
+}
+
+// Set the custom exception handler
+set_exception_handler("customExceptionHandler");
+
 _auth();
 $ui->assign('_title', Lang::T('Dashboard'));
 
@@ -96,30 +118,29 @@ if (isset($_GET['recharge']) && !empty($_GET['recharge'])) {
         $router = ORM::for_table('tbl_routers')->where('name', $bill['routers'])->find_one();
         if ($config['enable_balance'] == 'yes') {
             $plan = ORM::for_table('tbl_plans')->find_one($bill['plan_id']);
-//added commit
-            if(!$plan['enabled']){
+            // added commit
+            if (!$plan['enabled']) {
                 r2(U . "home", 'e', 'Plan is not exists');
             }
-            
-//end of commit
+            // end of commit
 
             if ($user['balance'] > $plan['price']) {
                 r2(U . "order/pay/$router[id]/$bill[plan_id]", 'e', 'Order Plan');
-            }else{
+            } else {
                 r2(U . "order/buy/$router[id]/$bill[plan_id]", 'e', 'Order Plan');
             }
-        }else{
+        } else {
             r2(U . "order/buy/$router[id]/$bill[plan_id]", 'e', 'Order Plan');
         }
     }
-}else if(isset($_GET['deactivate']) && !empty($_GET['deactivate'])){
+} else if (isset($_GET['deactivate']) && !empty($_GET['deactivate'])) {
     $bill = ORM::for_table('tbl_user_recharges')->where('id', $_GET['deactivate'])->where('username', $user['username'])->findOne();
     if ($bill) {
         $p = ORM::for_table('tbl_plans')->where('id', $bill['plan_id'])->find_one();
-        if($p['is_radius']){
+        if ($p['is_radius']) {
             Radius::customerDeactivate($user['username']);
-        }else{
-            try{
+        } else {
+            try {
                 $mikrotik = Mikrotik::info($bill['routers']);
                 $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
                 if ($bill['type'] == 'Hotspot') {
@@ -128,21 +149,18 @@ if (isset($_GET['recharge']) && !empty($_GET['recharge'])) {
                 } else if ($bill['type'] == 'PPPOE') {
                     Mikrotik::removePpoeUser($client, $bill['username']);
                     Mikrotik::removePpoeActive($client, $bill['username']);
-                }
-
-                else if ($bill['type'] == 'Static') {
+                } else if ($bill['type'] == 'Static') {
                     Mikrotik::removeStaticUser($client, $bill['username']);
-                   
                 }
-            }catch(Exception $e){
-                //ignore it maybe mikrotik has been deleted
+            } catch (Exception $e) {
+                // ignore it maybe mikrotik has been deleted
             }
         }
         $bill->status = 'off';
         $bill->expiration = date('Y-m-d');
         $bill->time = date('H:i:s');
         $bill->save();
-          _log('User ' . $bill['username'] . ' Deactivate ' . $bill['namebp'], 'User', $bill['customer_id']);
+        _log('User ' . $bill['username'] . ' Deactivate ' . $bill['namebp'], 'User', $bill['customer_id']);
         Message::sendTelegram('User u' . $bill['username'] . ' Deactivate ' . $bill['namebp']);
         r2(U . 'home', 's', 'Success deactivate ' . $bill['namebp']);
     } else {
