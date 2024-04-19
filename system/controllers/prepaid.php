@@ -138,40 +138,42 @@ switch ($action) {
                 $id_customer = _post('id_customer');
                 $server = _post('server');
                 $planId = _post('plan');
-                $using = _post('using');
-        
+            
                 $msg = '';
-                if ($id_customer == '' or $server == '' or $planId == '' or $using == '') {
-                    $msg .= Lang::T('All field is required') . '<br>';
+                if ($id_customer == '' or $server == '' or $planId == '') {
+                    $msg .= Lang::T('All fields are required') . '<br>';
                 }
-        
+            
                 if ($msg == '') {
                     $gateway = 'Recharge';
                     $channel = $admin['fullname'];
                     $cust = User::_info($id_customer);
-                    list($bills, $add_cost) = User::getBills($id_customer);
-                    if ($using == 'balance' && $config['enable_balance'] == 'yes') {
-                        $plan = ORM::for_table('tbl_plans')->find_one($planId);
-                        if (!$cust) {
-                            r2(U . 'prepaid/recharge', 'e', Lang::T('Customer not found'));
-                        }
-                        if (!$plan) {
-                            r2(U . 'prepaid/recharge', 'e', Lang::T('Plan not found'));
-                        }
-                        if ($cust['balance'] < ($plan['price'] + $add_cost)) {
-                            r2(U . 'prepaid/recharge', 'e', Lang::T('insufficient balance'));
-                        }
-                        $gateway = 'Recharge Balance';
+                    $plan = ORM::for_table('tbl_plans')->find_one($planId);
+            
+                    if (!$cust) {
+                        r2(U . 'prepaid/recharge', 'e', Lang::T('Customer not found'));
                     }
-                    if ($using == 'zero') {
-                        $add_cost = 0;
-                        $zero = 1;
-                        $gateway = 'Recharge Zero';
+            
+                    if (!$plan) {
+                        r2(U . 'prepaid/recharge', 'e', Lang::T('Plan not found'));
                     }
+            
+                    $planPrice = $plan['price'];
+                    $customerBalance = $cust['balance'];
+            
+                    if ($customerBalance >= $planPrice) {
+                        // Deduct the plan price from the customer's balance
+                        $newBalance = $customerBalance - $planPrice;
+                    } else {
+                        // Insufficient balance, set the new balance to zero
+                        $newBalance = 0;
+                    }
+            
                     if (Package::rechargeUser($id_customer, $server, $planId, $gateway, $channel)) {
-                        if ($using == 'balance') {
-                            Balance::min($cust['id'], $plan['price'] + $add_cost);
-                        }
+                        // Update the customer's balance after successful recharge
+                        $cust->balance = $newBalance;
+                        $cust->save();
+            
                         $in = ORM::for_table('tbl_transactions')->where('username', $cust['username'])->order_by_desc('id')->find_one();
                         Package::createInvoice($in);
                         $ui->display('invoice.tpl');
@@ -183,11 +185,12 @@ switch ($action) {
                     r2(U . 'prepaid/recharge', 'e', $msg);
                 }
                 break;
-        
+            
             case 'view':
                 $id = $routes['2'];
                 $in = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
                 $ui->assign('in', $in);
+            
                 if (!empty($routes['3']) && $routes['3'] == 'send') {
                     $c = ORM::for_table('tbl_customers')->where('username', $in['username'])->find_one();
                     if ($c) {
@@ -196,29 +199,11 @@ switch ($action) {
                     }
                     r2(U . 'prepaid/view/' . $id, 'd', "Customer not found");
                 }
+            
                 Package::createInvoice($in);
                 $ui->assign('_title', 'View Invoice');
                 $ui->display('invoice.tpl');
                 break;
-        
-                
-                break;
-                case 'view':
-                    $id = $routes['2'];
-                    $in = ORM::for_table('tbl_transactions')->where('id', $id)->find_one();
-                    $ui->assign('in', $in);
-                    if (!empty($routes['3']) && $routes['3'] == 'send') {
-                        $c = ORM::for_table('tbl_customers')->where('username', $in['username'])->find_one();
-                        if ($c) {
-                            Message::sendInvoice($c, $in);
-                            r2(U . 'plan/view/' . $id, 's', "Success send to customer");
-                        }
-                        r2(U . 'plan/view/' . $id, 'd', "Customer not found");
-                    }
-                    Package::createInvoice($in);
-                    $ui->assign('_title', 'View Invoice');
-                    $ui->display('invoice.tpl');
-                    break;
 
     case 'print':
         $content = $_POST['content'];

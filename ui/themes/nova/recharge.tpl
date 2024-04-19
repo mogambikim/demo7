@@ -64,19 +64,7 @@
             </select>
         </div>
     </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">{Lang::T('Using')}</label>
-                        <div class="col-md-6">
-                            <select name="using" class="form-control">
-                                <option value="default">{Lang::T('Default')}</option>
-                                {if $_c['enable_balance'] eq 'yes'}
-                                    <option value="balance">{Lang::T('Customer Balance')}</option>
-                                {/if}
-                                <option value="zero">{$_c['currency_code']} 0</option>
-                            </select>
-                        </div>
-                    </div>
-
+     
     <div class="form-group">
         <div class="col-lg-offset-2 col-lg-10">
 									<button class="btn btn-success" type="submit">{Lang::T('Recharge Now')}</button>
