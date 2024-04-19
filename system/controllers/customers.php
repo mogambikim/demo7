@@ -107,7 +107,7 @@ EOT;
                     $transaction->time = date('H:i:s');
                     $transaction->method = 'Balance Edit - ' . $admin['fullname'];
                     $transaction->routers = 'balance';
-                    $transaction->type = 'Balance Edit';
+                    $transaction->type = 'Balance';
                     $transaction->admin_id = $admin['id'];
                     $transaction->save();
         
