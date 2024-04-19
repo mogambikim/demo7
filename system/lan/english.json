@@ -610,5 +610,7 @@
     "Notifications": "Notifications",
     "Daily_Transactions": "Daily Transactions",
     "Period_Transactions": "Period Transactions",
-    "Social_Spot": "Social Spot"
+    "Social_Spot": "Social Spot",
+    "Buy_Balance_": "Buy Balance?",
+    "Static_Plan": "Static Plan"
 }

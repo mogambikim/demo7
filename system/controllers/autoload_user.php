@@ -1,7 +1,7 @@
 <?php
 /**
- *  PHP Mikrotik Billing (https://freeispradius.com/)
- *  by https://t.me/freeispradius
+ *  PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
+ *  by https://t.me/ibnux
  **/
 
 /**
@@ -22,15 +22,10 @@ switch ($action) {
             if (Mikrotik::isUserLogin($client, $user['username'])) {
                 die('<a href="' . U . 'home&mikrotik=logout&id='.$bill['id'].'" onclick="return confirm(\''.Lang::T('Disconnect Internet?').'\')" class="btn btn-success btn-xs btn-block">'.Lang::T('You are Online, Logout?').'</a>');
             } else {
-                switch ($action) {
-                    case 'isLogin':
-                        // ...
-                        if (!empty($_SESSION['nux-mac']) && !empty($_SESSION['nux-ip'])) {
-                            die('<a href="' . U . 'home&mikrotik=login&id='.$bill['id'].'" class="btn btn-danger btn-xs btn-block">'.Lang::T('Not Online, Login now?').'</a>');
-                        } else {
-                            die(Lang::T('Your account not connected to internet'));
-                        }
-                        // ...
+                if (!empty($_SESSION['nux-mac']) && !empty($_SESSION['nux-ip'])) {
+                    die('<a href="' . U . 'home&mikrotik=login&id='.$bill['id'].'" onclick="return confirm(\''.Lang::T('Connect to Internet?').'\')" class="btn btn-danger btn-xs btn-block">'.Lang::T('Not Online, Login now?').'</a>');
+                }else{
+                    die(Lang::T('Your account not connected to internet'));
                 }
             }
         } else {
@@ -40,4 +35,3 @@ switch ($action) {
     default:
         $ui->display('404.tpl');
 }
-?>

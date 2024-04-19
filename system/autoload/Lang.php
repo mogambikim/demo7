@@ -1,7 +1,7 @@
 <?php
 
 /**
- *  PHP Mikrotik Billing (https://github.comll/)
+ *  PHP Mikrotik Billing (https://github.com/hotspotbilling/phpnuxbill/)
  *  by https://t.me/ibnux
  **/
 
@@ -12,7 +12,7 @@ class Lang
     {
         global $_L, $lan_file, $config;
         $_L = $_SESSION['Lang'];
-        $key = preg_replace('/\s+/', ' ', $key);        
+        $key = preg_replace('/\s+/', ' ', $key);
         if (!empty($_L[$key])) {
             return $_L[$key];
         }
@@ -22,11 +22,11 @@ class Lang
             return $_L[$key];
         } else if (isset($_L[$key])) {
             return $_L[$key];
+        } else {
+            $iso = Lang::getIsoLang()[$config['language']];
             if (empty($iso)) {
                 return $val;
             }
-        } else {
-            $iso = Lang::getIsoLang()[$config['language']];
             if (!empty($iso) && !empty($val)) {
                 $temp = Lang::translate($val, $iso);
                 if (!empty($temp)) {
@@ -39,10 +39,12 @@ class Lang
             return $val;
         }
     }
+
     public static function sanitize($str)
     {
         return preg_replace("/[^A-Za-z0-9]/", '_', $str);;
     }
+
     public static function getIsoLang()
     {
         global $isolang;
@@ -192,12 +194,13 @@ class Lang
                 $text .= self::pad(trim($t), $pad_string, $pad_type) . "\n";
             }
             return $text;
-        }else{
+        } else {
             return str_pad(trim($text), $cols, $pad_string, $pad_type);
         }
     }
 
-    public static function pads($textLeft, $textRight, $pad_string = ' '){
+    public static function pads($textLeft, $textRight, $pad_string = ' ')
+    {
         global $config;
         $cols = 37;
         if ($config['printer_cols']) {
@@ -205,6 +208,7 @@ class Lang
         }
         return $textLeft . str_pad($textRight, $cols - strlen($textLeft), $pad_string, 0);
     }
+
     public static function translate($txt, $to = 'id')
     {
         $ch = curl_init();
@@ -226,6 +230,7 @@ class Lang
         }
         return $txt;
     }
+
     public static function maskText($text){
         $len = strlen($text);
         if($len < 3){
@@ -237,5 +242,5 @@ class Lang
         }else{
             return substr($text,0,4)."******".substr($text,-3,3);
         }
-    }    
+    }
 }

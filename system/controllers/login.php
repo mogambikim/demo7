@@ -5,9 +5,7 @@
  *  by https://t.me/ibnux
  **/
 
-if(User::getID()){
-    r2(U.'home');
-}
+
 
 if (isset($routes['1'])) {
     $do = $routes['1'];
@@ -30,36 +28,21 @@ switch ($do) {
                     $d->last_login = date('Y-m-d H:i:s');
                     $d->save();
                     _log($username . ' ' . Lang::T('Login Successful'), 'User', $d['id']);
-                    
-                    // Log the redirection to the 'home' route
-                    file_put_contents('logs.txt', date('Y-m-d H:i:s') . " - Redirecting to 'home' route after successful login\n", FILE_APPEND);
-                    
                     _alert(Lang::T('Login Successful'),'success', "home");
                 } else {
                     _msglog('e', Lang::T('Invalid Username or Password'));
                     _log($username . ' ' . Lang::T('Failed Login'), 'User');
-                    
-                    // Log the redirection to the 'login' route
-                    file_put_contents('logs.txt', date('Y-m-d H:i:s') . " - Redirecting to 'login' route after failed login attempt\n", FILE_APPEND);
-                    
                     r2(U . 'login');
                 }
             } else {
                 _msglog('e', Lang::T('Invalid Username or Password'));
-                
-                // Log the redirection to the 'login' route
-                file_put_contents('logs.txt', date('Y-m-d H:i:s') . " - Redirecting to 'login' route after failed login attempt\n", FILE_APPEND);
-                
                 r2(U . 'login');
             }
         } else {
             _msglog('e', Lang::T('Invalid Username or Password'));
-            
-            // Log the redirection to the 'login' route
-            file_put_contents('logs.txt', date('Y-m-d H:i:s') . " - Redirecting to 'login' route after failed login attempt\n", FILE_APPEND);
-            
             r2(U . 'login');
         }
+
         break;
 
     case 'activation':

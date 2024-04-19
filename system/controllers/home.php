@@ -89,7 +89,7 @@ if (_post('send') == 'balance') {
 }
 
 $ui->assign('_bills', User::_billing());
-
+//dont enable above its causing dashboard to redirect
 if (isset($_GET['recharge']) && !empty($_GET['recharge'])) {
     $bill = ORM::for_table('tbl_user_recharges')->where('id', $_GET['recharge'])->where('username', $user['username'])->findOne();
     if ($bill) {
