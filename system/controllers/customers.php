@@ -21,6 +21,149 @@
 EOT;
  
  switch ($action) {
+    case 'csv':
+        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+        }
+    
+        $cs = ORM::for_table('tbl_customers')
+            ->select('tbl_customers.id', 'id')
+            ->select('tbl_customers.username', 'username')
+            ->select('tbl_customers.password', 'password')
+            ->select('tbl_customers.pppoe_password', 'pppoe_password')
+            ->select('fullname')
+            ->select('address')
+            ->select('phonenumber')
+            ->select('email')
+            ->select('balance')
+            ->select('service_type')
+            ->select('ip_address')
+            ->order_by_asc('tbl_customers.id')
+            ->find_array();
+    
+        $h = false;
+        set_time_limit(-1);
+        header('Pragma: public');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header("Content-type: text/csv");
+        header('Content-Disposition: attachment;filename="freeispradius_customers_' . date('Y-m-d_H_i') . '.csv"');
+        header('Content-Transfer-Encoding: binary');
+    
+        $headers = [
+            'id',
+            'username',
+            'password',
+            'pppoe_password',
+            'fullname',
+            'address',
+            'phonenumber',
+            'email',
+            'balance',
+            'service_type',
+            'ip_address',
+        ];
+    
+        if (!$h) {
+            echo '"' . implode('","', $headers) . "\"\n";
+            $h = true;
+        }
+    
+        foreach ($cs as $c) {
+            $row = [
+                $c['id'],
+                $c['username'],
+                $c['password'],
+                $c['pppoe_password'],
+                $c['fullname'],
+                $c['address'],
+                $c['phonenumber'],
+                $c['email'],
+                $c['balance'],
+                $c['service_type'],
+                $c['ip_address'],
+            ];
+            echo '"' . implode('","', $row) . "\"\n";
+        }
+        break;
+        case 'csv-prepaid':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+        
+            $cs = ORM::for_table('tbl_customers')
+                ->select('tbl_customers.id', 'id')
+                ->select('tbl_customers.username', 'username')
+                ->select('tbl_customers.password', 'password')
+                ->select('tbl_customers.pppoe_password', 'pppoe_password')
+                ->select('fullname')
+                ->select('address')
+                ->select('phonenumber')
+                ->select('email')
+                ->select('balance')
+                ->select('service_type')
+                ->select('ip_address')
+                ->select('namebp')
+                ->select('routers')
+                ->select('status')
+                ->select('method', 'Payment')
+                ->join('tbl_user_recharges', array('tbl_customers.id', '=', 'tbl_user_recharges.customer_id'))
+                ->order_by_asc('tbl_customers.id')
+                ->find_array();
+        
+            $h = false;
+            set_time_limit(-1);
+            header('Pragma: public');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header("Content-type: text/csv");
+            header('Content-Disposition: attachment;filename="freeispradius_active_customers_' . date('Y-m-d_H_i') . '.csv"');
+            header('Content-Transfer-Encoding: binary');
+        
+            $headers = [
+                'id',
+                'username',
+                'password',
+                'pppoe_password',
+                'fullname',
+                'address',
+                'phonenumber',
+                'email',
+                'balance',
+                'service_type',
+                'ip_address',
+                'namebp',
+                'routers',
+                'status',
+                'Payment'
+            ];
+        
+            if (!$h) {
+                echo '"' . implode('","', $headers) . "\"\n";
+                $h = true;
+            }
+        
+            foreach ($cs as $c) {
+                $row = [
+                    $c['id'],
+                    $c['username'],
+                    $c['password'],
+                    $c['pppoe_password'],
+                    $c['fullname'],
+                    $c['address'],
+                    $c['phonenumber'],
+                    $c['email'],
+                    $c['balance'],
+                    $c['service_type'],
+                    $c['ip_address'],
+                    $c['namebp'],
+                    $c['routers'],
+                    $c['status'],
+                    $c['Payment']
+                ];
+                echo '"' . implode('","', $row) . "\"\n";
+            }
+            break;
     case 'list':
         $search = _post('search');
         $filter = _get('filter', 'all');
@@ -302,27 +445,35 @@ EOT;
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
-        
+            
             $id = $routes['2'];
             run_hook('edit_customer'); #HOOK
-        
+            
             $d = ORM::for_table('tbl_customers')->find_one($id);
             $customFields = ORM::for_table('tbl_customers_fields')
                 ->where('customer_id', $id)
                 ->find_many();
-        
+            
             if ($d) {
+                // Fetch the list of routers from the database
+                $routers = ORM::for_table('tbl_routers')->find_many();
+                
                 $ui->assign('d', $d);
                 $ui->assign('customFields', $customFields);
                 $ui->assign('xheader', $leafletpickerHeader);
-        
+                
+                // Assign the list of routers to the template
+                $ui->assign('routers', $routers);
+                
                 // Check if the form is submitted
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $balance = $_POST['balance'];
                     $customer = ORM::for_table('tbl_customers')->find_one($id);
+                    
                     if ($customer) {
                         $customer->set('balance', $balance);
                         $customer->save();
+                        
                         // Handle success case
                         _alert(Lang::T('Balance updated successfully'), 'success', $_url . 'customers/list');
                     } else {
@@ -330,7 +481,7 @@ EOT;
                         _alert(Lang::T('Failed to update balance'), 'danger');
                     }
                 }
-        
+                
                 $ui->display('customers-edit.tpl');
             } else {
                 r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));

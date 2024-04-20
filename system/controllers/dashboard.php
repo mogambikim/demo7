@@ -81,6 +81,112 @@ $log = ORM::for_table('tbl_logs')->count();
 $ui->assign('log', $log);
 
 
+
+// Get the count of users per service type
+$serviceTypes = ORM::for_table('tbl_customers')
+    ->select('service_type')
+    ->select_expr('COUNT(*)', 'count')
+    ->group_by('service_type')
+    ->find_array();
+
+// Calculate the total number of users
+$totalUsers = array_sum(array_column($serviceTypes, 'count'));
+
+// Calculate the percentage for each service type
+foreach ($serviceTypes as &$serviceType) {
+    $serviceType['percentage'] = round(($serviceType['count'] / $totalUsers) * 100, 2);
+}
+
+// Assign the service types to the Smarty template
+$ui->assign('serviceTypes', $serviceTypes);
+
+// Get the last 5 transactions
+$lastTransactions = ORM::for_table('tbl_transactions')
+    ->select_many('username', 'price', 'recharged_on')
+    ->order_by_desc('id') // Order by the 'id' column instead of 'tbl_transactions'
+    ->limit(5)
+    ->find_array();
+
+// Assign the last transactions to the Smarty template
+$ui->assign('lastTransactions', $lastTransactions);
+
+
+//code for best selling packages
+// Get the current month and year
+$currentMonth = date('n');
+$currentYear = date('Y');
+
+// Get the best-selling packages for the current month
+$bestSellingPackages = ORM::for_table('tbl_user_recharges')
+    ->select('tbl_plans.name_plan')
+    ->select('tbl_plans.price')
+    ->select_expr('COUNT(*)', 'sales')
+    ->select_expr('SUM(tbl_plans.price)', 'revenue')
+    ->join('tbl_plans', array('tbl_user_recharges.plan_id', '=', 'tbl_plans.id'))
+    ->where_raw('MONTH(tbl_user_recharges.recharged_on) = ?', array($currentMonth))
+    ->where_raw('YEAR(tbl_user_recharges.recharged_on) = ?', array($currentYear))
+    ->group_by('tbl_user_recharges.plan_id')
+    ->order_by_desc('sales')
+    ->limit(5)
+    ->find_array();
+
+// Format the price and revenue
+foreach ($bestSellingPackages as &$package) {
+    $package['formattedPrice'] = number_format($package['price'], 2, '.', ',');
+    $package['formattedRevenue'] = number_format($package['revenue'], 2, '.', ',');
+}
+
+
+//code for transactions per router
+// Get the currency code from tbl_appconfig
+$currencyCode = ORM::for_table('tbl_appconfig')
+    ->where('setting', 'currency_code')
+    ->find_one()
+    ->value;
+
+// Assign the best-selling packages and currency code to the Smarty template
+$ui->assign('bestSellingPackages', $bestSellingPackages);
+$ui->assign('currencyCode', $currencyCode);
+
+
+// Get transactions per router
+$transactionsPerRouter = ORM::for_table('tbl_user_recharges')
+    ->select('tbl_user_recharges.routers', 'router_name')
+    ->select_expr('COUNT(*)', 'transactions')
+    ->select_expr('SUM(tbl_plans.price)', 'totalAmount')
+    ->join('tbl_plans', array('tbl_user_recharges.plan_id', '=', 'tbl_plans.id'))
+    ->group_by('tbl_user_recharges.routers')
+    ->order_by_desc('transactions')
+    ->find_array();
+
+// Calculate the total transactions and total amount
+$totalTransactions = array_sum(array_column($transactionsPerRouter, 'transactions'));
+$totalAmount = array_sum(array_column($transactionsPerRouter, 'totalAmount'));
+
+// Calculate the percentage for each router
+if ($totalTransactions > 0) {
+    foreach ($transactionsPerRouter as &$router) {
+        $router['percentage'] = round(($router['transactions'] / $totalTransactions) * 100, 2);
+        $router['formattedAmount'] = number_format($router['totalAmount'], 2, '.', ',');
+    }
+} else {
+    foreach ($transactionsPerRouter as &$router) {
+        $router['percentage'] = 0;
+        $router['formattedAmount'] = number_format($router['totalAmount'], 2, '.', ',');
+    }
+}
+
+// Get the currency code from tbl_appconfig
+$currencyCode = ORM::for_table('tbl_appconfig')
+    ->where('setting', 'currency_code')
+    ->find_one()
+    ->value;
+
+// Assign the transactions per router and currency code to the Smarty template
+$ui->assign('transactionsPerRouter', $transactionsPerRouter);
+$ui->assign('currencyCode', $currencyCode);
+
+
 if ($config['hide_vs'] != 'yes') {
     $cacheStocksfile = $CACHE_PATH . File::pathFixer('/VoucherStocks.temp');
     $cachePlanfile = $CACHE_PATH . File::pathFixer('/VoucherPlans.temp');
@@ -114,10 +220,10 @@ if ($config['hide_vs'] != 'yes') {
         file_put_contents($cachePlanfile, json_encode($plans));
     }
 }
-
+//chat for months month per month
 $cacheMRfile = File::pathFixer('/monthlyRegistered.temp');
 //Cache for 1 hour
-if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 3600) {
+if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 20) {
     $monthlyRegistered = json_decode(file_get_contents($cacheMRfile), true);
 }else{
     //Monthly Registered Customers
@@ -137,6 +243,13 @@ if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 3600) {
     }
     file_put_contents($cacheMRfile, json_encode($monthlyRegistered));
 }
+
+
+
+
+
+
+
 
 $cacheMSfile = $CACHE_PATH . File::pathFixer('/monthlySales.temp');
 //Cache for 12 hours

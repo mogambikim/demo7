@@ -138,59 +138,92 @@
                 </div>
             {/if}
         {/if}
-<div class="row">
-    <div class="col-md-12">
-        <div class="box box-solid">
-            <div class="box-header with-border">
-                <i class="fa fa-chart-line"></i>
-                <h3 class="box-title">Traffic Monitor</h3>
-                <div class="box-tools pull-right">
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-wrench"></i>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#" id="refreshData">Refresh Data</a></li>
-                            <li><a href="#" id="clearChart">Clear Chart</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="box-body">
-                <div class="row">
-                    <div class="col-md-6">
-<div class="form-group">
-    <label for="routerSelect">Select Router:</label>
-    <select id="routerSelect" class="form-control">
-        <option value="">Select Router</option>
-        {foreach $routers as $router}
-        <option value="{$router.id}" {if $selectedRouter == $router.id}selected{/if}>{$router.name}</option>
-        {/foreach}
-    </select>
+
+
+
+
+<div class="box box-solid">
+    <div class="box-header">
+        <i class="fa fa-line-chart"></i>
+        <h3 class="box-title">{Lang::T('Customers Growth')}</h3>
+        <!-- Add any additional header content or tools -->
+    </div>
+    <div class="box-body border-radius-none">
+        <canvas class="chart" id="customersGrowthChart" style="height: 250px;"></canvas>
+    </div>
 </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="interfaceSelect">Select Interface:</label>
-                            <select id="interfaceSelect" class="form-control">
-                                {foreach $interfaces as $interface}
-                                <option value="{$interface.name}" {if $selectedInterface == $interface.name}selected{/if}>{$interface.name}</option>
-                                {/foreach}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="trafficChart"></canvas>
-                </div>
-            </div>
-            <div class="overlay">
-                <i class="fa fa-refresh fa-spin"></i>
+
+
+
+
+
+<div class="row">
+<div class="col-md-6">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-star"></i> Best Selling Packages Per Month</h3>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Package</th>
+                            <th>Price</th>
+                            <th>Sales</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $bestSellingPackages as $package}
+                        <tr>
+                            <td>{$package.name_plan}</td>
+                            <td>{$currencyCode} {$package.formattedPrice}</td>
+                            <td>{$package.sales}</td>
+                            <td>{$currencyCode} {$package.formattedRevenue}</td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+    <div class="col-md-6">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-wifi"></i> Transactions per Router</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Router</th>
+                                <th>Transactions</th>
+                                <th>Percentage</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+<tbody>
+    {foreach $transactionsPerRouter as $router}
+    <tr>
+        <td>{$router.router_name}</td>
+        <td>{$router.transactions}</td>
+        <td>{$router.percentage}%</td>
+        <td>{$currencyCode} {$router.formattedAmount}</td>
+    </tr>
+    {/foreach}
+</tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
         {if $_c['hide_uet'] != 'yes'}
             <div class="panel panel-warning mb20 panel-hovered project-stats table-responsive">
                       <div class="panel-heading">{Lang::T('Users Expiring Today')}</div>
@@ -236,6 +269,76 @@
                 </div>
             </div>
         {/if}
+
+
+
+
+
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-money"></i> Last 5 Transactions</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>username</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $lastTransactions as $transaction}
+                                <tr>
+                                    <td>{$transaction.username}</td>
+                                    <td>{$transaction.price}</td>
+                                    <td>{$transaction.recharged_on}</td>
+                                </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-users"></i> Users by Service Type</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Service Type</th>
+                                <th>Users</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $serviceTypes as $serviceType}
+                                <tr>
+                                    <td>{$serviceType.service_type}</td>
+                                    <td>{$serviceType.count}</td>
+                                    <td>{$serviceType.percentage}%</td>
+                                </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
         {if $_c['hide_al'] != 'yes'}
             <div class="panel panel-info panel-hovered mb20 activities">
                 <div class="panel-heading"><a href="{$_url}logs">{Lang::T('Activity Log')}</a></div>
@@ -259,6 +362,65 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+
+<script type="text/javascript">
+ document.addEventListener("DOMContentLoaded", function() {
+    var monthlyRegistered = JSON.parse('{$monthlyRegistered|json_encode}');
+    var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var labels = monthNames;
+
+    // Calculate the cumulative values
+    var cumulativeValues = [];
+    var previousValue = 0;
+    monthlyRegistered.forEach(function(item) {
+        previousValue += item.count;
+        cumulativeValues.push(previousValue);
+    });
+// Fill the remaining months with the last cumulative value
+var lastValue = cumulativeValues[cumulativeValues.length - 1];
+for (var i = cumulativeValues.length; i < monthNames.length; i++) {
+    cumulativeValues.push(lastValue);
+}
+    var data = cumulativeValues;
+
+    var ctx = document.getElementById('customersGrowthChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Customers Growth',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(75, 192, 192, 1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 <script type="text/javascript">
     {if $_c['hide_mrc'] != 'yes'}
@@ -439,113 +601,6 @@
         });
 
     });
-</script>
-<script>
-
-$(document).ready(function() {
-    var trafficChart;
-    var trafficData = {$trafficData|json_encode};
-    var selectedRouter = {$selectedRouter|default:null};
-    var selectedInterface = {$selectedInterface|default:null};
-
-    function renderTrafficChart() {
-        var ctx = document.getElementById('trafficChart').getContext('2d');
-        trafficChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: trafficData.labels,
-                datasets: [
-                    {
-                        label: 'TX',
-                        data: trafficData.rows.tx,
-                        borderColor: 'rgb(255, 99, 132)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
-                    },
-                    {
-                        label: 'RX',
-                        data: trafficData.rows.rx,
-                        borderColor: 'rgb(53, 162, 235)',
-                        backgroundColor: 'rgba(53, 162, 235, 0.5)'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Time'
-                        }
-                    },
-                    y: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Traffic (bits/s)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function fetchTrafficData(router, interface) {
-        $('.overlay').show();
-        $.ajax({
-            url: '{$_url}mikrotik/monitor-traffic',
-            method: 'GET',
-            data: {
-                router: router,
-                interface: interface
-            },
-            success: function(data) {
-                trafficData = data;
-                if (trafficChart) {
-                    trafficChart.data.labels = trafficData.labels;
-                    trafficChart.data.datasets[0].data = trafficData.rows.tx;
-                    trafficChart.data.datasets[1].data = trafficData.rows.rx;
-                    trafficChart.update();
-                } else {
-                    renderTrafficChart();
-                }
-                $('.overlay').hide();
-            },
-            error: function() {
-                alert('Error fetching traffic data');
-                $('.overlay').hide();
-            }
-        });
-    }
-
-    $('#routerSelect').on('change', function() {
-        selectedRouter = $(this).val();
-        fetchTrafficData(selectedRouter, selectedInterface);
-    });
-
-    $('#interfaceSelect').on('change', function() {
-        selectedInterface = $(this).val();
-        fetchTrafficData(selectedRouter, selectedInterface);
-    });
-
-    $('#refreshData').on('click', function(e) {
-        e.preventDefault();
-        fetchTrafficData(selectedRouter, selectedInterface);
-    });
-
-    $('#clearChart').on('click', function(e) {
-        e.preventDefault();
-        trafficChart.data.labels = [];
-        trafficChart.data.datasets[0].data = [];
-        trafficChart.data.datasets[1].data = [];
-        trafficChart.update();
-    });
-
-    if (selectedRouter && selectedInterface) {
-        fetchTrafficData(selectedRouter, selectedInterface);
-    }
-});
 </script>
 
 {include file="sections/footer.tpl"}

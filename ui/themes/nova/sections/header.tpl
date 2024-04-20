@@ -23,6 +23,55 @@
     height: 400px;
 }
 
+
+
+    .panel {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .panel:hover {
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    .panel-heading {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .panel-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    .panel-primary .panel-heading {
+        background-color: #007bff;
+        color: #fff;
+        border-color: #007bff;
+    }
+    .panel-success .panel-heading {
+        background-color: #28a745;
+        color: #fff;
+        border-color: #28a745;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+    .fa {
+        margin-right: 5px;
+    }
 .overlay {
     position: absolute;
     top: 0;
@@ -35,6 +84,65 @@
     align-items: center;
     z-index: 1;
 }
+
+    .box {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .box:hover {
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    .box-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .box-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    .box-tools .btn {
+        margin-left: 5px;
+    }
+    .panel {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .panel:hover {
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    .panel-heading {
+        background-color: #007bff;
+        color: #fff;
+        padding: 15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .table tbody td {
+        vertical-align: middle;
+    }
+    .total-row {
+        font-weight: bold;
+    }
 
 .overlay .fa-refresh {
     font-size: 24px;

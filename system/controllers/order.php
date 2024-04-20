@@ -125,20 +125,22 @@ switch ($action) {
             r2(U . "order/package/", 's', Lang::T("You have no unpaid transaction"));
         }
         break;
-    case 'view':
-        $trxid = $routes['2'];
-        $trx = ORM::for_table('tbl_payment_gateway')
-            ->where('username', $user['username'])
-            ->find_one($trxid);
-        run_hook('customer_view_payment'); #HOOK
-        // jika tidak ditemukan, berarti punya orang lain
-        if (empty($trx)) {
-            r2(U . "order/package", 'w', Lang::T("Payment not found"));
-        }
-        // jika url kosong, balikin ke buy
-        if (empty($trx['pg_url_payment'])) {
-            r2(U . "order/buy/" . (($trx['routers_id'] == 0) ? $trx['routers'] : $trx['routers_id']) . '/' . $trx['plan_id'], 'w', Lang::T("Checking payment"));
-        }
+        case 'view':
+            $trxid = $routes['2'];
+            $trx = ORM::for_table('tbl_payment_gateway')
+                ->where('username', $user['username'])
+                ->find_one($trxid);
+            run_hook('customer_view_payment'); #HOOK
+        
+            // jika tidak ditemukan, berarti punya orang lain
+            if (empty($trx)) {
+                r2(U . "order/package", 'w', Lang::T("Payment not found"));
+            }
+        
+            // jika url kosong, balikin ke buy, kecuali cancel
+            if (empty($trx['pg_url_payment']) && $routes['3'] != 'cancel') {
+                r2(U . "order/buy/" . (($trx['routers_id'] == 0) ? $trx['routers'] : $trx['routers_id']) . '/' . $trx['plan_id'], 'w', Lang::T("Checking payment"));
+            }
         if ($routes['3'] == 'check') {
             if (!file_exists($PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $trx['gateway'] . '.php')) {
                 r2(U . 'order/view/' . $trxid, 'e', Lang::T("No Payment Gateway Available"));
