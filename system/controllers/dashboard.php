@@ -223,7 +223,7 @@ if ($config['hide_vs'] != 'yes') {
 //chat for months month per month
 $cacheMRfile = File::pathFixer('/monthlyRegistered.temp');
 //Cache for 1 hour
-if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 20) {
+if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 3600) {
     $monthlyRegistered = json_decode(file_get_contents($cacheMRfile), true);
 }else{
     //Monthly Registered Customers
@@ -250,6 +250,28 @@ if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 20) {
 
 
 
+$cacheMRfile = File::pathFixer('/monthlyRegistered.temp');
+//Cache for 1 hour
+if (file_exists($cacheMRfile) && time() - filemtime($cacheMRfile) < 3600) {
+    $monthlyRegistered = json_decode(file_get_contents($cacheMRfile), true);
+}else{
+    //Monthly Registered Customers
+    $result = ORM::for_table('tbl_customers')
+        ->select_expr('MONTH(created_at)', 'month')
+        ->select_expr('COUNT(*)', 'count')
+        ->where_raw('YEAR(created_at) = YEAR(NOW())')
+        ->group_by_expr('MONTH(created_at)')
+        ->find_many();
+
+    $monthlyRegistered = [];
+    foreach ($result as $row) {
+        $monthlyRegistered[] = [
+            'date' => $row->month,
+            'count' => $row->count
+        ];
+    }
+    file_put_contents($cacheMRfile, json_encode($monthlyRegistered));
+}
 
 $cacheMSfile = $CACHE_PATH . File::pathFixer('/monthlySales.temp');
 //Cache for 12 hours
@@ -296,55 +318,7 @@ if (file_exists($cacheMSfile) && time() - filemtime($cacheMSfile) < 43200) {
     $monthlySales = array_values($monthlySales);
     file_put_contents($cacheMSfile, json_encode($monthlySales));
 }
-$logFile = 'logs.txt';
 
-// Check if the file is writable
-
-//if (is_writable($logFile)) {
-    // Log the attempt to include the mikrotik.php file
-  //  if (error_log('Attempting to include mikrotik.php', 3, $logFile) === false) {
- //       die('Failed to write to log file');
- //   }
-//} else {
-  //  die('Log file is not writable');
-//}
- 
-// Log the attempt to include the mikrotik.php file
-error_log('Attempting to include mikrotik.php', 3, $logFile);
-
-if (!$included) {
-    error_log('Failed to include mikrotik.php', 3, $logFile);
-    // You can add additional error handling or exit the script here if needed
-} else {
-    error_log('Successfully included mikrotik.php', 3, $logFile);
-}
-
-// Get the list of routers
-error_log('Fetching list of routers', 3, $logFile);
-$routers = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
-$ui->assign('routers', $routers);
-
-// Get the selected router ID from the URL or session (you can modify this part based on your application logic)
-$selectedRouter = isset($_GET['router']) ? $_GET['router'] : null;
-$ui->assign('selectedRouter', $selectedRouter);
-
-// If a router is selected, fetch the list of interfaces
-if ($selectedRouter) {
-    error_log('Selected router: ' . $selectedRouter, 3, $logFile);
-    $interfaces = Mikrotik::mikrotik_get_interfaces($selectedRouter);
-    $ui->assign('interfaces', $interfaces);
-
-    // Get the selected interface (you'll need to handle the selection logic)
-    $selectedInterface = isset($_GET['interface']) ? $_GET['interface'] : null;
-    $ui->assign('selectedInterface', $selectedInterface);
-
-    if ($selectedInterface) {
-        error_log('Selected interface: ' . $selectedInterface, 3, $logFile);
-        // Fetch the traffic data for the selected router and interface
-        $trafficData = Mikrotik::mikrotik_monitor_traffic($selectedRouter, $selectedInterface);
-        $ui->assign('trafficData', $trafficData);
-    }
-}
 
 // Assign the monthly sales data to Smarty
 $ui->assign('monthlySales', $monthlySales);
