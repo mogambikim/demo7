@@ -138,6 +138,8 @@
 </div>
 
 {literal}
+
+
 <script>
 $(document).ready(function() {
     $('.edit-balance').click(function() {

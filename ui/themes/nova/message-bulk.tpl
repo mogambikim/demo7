@@ -92,78 +92,86 @@
                         </form>
                     </div>
 
-<div id="routerSpecific" class="tab-pane fade">
-    <form class="form-horizontal" method="post" role="form" action="{$_url}settings/specific-post">
-        <div class="form-group">
-            <label class="col-md-2 control-label">{Lang::T('Router')}</label>
-            <div class="col-md-6">
-                <select class="form-control" name="router" id="router">
-                    <option value="">{Lang::T('Select a router')}</option>
-                    {foreach $r as $router}
-                        <option value="{$router->id}">{$router->name}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-md-2 control-label">{Lang::T('Send Via')}</label>
-            <div class="col-md-6">
-                <select class="form-control" name="via" id="via">
-                    <option value="sms" selected>{Lang::T('SMS')}</option>
-                    <option value="wa">{Lang::T('WhatsApp')}</option>
-                    <option value="both">{Lang::T('SMS and WhatsApp')}</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-md-2 control-label">{Lang::T('Message per time')}</label>
-            <div class="col-md-6">
-                <select class="form-control" name="batch" id="batch">
-                    <option value="5">{Lang::T('5 Messages')}</option>
-                    <option value="10" selected>{Lang::T('10 Messages')}</option>
-                    <option value="15">{Lang::T('15 Messages')}</option>
-                    <option value="20">{Lang::T('20 Messages')}</option>
-                    <option value="20">{Lang::T('30 Messages')}</option>
-                    <option value="20">{Lang::T('40 Messages')}</option>
-                    <option value="20">{Lang::T('50 Messages')}</option>
-                    <option value="20">{Lang::T('60 Messages')}</option>
-                </select>{Lang::T('Use 20 and above if you are sending to all customers to avoid server time out')}
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-md-2 control-label">{Lang::T('Delay')}</label>
-            <div class="col-md-6">
-                <select class="form-control" name="delay" id="delay">
-                    <option value="0" selected>{Lang::T('No Delay')}</option>
-                    <option value="5">{Lang::T('5 Seconds')}</option>
-                    <option value="10">{Lang::T('10 Seconds')}</option>
-                    <option value="15">{Lang::T('15 Seconds')}</option>
-                    <option value="20">{Lang::T('20 Seconds')}</option>
-                </select>{Lang::T('Use at least 5 secs if you are sending to all customers to avoid being banned by your message provider')}
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-md-2 control-label">{Lang::T('Message')}</label>
-            <div class="col-md-6">
-                <textarea class="form-control" id="message" name="message" placeholder="{Lang::T('Compose your message...')}" rows="5"></textarea>
-                <input name="test" type="checkbox"> {Lang::T('Testing [if checked no real message is sent]')}
-            </div>
-            <p class="help-block col-md-4">
-                {Lang::T('Use placeholders:')}<br>
-                <b>[[name]]</b> - {Lang::T('Customer Name')}<br>
-                <b>[[user_name]]</b> - {Lang::T('Customer Username')}<br>
-                <b>[[phone]]</b> - {Lang::T('Customer Phone')}<br>
-                <b>[[company_name]]</b> - {Lang::T('Your Company Name')}
-            </p>
-        </div>
-        <div class="form-group">
-            <div class="col-lg-offset-2 col-lg-10">
-                <button class="btn btn-success" type="submit">{Lang::T('Send Message')}</button>
-                <a href="{$_url}dashboard" class="btn btn-default">{Lang::T('Cancel')}</a>
-            </div>
-        </div>
-    </form>
-</div>
+                    <div id="routerSpecific" class="tab-pane fade">
+                        <form class="form-horizontal" method="post" role="form" action="{$_url}settings/specific-post">
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">{Lang::T('Router')}</label>
+                                <div class="col-md-6">
+                                    <select class="form-control select2" name="router" id="router">
+                                        <option value="">{Lang::T('Select a router')}</option>
+                                        {foreach $routers as $router}
+                                            <option value="{$router->id}">{$router->name}</option>
+                                        {/foreach}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">{Lang::T('Users')}</label>
+                                <div class="col-md-6">
+                                    <select class="form-control select2" name="users[]" id="users" multiple>
+                                        <!-- Users will be populated dynamically based on the selected router -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">{Lang::T('Send Via')}</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="via" id="via">
+                                        <option value="sms" selected>{Lang::T('SMS')}</option>
+                                        <option value="wa">{Lang::T('WhatsApp')}</option>
+                                        <option value="both">{Lang::T('SMS and WhatsApp')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">{Lang::T('Message per time')}</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="batch" id="batch">
+                                        <option value="5">{Lang::T('5 Messages')}</option>
+                                        <option value="10" selected>{Lang::T('10 Messages')}</option>
+                                        <option value="15">{Lang::T('15 Messages')}</option>
+                                        <option value="20">{Lang::T('20 Messages')}</option>
+                                        <option value="20">{Lang::T('30 Messages')}</option>
+                                        <option value="20">{Lang::T('40 Messages')}</option>
+                                        <option value="20">{Lang::T('50 Messages')}</option>
+                                        <option value="20">{Lang::T('60 Messages')}</option>
+                                    </select>{Lang::T('Use 20 and above if you are sending to all customers to avoid server time out')}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">{Lang::T('Delay')}</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" name="delay" id="delay">
+                                        <option value="0" selected>{Lang::T('No Delay')}</option>
+                                        <option value="5">{Lang::T('5 Seconds')}</option>
+                                        <option value="10">{Lang::T('10 Seconds')}</option>
+                                        <option value="15">{Lang::T('15 Seconds')}</option>
+                                        <option value="20">{Lang::T('20 Seconds')}</option>
+                                    </select>{Lang::T('Use at least 5 secs if you are sending to all customers to avoid being banned by your message provider')}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">{Lang::T('Message')}</label>
+                                <div class="col-md-6">
+                                    <textarea class="form-control" id="message" name="message" placeholder="{Lang::T('Compose your message...')}" rows="5"></textarea>
+                                    <input name="test" type="checkbox"> {Lang::T('Testing [if checked no real message is sent]')}
+                                </div>
+                                <p class="help-block col-md-4">
+                                    {Lang::T('Use placeholders:')}<br>
+                                    <b>[[name]]</b> - {Lang::T('Customer Name')}<br>
+                                    <b>[[user_name]]</b> - {Lang::T('Customer Username')}<br>
+                                    <b>[[phone]]</b> - {Lang::T('Customer Phone')}<br>
+                                    <b>[[company_name]]</b> - {Lang::T('Your Company Name')}
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button class="btn btn-success" type="submit">{Lang::T('Send Message')}</button>
+                                    <a href="{$_url}dashboard" class="btn btn-default">{Lang::T('Cancel')}</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -215,42 +223,31 @@
         $j('#messageResultsTable').DataTable();
 
         // Router Specific form script
-        $j('#selectAccountGroup').hide();
-        
-        $j('input[type="radio"]').change(function() {
-            var selectedType = $j(this).val();
-            if (selectedType === "All") {
-                $j('#selectAccountGroup').hide();
-            } else {
-                $j('#selectAccountGroup').show();
-            }
-        });
-        
-        $j('#personSelect').select2();
-
-        $j('#server').change(function() {
+        $j('#router').on('change', function() {
             var selectedRouterId = $j(this).val();
-            $j.ajax({
-                url: '{$_url}plugin/finduser&router=' + selectedRouterId,
-                type: "GET",
-                data: { router_id: selectedRouterId },
-                success: function(response){
-                    var data = JSON.parse(response);
-                    $j('#personSelect').empty(); 
-                    data.forEach(function(user) {
-                        var usernameWithEmail = user.username + ' - ' + user.email;
-                        $j('#personSelect').append($j('<option>', {
-                            value: user.id,
-                            text: usernameWithEmail,
-                            class: 'black-option'
-                        }));
-                    });
-                    $j('#personSelect').trigger('change.select2');
-                },
-                error: function(xhr, status, error) {
-                    console.log('failed');
-                }
-            });
+            if (selectedRouterId) {
+                $j.ajax({
+                    url: '{$_url}message/get_users',
+                    type: 'GET',
+                    data: { router_id: selectedRouterId },
+                    success: function(response) {
+                        var users = JSON.parse(response);
+                        var userSelect = $j('#users');
+                        userSelect.empty();
+                        $j.each(users, function(index, user) {
+                            userSelect.append($j('<option>', {
+                                value: user.id,
+                                text: user.username
+                            }));
+                        });
+                    },
+                    error: function() {
+                        console.log('Failed to retrieve users.');
+                    }
+                });
+            } else {
+                $j('#users').empty();
+            }
         });
     });
 </script>

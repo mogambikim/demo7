@@ -12,6 +12,7 @@
     <!-- BEGIN: Theme CSS-->
     <link rel="stylesheet" href="{$_theme}/assets/css/rt-plugins.css">
     <link rel="stylesheet" href="{$_theme}/assets/css/app.css">
+    
         </style>
       </style>
     <!-- End : Theme CSS-->
@@ -92,15 +93,24 @@
                   <span>{Lang::T('Order History')}</span>
                 </span>
               </a>
-            </li> {/if} {$_MENU_AFTER_ORDER} <li class="">
-              <a href="{$_url}voucher/list-activated" class="navItem {if $_system_menu eq 'list-activated'} active {/if}">
-                <span class="flex items-center">
-                  <iconify-icon class=" nav-icon" icon="heroicons-outline:calendar"></iconify-icon>
-                  <span>{Lang::T('Activation History')}</span>
-                </span>
-              </a>
-            </li> {$_MENU_AFTER_HISTORY}
-          </ul>
+ </li> {/if} {$_MENU_AFTER_ORDER} <li class="">
+  <a href="{$_url}voucher/list-activated" class="navItem {if $_system_menu eq 'list-activated'} active {/if}">
+    <span class="flex items-center">
+      <iconify-icon class=" nav-icon" icon="heroicons-outline:calendar"></iconify-icon>
+      <span>{Lang::T('Activation History')}</span>
+    </span>
+  </a>
+</li>
+{$_MENU_AFTER_HISTORY}
+<li class="">
+  <a href="{$_url}plugin/support_tickets_clients" class="navItem {if $_system_menu eq 'support_tickets_clients'} active {/if}">
+    <span class="flex items-center">
+      <iconify-icon class=" nav-icon" icon="heroicons-outline:mail"></iconify-icon>
+      <span>{Lang::T('Support Ticket')}</span>
+    </span>
+  </a>
+</li>
+</ul>
           <!-- Upgrade Your Business Plan Card Start -->
           <div class="bg-slate-900 mb-10 mt-24 p-4 relative text-center rounded-2xl text-white" id="sidebar_bottom_wizard">
             <img src="{$_theme}/assets/images/svg/rabit.svg" alt="" class="mx-auto relative -mt-[73px]">

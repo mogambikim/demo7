@@ -235,23 +235,136 @@ EOT;
 
         case 'specific':
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-                _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
-            run_hook('view_notifications'); #HOOK
-            if (file_exists("system/uploads/notifications.json")) {
-                $ui->assign('_json', json_decode(file_get_contents($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'notifications.json'), true));
-            } else {
-                $ui->assign('_json', json_decode(file_get_contents($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'notifications.default.json'), true));
+        
+            // Retrieve routers with their associated customers
+            $routers = ORM::for_table('tbl_routers')
+                ->where('enabled', '1')
+                ->find_many();
+        
+            $ui->assign('routers', $routers);
+            $ui->display('message-bulk.tpl');
+            break;
+        
+        case 'specific-post':
+            // Check user permissions
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
-            $ui->assign('_default', json_decode(file_get_contents($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'notifications.default.json'), true));
-             $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
-            $ui->assign('r', $r);
-            
-            
-              $u = ORM::for_table('tbl_customers')->find_many();
-             $ui->assign('u', $u);
-                    
-            $ui->display('specific.tpl');
+        
+            // Get form data
+            $routerId = $_POST['router'];
+            $message = $_POST['message'];
+            $via = $_POST['via'];
+            $test = isset($_POST['test']) && $_POST['test'] === 'on' ? 'yes' : 'no';
+            $batch = $_POST['batch'];
+            $delay = $_POST['delay'];
+        
+            // Initialize counters
+            $totalSMSSent = 0;
+            $totalSMSFailed = 0;
+            $totalWhatsappSent = 0;
+            $totalWhatsappFailed = 0;
+            $batchStatus = [];
+        
+            // Retrieve customers associated with the selected router
+            $customers = ORM::for_table('tbl_customers')
+                ->where('router_id', $routerId)
+                ->find_many()
+                ->as_array();
+        
+            // Set the batch size
+            $batchSize = $batch;
+        
+            // Calculate the number of batches
+            $totalCustomers = count($customers);
+            $totalBatches = ceil($totalCustomers / $batchSize);
+        
+            // Loop through batches
+            for ($batchIndex = 0; $batchIndex < $totalBatches; $batchIndex++) {
+                // Get the starting and ending index for the current batch
+                $start = $batchIndex * $batchSize;
+                $end = min(($batchIndex + 1) * $batchSize, $totalCustomers);
+                $batchCustomers = array_slice($customers, $start, $end - $start);
+        
+                // Loop through customers in the current batch and send messages
+                foreach ($batchCustomers as $customer) {
+                    // Create a copy of the original message for each customer and save it as currentMessage
+                    $currentMessage = $message;
+                    $currentMessage = str_replace('[[name]]', $customer['fullname'], $currentMessage);
+                    $currentMessage = str_replace('[[user_name]]', $customer['username'], $currentMessage);
+                    $currentMessage = str_replace('[[phone]]', $customer['phonenumber'], $currentMessage);
+                    $currentMessage = str_replace('[[company_name]]', $config['CompanyName'], $currentMessage);
+        
+                    // Send the message based on the selected method
+                    if ($test === 'yes') {
+                        // Only for testing, do not send messages to customers
+                        $batchStatus[] = [
+                            'name' => $customer['fullname'],
+                            'phone' => $customer['phonenumber'],
+                            'message' => $currentMessage,
+                            'status' => 'Test Mode - Message not sent'
+                        ];
+                    } else {
+                        // Send the actual messages
+                        if ($via == 'sms' || $via == 'both') {
+                            $smsSent = Message::sendSMS($customer['phonenumber'], $currentMessage);
+                            if ($smsSent) {
+                                $totalSMSSent++;
+                                $batchStatus[] = [
+                                    'name' => $customer['fullname'],
+                                    'phone' => $customer['phonenumber'],
+                                    'message' => $currentMessage,
+                                    'status' => 'SMS Message Sent'
+                                ];
+                            } else {
+                                $totalSMSFailed++;
+                                $batchStatus[] = [
+                                    'name' => $customer['fullname'],
+                                    'phone' => $customer['phonenumber'],
+                                    'message' => $currentMessage,
+                                    'status' => 'SMS Message Failed'
+                                ];
+                            }
+                        }
+        
+                        if ($via == 'wa' || $via == 'both') {
+                            $waSent = Message::sendWhatsapp($customer['phonenumber'], $currentMessage);
+                            if ($waSent) {
+                                $totalWhatsappSent++;
+                                $batchStatus[] = [
+                                    'name' => $customer['fullname'],
+                                    'phone' => $customer['phonenumber'],
+                                    'message' => $currentMessage,
+                                    'status' => 'WhatsApp Message Sent'
+                                ];
+                            } else {
+                                $totalWhatsappFailed++;
+                                $batchStatus[] = [
+                                    'name' => $customer['fullname'],
+                                    'phone' => $customer['phonenumber'],
+                                    'message' => $currentMessage,
+                                    'status' => 'WhatsApp Message Failed'
+                                ];
+                            }
+                        }
+                    }
+                }
+        
+                // Introduce a delay between each batch
+                if ($batchIndex < $totalBatches - 1) {
+                    sleep($delay);
+                }
+            }
+        
+            $ui->assign('batchStatus', $batchStatus);
+            $ui->assign('totalSMSSent', $totalSMSSent);
+            $ui->assign('totalSMSFailed', $totalSMSFailed);
+            $ui->assign('totalWhatsappSent', $totalWhatsappSent);
+            $ui->assign('totalWhatsappFailed', $totalWhatsappFailed);
+            $ui->display('message-bulk.tpl');
+            break;
 
     default:
         r2(U . 'message/send_sms', 'e', 'action not defined');
