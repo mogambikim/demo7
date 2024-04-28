@@ -49,6 +49,8 @@ EOT;
         $ui->display('message.tpl');
         break;
 
+        
+
     case 'send-post':
         // Check user permissions
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
@@ -237,16 +239,13 @@ EOT;
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
-        
-            // Retrieve routers with their associated customers
-            $routers = ORM::for_table('tbl_routers')
-                ->where('enabled', '1')
-                ->find_many();
-        
+            
+            // Retrieve routers
+            $routers = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
             $ui->assign('routers', $routers);
-            $ui->display('message-bulk.tpl');
+            
+            $ui->display('router-specific.tpl');
             break;
-        
         case 'specific-post':
             // Check user permissions
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
@@ -363,7 +362,7 @@ EOT;
             $ui->assign('totalSMSFailed', $totalSMSFailed);
             $ui->assign('totalWhatsappSent', $totalWhatsappSent);
             $ui->assign('totalWhatsappFailed', $totalWhatsappFailed);
-            $ui->display('message-bulk.tpl');
+            $ui->display('router-specific.tpl');
             break;
 
     default:

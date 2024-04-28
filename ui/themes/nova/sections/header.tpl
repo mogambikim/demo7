@@ -391,6 +391,14 @@
   transition: background-color 0.3s ease;
   z-index: 10000; /* Add a higher z-index value */
 }
+.search-form {
+    margin-top: 8px;
+    margin-right: 10px;
+}
+
+.search-form .input-group {
+    width: 200px;
+}
 
 .expand-button:hover {
   background-color: #e86060;
@@ -467,7 +475,6 @@
           }
         }
 
-
     </style>
 
     {if isset($xheader)}
@@ -478,7 +485,6 @@
 
 <body class="hold-transition modern-skin-dark sidebar-mini {if $_kolaps}sidebar-collapse{/if}">
     <div class="wrapper">
-
         <header class="main-header">
             <a href="{$_url}dashboard" class="logo">
                 <span class="logo-mini"><b>I</b>Sp</span>
@@ -491,6 +497,16 @@
                 <div class="navbar-custom-menu">
 
                     <ul class="nav navbar-nav">
+                    <li class="search-form">
+    <form id="navbar-search" method="post" action="{$_url}customers/list/">
+        <div class="input-group input-group-sm">
+            <input type="text" name="search" class="form-control" placeholder="{Lang::T('Search users')}...">
+            <span class="input-group-btn">
+                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+</li>
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <img src="https://robohash.org/{$_admin['id']}?set=set3&size=100x100&bgset=bg1"
@@ -661,6 +677,9 @@
                     <li {if $_routes[1] eq 'send_bulk'}class="active" {/if}>
                         <a href="{$_url}message/send_bulk">{Lang::T('Bulk Send')}</a>
                     </li>
+                    <li {if $_routes[1] eq 'specific'}class="active" {/if}>
+                        <a href="{$_url}message/specific">{Lang::T('Router Specific')}</a>
+                    </li>
                     {$_MENU_MESSAGE}
                 </ul>
             </li>
@@ -771,6 +790,29 @@
             </li>
 
 {$_MENU_AFTER_SETTINGS}
+
+
+            <li class="{if $_system_menu eq 'message'}active{/if} treeview">
+                <a href="#">
+                    <i class="ion ion-android-chat"></i> <span>{Lang::T('Extras')}</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li {if $_routes[1] eq 'send'}class="active" {/if}>
+                        <a href="{$_url}message/send">{Lang::T('Tutorials')}</a>
+                    </li>
+                    <li {if $_routes[1] eq 'send_bulk'}class="active" {/if}>
+                        <a href="{$_url}message/send_bulk">{Lang::T('Human Resource')}</a>
+                    </li>
+                    <li {if $_routes[1] eq 'specific'}class="active" {/if}>
+                        <a href="{$_url}message/specific">{Lang::T('Tax')}</a>
+                    </li>
+                    {$_MENU_MESSAGE}
+                </ul>
+            </li>
+
 <li class="{if $_system_menu eq 'logs'}active{/if} treeview">
     <a href="#">
         <i class="ion ion-clock"></i> <span>{Lang::T('Logs')}</span>
@@ -778,6 +820,7 @@
             <i class="fa fa-angle-left pull-right"></i>
         </span>
     </a>
+    
     <ul class="treeview-menu">
         <li {if $_routes[1] eq 'list'}class="active" {/if}>
             <a href="{$_url}logs/freeispradius">FreeIspRadius</a>

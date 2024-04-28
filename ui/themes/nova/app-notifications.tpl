@@ -19,11 +19,13 @@
                                 placeholder="Hello [[name]], your internet package [[package]] has expired"
                                 rows="3">{if $_json['expired']!=''}{Lang::htmlspecialchars($_json['expired'])}{else}Hello [[name]], your internet package [[package]] has expired.{/if}</textarea>
                         </div>
-                        <p class="help-block col-md-4">
-                                                      <b>[[name]]</b> will be replaced with Customer Name.
-                            <b>[[package]]</b> will be replaced with Package name.
-                            <b>[[price]]</b> will be replaced with Package price.
-                        </p>
+<p class="help-block col-md-4">
+    <b>[[name]]</b> will be replaced with Customer Name.<br>
+    <b>[[username]]</b> will be replaced with Username.<br>
+    <b>[[package]]</b> will be replaced with Package name.<br>
+    <b>[[price]]</b> will be replaced with Package price.<br>
+    <b>[[username]]</b> will be replaced with Username.
+</p>
                     </div>
                 </div>
                 <div class="panel-body">
@@ -35,6 +37,7 @@
                         </div>
                         <p class="help-block col-md-4">
                              <b>[[name]]</b> will be replaced with Customer Name.
+                                 <b>[[username]]</b> will be replaced with Username.<br>
                             <b>[[package]]</b> will be replaced with Package name.
                             <b>[[price]]</b> will be replaced with Package price.
                             <b>[[expired_date]]</b> will be replaced with Expiration date.
@@ -50,6 +53,7 @@
                         </div>
                         <p class="help-block col-md-4">
                                                   <b>[[name]]</b> will be replaced with Customer Name.
+                                                      <b>[[username]]</b> will be replaced with Username.<br>
                             <b>[[package]]</b> will be replaced with Package name.
                             <b>[[price]]</b> will be replaced with Package price.
                             <b>[[expired_date]]</b> will be replaced with Expiration date.
@@ -65,6 +69,7 @@
                         </div>
                         <p class="help-block col-md-4">
                              <b>[[name]]</b> will be replaced with Customer Name.
+                                 <b>[[username]]</b> will be replaced with Username.<br>
                             <b>[[package]]</b> will be replaced with Package name.
                             <b>[[price]]</b> will be replaced with Package price.
                             <b>[[expired_date]]</b> will be replaced with Expiration date.

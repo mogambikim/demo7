@@ -9,20 +9,21 @@
 <div class="row">
     <div class="col-sm-12 col-md-12">
         <div class="panel panel-primary panel-hovered panel-stacked mb30">
-            <div class="panel-heading">Send Bulk Messages</div>
+            <div class="panel-heading">Send Messages to Specific Router</div>
             <div class="panel-body">
-                <form class="form-horizontal" method="post" role="form" id="bulkMessageForm" action="">
+                <form class="form-horizontal" method="post" role="form" action="{$_url}message/specific-post">
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{Lang::T('Group')}</label>
+                        <label class="col-md-2 control-label">{Lang::T('Router')}</label>
                         <div class="col-md-6">
-                            <select class="form-control" name="group" id="group">
-                                <option value="all" selected>{Lang::T('All Customers')}</option>
-                                <option value="new">{Lang::T('New Customers')}</option>
-                                <option value="expired">{Lang::T('Expired Customers')}</option>
-                                <option value="active">{Lang::T('Active Customers')}</option>
+                            <select class="form-control select2" name="router" id="router">
+                                <option value="">{Lang::T('Select a router')}</option>
+                                {foreach $routers as $router}
+                                    <option value="{$router->id}">{$router->name}</option>
+                                {/foreach}
                             </select>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label class="col-md-2 control-label">{Lang::T('Send Via')}</label>
                         <div class="col-md-6">
@@ -76,9 +77,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <button class="btn btn-success" type="submit" name="send" value="now">
-                                {Lang::T('Send Message')}
-                            </button>
+                            <button class="btn btn-success" type="submit">{Lang::T('Send Message')}</button>
                             <a href="{$_url}dashboard" class="btn btn-default">{Lang::T('Cancel')}</a>
                         </div>
                     </div>
@@ -131,6 +130,33 @@
 
     $j(document).ready(function () {
         $j('#messageResultsTable').DataTable();
+
+        $j('#router').on('change', function() {
+            var selectedRouterId = $j(this).val();
+            if (selectedRouterId) {
+                $j.ajax({
+                    url: '{$_url}message/get_users',
+                    type: 'GET',
+                    data: { router_id: selectedRouterId },
+                    success: function(response) {
+                        var users = JSON.parse(response);
+                        var userSelect = $j('#users');
+                        userSelect.empty();
+                        $j.each(users, function(index, user) {
+                            userSelect.append($j('<option>', {
+                                value: user.id,
+                                text: user.username
+                            }));
+                        });
+                    },
+                    error: function() {
+                        console.log('Failed to retrieve users.');
+                    }
+                });
+            } else {
+                $j('#users').empty();
+            }
+        });
     });
 </script>
 

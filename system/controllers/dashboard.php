@@ -326,6 +326,5 @@ $ui->assign('xfooter', '');
 $ui->assign('monthlyRegistered', $monthlyRegistered);
 $ui->assign('stocks', $stocks);
 $ui->assign('plans', $plans);
-
 run_hook('view_dashboard'); #HOOK
 $ui->display('dashboard.tpl');

@@ -695,5 +695,11 @@
     "Ticket_Details": "Ticket Details",
     "Ticket": "Ticket",
     "Reply": "Reply",
-    "No_uploaded_attachments": "No uploaded attachments"
+    "No_uploaded_attachments": "No uploaded attachments",
+    "Extras": "Extras",
+    "Tutorials": "Tutorials",
+    "Human_Resource": "Human Resource",
+    "Tax": "Tax",
+    "Search_Users": "Search Users",
+    "Search_users": "Search users"
 }
