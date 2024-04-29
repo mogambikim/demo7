@@ -701,5 +701,11 @@
     "Human_Resource": "Human Resource",
     "Tax": "Tax",
     "Search_Users": "Search Users",
-    "Search_users": "Search users"
+    "Search_users": "Search users",
+    "Remember_me": "Remember me",
+    "Forgot_Password_": "Forgot Password?",
+    "Don_t_have_an_account_": "Don&#39;t have an account?",
+    "Updates": "Updates",
+    "Whatsapp": "Whatsapp",
+    "Telegram": "Telegram"
 }
