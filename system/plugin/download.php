@@ -18,6 +18,49 @@ function getSettingValue($mysqli, $setting) {
     return '';
 }
 
+
+// Fetch the selected color scheme from the database
+$selectedColorScheme = getSettingValue($mysqli, 'color_scheme');
+
+// Define color schemes
+$colorSchemes = [
+    'green' => [
+        'primary' => 'green',
+        'secondary' => 'blue',
+    ],
+    'brown' => [
+        'primary' => 'yellow',
+        'secondary' => 'orange',
+    ],
+    'orange' => [
+        'primary' => 'orange',
+        'secondary' => 'yellow',
+    ],
+    'red' => [
+        'primary' => 'red',
+        'secondary' => 'pink',
+    ],
+    'blue' => [
+        'primary' => 'blue',
+        'secondary' => 'indigo',
+    ],
+    'black' => [
+        'primary' => 'black',
+        'secondary' => 'gray',
+    ],
+    'yellow' => [
+        'primary' => 'yellow',
+        'secondary' => 'red',
+    ],
+    'pink' => [
+        'primary' => 'pink',
+        'secondary' => 'fuchsia',
+    ],
+];
+
+// Set the primary and secondary colors based on the selected color scheme
+$primaryColor = $colorSchemes[$selectedColorScheme]['primary'];
+$secondaryColor = $colorSchemes[$selectedColorScheme]['secondary'];
 // Fetch hotspot title and description from tbl_appconfig
 $hotspotTitle = getSettingValue($mysqli, 'hotspot_title');
 $description = getSettingValue($mysqli, 'description');
@@ -63,7 +106,7 @@ $htmlContent .= "</head>\n";
 
 $htmlContent .= "<body class=\"font-sans antialiased text-gray-900\">\n";
 $htmlContent .= "    <!-- Sticky Header -->\n";
-$htmlContent .= "    <header class=\"bg-blue-900 text-white fixed w-full z-10\">\n";
+$htmlContent .= "    <header class=\"bg-{$secondaryColor}-900 text-white fixed w-full z-10\">\n";
 $htmlContent .= "        <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5\">\n";
 $htmlContent .= "            <div class=\"flex items-center justify-between h-16\">\n";
 $htmlContent .= "                <!-- Logo and title area -->\n";
@@ -74,7 +117,7 @@ $htmlContent .= "                </div>\n";
 $htmlContent .= "                <!-- Navigation Links -->\n";
 $htmlContent .= "                <div class=\"block\">\n";
 $htmlContent .= "                    <div class=\"ml-10 flex items-baseline space-x-4\">\n";
-$htmlContent .= "                        <a href=\"#\" class=\"text-teal-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium\">Already Have an Account? Login</a>\n";
+$htmlContent .= "                        <a href=\"#\" class=\"text-{$secondaryColor}-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium\">Already Have an Account? Login</a>\n";
 $htmlContent .= "                    </div>\n";
 $htmlContent .= "                </div>\n";
 $htmlContent .= "            </div>\n";
@@ -109,20 +152,20 @@ $htmlContent .= "<div class=\"mt-10 max-w-7xl mx-auto grid grid-cols-2 sm:grid-c
 
 while ($plan = $planResult->fetch_assoc()) {
     $htmlContent .= "    <div class=\"flex flex-col rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105\">\n";
-    $htmlContent .= "        <div class=\"px-4 py-5 bg-gradient-to-tr from-green-50 to-green-200 text-center\">\n";
-    $htmlContent .= "            <span class=\"inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-green-800 text-green-50\">\n";
+    $htmlContent .= "        <div class=\"px-4 py-5 bg-gradient-to-tr from-{$primaryColor}-50 to-{$primaryColor}-200 text-center\">\n";
+    $htmlContent .= "            <span class=\"inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-{$primaryColor}-800 text-{$primaryColor}-50\">\n";
     $htmlContent .=                  htmlspecialchars($plan['name_plan']) . "\n";
     $htmlContent .= "            </span>\n";
-    $htmlContent .= "            <div class=\"mt-4 text-4xl leading-none font-extrabold text-green-800\">\n";
-    $htmlContent .= "                <span class=\"text-lg font-medium text-green-600\">ksh</span>\n";
+    $htmlContent .= "            <div class=\"mt-4 text-4xl leading-none font-extrabold text-{$primaryColor}-800\">\n";
+    $htmlContent .= "                <span class=\"text-lg font-medium text-{$primaryColor}-600\">ksh</span>\n";
     $htmlContent .=                  htmlspecialchars($plan['price']) . "\n";
     $htmlContent .= "            </div>\n";
-    $htmlContent .= "            <p class=\"mt-2 text-md leading-5 text-green-700 text-center\">\n";
+    $htmlContent .= "            <p class=\"mt-2 text-md leading-5 text-{$primaryColor}-700 text-center\">\n";
     $htmlContent .=                  htmlspecialchars($plan['validity']) . " " . htmlspecialchars($plan['validity_unit']) . " Unlimited\n";
     $htmlContent .= "            </p>\n";
     $htmlContent .= "        </div>\n";
-    $htmlContent .= "        <div class=\"px-4 pt-4 pb-6 bg-green-500 text-center\">\n";
-    $htmlContent .= "            <a href=\"#\" class=\"inline-block text-green-800 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer\"\n";
+    $htmlContent .= "        <div class=\"px-4 pt-4 pb-6 bg-{$primaryColor}-500 text-center\">\n";
+    $htmlContent .= "            <a href=\"#\" class=\"inline-block text-{$primaryColor}-800 bg-{$primaryColor}-50 hover:bg-{$primaryColor}-100 focus:outline-none focus:ring-4 focus:ring-{$primaryColor}-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer\"\n";
     $htmlContent .= "               onclick=\"handlePhoneNumberSubmission(this.getAttribute('data-plan-id'), this.getAttribute('data-router-id')); return false;\" data-plan-id=\"" . $plan['id'] . "\" data-router-id=\"" . $routerId . "\">\n";
     $htmlContent .= "                Click Here To Connect\n";
     $htmlContent .= "            </a>\n";
@@ -265,7 +308,7 @@ $htmlContent .= "                        <label class=\"block text-gray-700 text
 $htmlContent .= "                        <input id=\"passwordInput\" class=\"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline\" name=\"password\" type=\"password\" placeholder=\"******************\">\n";
 $htmlContent .= "                    </div>\n";
 $htmlContent .= "                    <div class=\"flex items-center justify-between\">\n";
-$htmlContent .= "                        <button id=\"submitBtn\" class=\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline\" type=\"button\">\n";
+$htmlContent .= "                        <button id=\"submitBtn\" class=\"bg-{$secondaryColor}-500 hover:bg-{$secondaryColor}-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline\" type=\"button\">\n";
 $htmlContent .= "                            Click Here To Connect\n";
 $htmlContent .= "                        </button>\n";
 $htmlContent .= "                    </div>\n";
@@ -317,7 +360,7 @@ $htmlContent .= "</section>\n";
 $htmlContent .= "</main>\n";
 
 $htmlContent .= "<!-- Footer -->\n";
-$htmlContent .= "<footer class=\"bg-blue-900 text-white\">\n";
+$htmlContent .= "<footer class=\"bg-{$secondaryColor}-900 text-white\">\n";
 $htmlContent .= "    <div class=\"max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8\">\n";
 $htmlContent .= "        <div class=\"lg:grid lg:grid-cols-3 lg:gap-8\">\n";
 $htmlContent .= "            <div class=\"lg:col-span-1\">\n";
@@ -370,7 +413,7 @@ $htmlContent .= "                <a href=\"#\" class=\"text-gray-400 hover:text-
 $htmlContent .= "                <a href=\"#\" class=\"text-gray-400 hover:text-gray-300\"><span class=\"sr-only\">LinkedIn</span><i class=\"fab fa-linkedin-in\"></i></a>\n";
 $htmlContent .= "            </div>\n";
 $htmlContent .= "<p class=\"mt-8 text-base leading-6 text-gray-400 md:mt-0 md:order-1\">\n";
-$htmlContent .= "                &copy; 2024 " . htmlspecialchars($company) . " All rights reserved.\n";
+$htmlContent .= "                &copy; 2024 FreeIspRadius. All rights reserved.\n";
 $htmlContent .= "            </p>\n";
 $htmlContent .= "        </div>\n";
 $htmlContent .= "    </div>\n";
