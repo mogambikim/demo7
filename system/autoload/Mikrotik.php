@@ -6,6 +6,7 @@
  **/
 use PEAR2\Net\RouterOS;
 use PEAR2\Net\RouterOS\Query;
+use PEAR2\Net\RouterOS\Response;
 
 class Mikrotik
 
@@ -766,93 +767,30 @@ public static function addStaticUser($client, $plan, $customer)
         }
     }
 
-
-    public static function mikrotik_get_interfaces($routerId)
+    public static function rebootRouter($ip_address, $username, $password)
     {
-        // Get the router details from the database
-        $router = ORM::for_table('tbl_routers')->find_one($routerId);
-
-        // Check if the router exists
-        if (!$router) {
-            return [];
-        }
-
         try {
-            // Connect to the Mikrotik router
-            $client = self::getClient($router->ip_address, $router->username, $router->password);
-
-            // Send a request to get the list of interfaces
-            $interfaces = $client->sendSync(new RouterOS\Request('/interface/print'));
-
-            // Prepare the interface data
-            $interfaceList = [];
-            foreach ($interfaces as $interface) {
-                $name = $interface->getProperty('name');
-                $type = $interface->getProperty('type');
-                $running = $interface->getProperty('running') === 'true';
-
-                $interfaceList[] = [
-                    'name' => $name,
-                    'type' => $type,
-                    'running' => $running,
-                ];
-            }
-
-            return $interfaceList;
+            $client = Mikrotik::getClient($ip_address, $username, $password);
+            $request = new RouterOS\Request('/system/reboot');
+            $client->sendSync($request);
+            return true;
         } catch (Exception $e) {
-            // Handle the exception
-            error_log('Error connecting to Mikrotik router: ' . $e->getMessage());
-            return [];
+            return false;
         }
     }
 
-    public static function mikrotik_monitor_traffic($routerId, $interface)
+    public static function pingRouter($ip_address, $username, $password)
     {
-        // Get the router details from the database
-        $router = ORM::for_table('tbl_routers')->find_one($routerId);
-
-        // Check if the router exists
-        if (!$router) {
-            return [];
-        }
-
         try {
-            // Connect to the Mikrotik router
-            $client = self::getClient($router->ip_address, $router->username, $router->password);
-
-            // Send a request to monitor the traffic for the specified interface
-            $results = $client->sendSync(
-                (new RouterOS\Request('/interface/monitor-traffic'))
-                    ->setArgument('interface', $interface)
-                    ->setArgument('once', '')
-            );
-
-            $rows = [];
-            $rows2 = [];
-            $labels = [];
-
-            foreach ($results as $result) {
-                $ftx = $result->getProperty('tx-bits-per-second');
-                $frx = $result->getProperty('rx-bits-per-second');
-
-                $rows[] = $ftx;
-                $rows2[] = $frx;
-                $labels[] = date('H:i:s');
-            }
-
-            $trafficData = [
-                'labels' => $labels,
-                'rows' => [
-                    'tx' => $rows,
-                    'rx' => $rows2
-                ]
-            ];
-
-            return $trafficData;
+            $client = Mikrotik::getClient($ip_address, $username, $password);
+            $request = new RouterOS\Request('/ping');
+            $request->setArgument('address', $ip_address);
+            $request->setArgument('count', 1);
+            $response = $client->sendSync($request);
+            return $response->getType() === RouterOS\Response::TYPE_FINAL;
         } catch (Exception $e) {
-            // Handle the exception
-            error_log('Error monitoring traffic on Mikrotik router: ' . $e->getMessage());
-            return [];
+            return false;
         }
-    }
+    }  
+
 }

@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4135563';
-$consumerkey    = "naG8GV1TbI8U3OooIRaBiiqnYFV4SAuof2B3pGTH5e1HcWKO";
-$consumersecret = "sLH3YhClUEHZSnmA0HPvB5lZni4SJwC19YAB7oSc59ouSAXskmgldEZ25WqR02b0";
-$validationurl = "https://brainstar.freeispradius.com/validation_url.php";
+$shortcode = '4132703';
+$consumerkey    = "HDNADpWR1GHq5cBraP4a5ELGN83oPArlb1jm4KxyAOoTKXwe";
+$consumersecret = "piukP8TumubnDQaAxISo8f8RwFbfOScH9WwvQtPzqpEGeb8nY3WMT2yse3X7n9yl";
+$validationurl = "https://blinkfiber.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://brainstar.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://blinkfiber.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';

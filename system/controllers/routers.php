@@ -40,6 +40,32 @@ switch ($action) {
         $ui->display('routers.tpl');
         break;
 
+        case 'ping':
+            $id = $routes['2'];
+            $router = ORM::for_table('tbl_routers')->find_one($id);
+            if ($router) {
+                $result = Mikrotik::pingRouter($router['ip_address'], $router['username'], $router['password']);
+                if ($result) {
+                    http_response_code(200);
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['status' => 'error']);
+                }
+            } else {
+                http_response_code(404);
+                echo json_encode(['status' => 'error']);
+            }
+            exit;
+        
+            case 'reboot':
+                $id = $routes['2'];
+                $router = ORM::for_table('tbl_routers')->find_one($id);
+                if ($router) {
+                    Mikrotik::rebootRouter($router['ip_address'], $router['username'], $router['password']);
+                }
+                break;
+
     case 'add':
         run_hook('view_add_routers'); #HOOK
         $ui->display('routers-add.tpl');
