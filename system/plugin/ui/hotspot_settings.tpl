@@ -145,6 +145,8 @@
                         <li>Make sure you change these custom settings and personalize them.</li>
                         <li>Download the <code>login.html</code> file by clicking on the "Download Login Page" button.</li>
                         <li>Upload the downloaded <code>login.html</code> file to your MikroTik router.</li>
+                        <li>The login file should be named exactly login.html, if the name is different kindly rename.</li>
+                        <li>Drag and drop the login file anywhere between error.html and status.html. This part is very important.</li>
                         <li>Add your website URL to the MikroTik hotspot walled garden.</li>
                     </ol>
                 </div>
