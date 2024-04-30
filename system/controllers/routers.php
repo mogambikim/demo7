@@ -24,7 +24,7 @@ if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
 switch ($action) {
     case 'list':
         $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/routers.js"></script>');
-
+    
         $name = _post('name');
         if ($name != '') {
             $paginator = Paginator::build(ORM::for_table('tbl_routers'), ['name' => '%' . $name . '%'], $name);
@@ -33,10 +33,35 @@ switch ($action) {
             $paginator = Paginator::build(ORM::for_table('tbl_routers'));
             $d = ORM::for_table('tbl_routers')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
         }
-
+    
+        foreach ($d as $router) {
+            try {
+                $client = Mikrotik::getClient($router['ip_address'], $router['username'], $router['password']);
+                
+                // Get uptime
+                $uptimeRequest = new RouterOS\Request('/system/resource/print');
+                $uptimeResponse = $client->sendSync($uptimeRequest);
+                $uptime = $uptimeResponse->getProperty('uptime');
+                
+                // Get model
+                $modelRequest = new RouterOS\Request('/system/resource/print');
+                $modelResponse = $client->sendSync($modelRequest);
+                $model = $modelResponse->getProperty('board-name');
+                
+                $router['uptime'] = $uptime;
+                $router['model'] = $model;
+            } catch (Exception $e) {
+                // Handle any exceptions that occur while retrieving uptime and model
+                $router['uptime'] = 'N/A';
+                $router['model'] = 'N/A';
+            }
+        }
+    
         $ui->assign('d', $d);
         $ui->assign('paginator', $paginator);
+        
         run_hook('view_list_routers'); #HOOK
+        
         $ui->display('routers.tpl');
         break;
 
@@ -62,10 +87,19 @@ switch ($action) {
                 $id = $routes['2'];
                 $router = ORM::for_table('tbl_routers')->find_one($id);
                 if ($router) {
-                    Mikrotik::rebootRouter($router['ip_address'], $router['username'], $router['password']);
+                    $result = Mikrotik::rebootRouter($router['ip_address'], $router['username'], $router['password']);
+                    if ($result) {
+                        http_response_code(200);
+                        echo json_encode(['status' => 'success']);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(['status' => 'error', 'message' => 'Failed to initiate router reboot']);
+                    }
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['status' => 'error', 'message' => 'Router not found']);
                 }
-                r2(U . 'routers/list', 's', 'Router reboot initiated successfully');
-                break;
+                exit;
 
     case 'add':
         run_hook('view_add_routers'); #HOOK

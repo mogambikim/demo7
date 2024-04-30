@@ -709,5 +709,7 @@
     "Whatsapp": "Whatsapp",
     "Telegram": "Telegram",
     "Ping_Status": "Ping Status",
-    "Reboot": "Reboot"
+    "Reboot": "Reboot",
+    "Uptime": "Uptime",
+    "Model": "Model"
 }

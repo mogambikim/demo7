@@ -34,6 +34,8 @@
                                 <th>{Lang::T('Description')}</th>
                                 <th>{Lang::T('Status')}</th>
                                 <th>{Lang::T('Ping Status')}</th>
+                                <th>{Lang::T('Uptime')}</th>
+                                <th>{Lang::T('Model')}</th>
                                 <th>{Lang::T('Reboot')}</th>
                                 <th>{Lang::T('Manage')}</th>
                             </tr>
@@ -48,7 +50,9 @@
                                 <td>{$ds['description']}</td>
                                 <td>{if $ds['enabled'] == 1}Enabled{else}Disabled{/if}</td>
                                 <td><span id="ping-status-{$ds['id']}" class="ping-status"></span></td>
-<td><a href="{$_url}routers/reboot/{$ds['id']}" class="btn btn-warning btn-xs reboot-router" onclick="return confirm('Are you sure you want to reboot this router?');">Reboot</a></td>
+                                <td>{$ds['uptime']}</td>
+                                <td>{$ds['model']}</td>
+                                <td><a href="#" class="btn btn-warning btn-xs reboot-router" data-id="{$ds['id']}" onclick="rebootRouter(this); return false;">Reboot</a></td>
                                 <td>
                                     <a href="{$_url}routers/edit/{$ds['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
                                     <a href="{$_url}routers/delete/{$ds['id']}" id="{$ds['id']}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
@@ -65,30 +69,26 @@
 </div>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    function pingRouters() {
-        $('.ping-status').each(function() {
-            var routerId = $(this).attr('id').split('-')[2];
-            var pingStatusElement = $(this);
-
-            $.ajax({
-                url: '{$_url}routers/ping/' + routerId,
-                type: 'GET',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        pingStatusElement.html('<span class="label label-success">Active</span>');
-                    } else {
-                        pingStatusElement.html('<span class="label label-danger">Inactive</span>');
-                    }
-                },
-                error: function() {
-                    pingStatusElement.html('<span class="label label-danger">Inactive</span>');
+function rebootRouter(element) {
+    if (confirm('Are you sure you want to reboot this router?')) {
+        var routerId = $(element).data('id');
+        $.ajax({
+            url: '{$_url}routers/reboot/' + routerId,
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('Router reboot initiated successfully');
+                    location.reload(); // Reload the page after a successful reboot request
+                } else {
+                    alert('Failed to initiate router reboot: ' + response.message);
                 }
-            });
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred while processing the request: ' + error);
+            }
         });
     }
-
-
-    });
+}
 </script>
 {include file="sections/footer.tpl"}

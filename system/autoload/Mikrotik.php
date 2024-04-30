@@ -773,9 +773,10 @@ public static function addStaticUser($client, $plan, $customer)
             $client = Mikrotik::getClient($ip_address, $username, $password);
             $request = new RouterOS\Request('/system/reboot');
             $client->sendSync($request);
-            return true;
+            return true; // Return true if the reboot request is sent successfully
         } catch (Exception $e) {
-            return false;
+            error_log("Router reboot failed: " . $e->getMessage());
+            return false; // Return false if an exception occurs
         }
     }
 
