@@ -48,7 +48,7 @@
                                 <td>{$ds['description']}</td>
                                 <td>{if $ds['enabled'] == 1}Enabled{else}Disabled{/if}</td>
                                 <td><span id="ping-status-{$ds['id']}" class="ping-status"></span></td>
-                                <td><a href="{$_url}routers/reboot/{$ds['id']}" class="btn btn-warning btn-xs reboot-router" data-id="{$ds['id']}">Reboot</a></td>
+<td><a href="{$_url}routers/reboot/{$ds['id']}" class="btn btn-warning btn-xs reboot-router" onclick="return confirm('Are you sure you want to reboot this router?');">Reboot</a></td>
                                 <td>
                                     <a href="{$_url}routers/edit/{$ds['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
                                     <a href="{$_url}routers/delete/{$ds['id']}" id="{$ds['id']}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
@@ -88,26 +88,7 @@ $(document).ready(function() {
         });
     }
 
-    pingRouters();
-    setInterval(pingRouters, 30000); // Ping every 30 seconds
 
-    $('.reboot-router').click(function(e) {
-        e.preventDefault();
-        var routerId = $(this).data('id');
-        var confirmReboot = confirm('Are you sure you want to reboot this router?');
-
-        if (confirmReboot) {
-            $.ajax({
-                url: '{$_url}routers/reboot/' + routerId,
-                type: 'POST',
-                async: false, // Send the request synchronously
-                complete: function() {
-                    // Redirect to the router list page
-                    window.location.href = '{$_url}routers/list';
-                }
-            });
-        }
     });
-});
 </script>
 {include file="sections/footer.tpl"}

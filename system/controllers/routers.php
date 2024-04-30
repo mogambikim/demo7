@@ -64,6 +64,7 @@ switch ($action) {
                 if ($router) {
                     Mikrotik::rebootRouter($router['ip_address'], $router['username'], $router['password']);
                 }
+                r2(U . 'routers/list', 's', 'Router reboot initiated successfully');
                 break;
 
     case 'add':
