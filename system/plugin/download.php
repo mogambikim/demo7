@@ -91,16 +91,17 @@ $planResult = $planStmt->get_result();
 $htmlContent = "<!DOCTYPE html>\n";
 $htmlContent .= "<html lang=\"en\">\n";
 $htmlContent .= "<head>\n";
-$htmlContent .= "    <meta charset=\"UTF-8\">\n";
-$htmlContent .= "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-$htmlContent .= "    <title>" . htmlspecialchars($hotspotTitle) . " Hotspot Template - Index</title>\n";
-$htmlContent .= "    <script src=\"https://cdn.tailwindcss.com\"></script>\n";
-$htmlContent .= "    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css\">\n";
-$htmlContent .= "    <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/glider-js@1.7.7/glider.min.css\" />\n";
-$htmlContent .= "    <script src=\"https://cdn.jsdelivr.net/npm/glider-js@1.7.7/glider.min.js\"></script>\n";
-$htmlContent .= "    <link rel=\"preconnect\" href=\"https://cdn.jsdelivr.net\">\n";
-$htmlContent .= "    <link rel=\"preconnect\" href=\"https://cdnjs.cloudflare.com\" crossorigin>\n";
-$htmlContent .= "    <link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\">\n";
+$htmlContent .= " <meta charset=\"UTF-8\">\n";
+$htmlContent .= " <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+$htmlContent .= " <title>" . htmlspecialchars($hotspotTitle) . " Hotspot Template - Index</title>\n";
+$htmlContent .= " <script src=\"https://cdn.tailwindcss.com\"></script>\n";
+$htmlContent .= " <script src=\"https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.0.18/sweetalert2.all.min.js\"></script>\n";
+$htmlContent .= " <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css\">\n";
+$htmlContent .= " <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/glider-js@1.7.7/glider.min.css\" />\n";
+$htmlContent .= " <script src=\"https://cdn.jsdelivr.net/npm/glider-js@1.7.7/glider.min.js\"></script>\n";
+$htmlContent .= " <link rel=\"preconnect\" href=\"https://cdn.jsdelivr.net\">\n";
+$htmlContent .= " <link rel=\"preconnect\" href=\"https://cdnjs.cloudflare.com\" crossorigin>\n";
+$htmlContent .= " <link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\">\n";
 $htmlContent .= "</head>\n";
 
 
