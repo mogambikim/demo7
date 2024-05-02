@@ -95,12 +95,10 @@ switch ($action) {
             case 'reboot':
                 $id = $routes['2'];
                 $router = ORM::for_table('tbl_routers')->find_one($id);
-                
                 if ($router) {
                     $result = Mikrotik::rebootRouter($router['ip_address'], $router['username'], $router['password']);
-                    
-                    // Redirect back to the routers list page regardless of the reboot result
-                    r2(U . 'routers/list');
+                    // Redirect back to the routers list page with a success message
+                    r2(U . 'routers/list', 's', Lang::T('Router reboot initiated'));
                 } else {
                     // Handle the case when the router is not found
                     // Redirect back to the routers list page with an error message
