@@ -33,33 +33,33 @@
                                 <th>{Lang::T('Username')}</th>
                                 <th>{Lang::T('Description')}</th>
                                 <th>{Lang::T('Status')}</th>
-                                <th>{Lang::T('Ping Status')}</th>
+                                <th>{Lang::T('State')}</th>
                                 <th>{Lang::T('Uptime')}</th>
                                 <th>{Lang::T('Model')}</th>
                                 <th>{Lang::T('Reboot')}</th>
                                 <th>{Lang::T('Manage')}</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {foreach $d as $ds}
-                            <tr {if $ds['enabled'] != 1}class="danger" title="disabled"{/if}>
-                                <td>{$ds['id']}</td>
-                                <td>{$ds['name']}</td>
-                                <td>{$ds['ip_address']}</td>
-                                <td>{$ds['username']}</td>
-                                <td>{$ds['description']}</td>
-                                <td>{if $ds['enabled'] == 1}Enabled{else}Disabled{/if}</td>
-                                <td><span id="ping-status-{$ds['id']}" class="ping-status"></span></td>
-                                <td>{$ds['uptime']}</td>
-                                <td>{$ds['model']}</td>
-                                <td><a href="#" class="btn btn-warning btn-xs reboot-router" data-id="{$ds['id']}" onclick="rebootRouter(this); return false;">Reboot</a></td>
-                                <td>
-                                    <a href="{$_url}routers/edit/{$ds['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
-                                    <a href="{$_url}routers/delete/{$ds['id']}" id="{$ds['id']}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
-                                </td>
-                            </tr>
-                            {/foreach}
-                        </tbody>
+<tbody>
+    {foreach $routers as $router}
+    <tr {if $router['enabled'] != 1}class="danger" title="disabled"{/if}>
+        <td>{$router['id']}</td>
+        <td>{$router['name']}</td>
+        <td>{$router['ip_address']}</td>
+        <td>{$router['username']}</td>
+        <td>{$router['description']}</td>
+        <td>{if $router['enabled'] == 1}Enabled{else}Disabled{/if}</td>
+        <td><span class="label label-{$router['pingClass']}">{$router['pingStatus']}</span></td>
+        <td>{$router['uptime']}</td>
+        <td>{$router['model']}</td>
+        <td><a href="{$_url}routers/reboot/{$router['id']}" class="btn btn-warning btn-xs">Reboot</a></td>
+        <td>
+            <a href="{$_url}routers/edit/{$router['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
+            <a href="{$_url}routers/delete/{$router['id']}" id="{$router['id']}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
+        </td>
+    </tr>
+    {/foreach}
+</tbody>
                     </table>
                 </div>
                 {$paginator['contents']}
@@ -67,28 +67,51 @@
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-function rebootRouter(element) {
-    if (confirm('Are you sure you want to reboot this router?')) {
-        var routerId = $(element).data('id');
-        $.ajax({
-            url: '{$_url}routers/reboot/' + routerId,
-            type: 'POST',
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    alert('Router reboot initiated successfully');
-                    location.reload(); // Reload the page after a successful reboot request
-                } else {
-                    alert('Failed to initiate router reboot: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('An error occurred while processing the request: ' + error);
-            }
-        });
-    }
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#collapseInstructions" class="text-primary">
+                        <i class="fa fa-plus-circle"></i> {Lang::T('Enable Reboot Functionality')}
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseInstructions" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i> {Lang::T('To enable the router reboot functionality, please follow the instructions below:')}
+                    </div>
+                    <ol>
+                        <li>{Lang::T('Copy the code snippet from the box below.')}</li>
+                        <li>{Lang::T('Log in to your MikroTik router\'s terminal.')}</li>
+                        <li>{Lang::T('Paste the code into the terminal and press Enter.')}</li>
+                        <li>{Lang::T('The reboot functionality will be enabled on your router.')}</li>
+                    </ol>
+                    <div class="well">
+                        <pre><code>/file print file=reboot.txt
+/file set reboot.txt contents="0"
+# Create the "reboot" script
+/system script add name="reboot" source="/file set reboot.txt contents=\"1\""
+# Create the "watch-reboot" scheduler
+/system scheduler add name="watch-reboot" interval=1m on-event=":local needReboot [/file get reboot.txt contents]; :if (\$needReboot != \"0\") do={ /file set \"reboot.txt\" contents=\"0\"; /system reboot; }"</code></pre>
+                        <button class="btn btn-primary btn-block" onclick="copyCode()"><i class="fa fa-copy"></i> {Lang::T('Copy Code')}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function copyCode() {
+    var code = document.querySelector("pre code");
+    var range = document.createRange();
+    range.selectNode(code);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+    alert("{Lang::T('Code copied to clipboard!')}");
 }
 </script>
 {include file="sections/footer.tpl"}

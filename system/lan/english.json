@@ -711,5 +711,17 @@
     "Ping_Status": "Ping Status",
     "Reboot": "Reboot",
     "Uptime": "Uptime",
-    "Model": "Model"
+    "Model": "Model",
+    "State": "State",
+    "Enable_Router_Reboot": "Enable Router Reboot",
+    "To_enable_the_router_reboot_functionality__please_copy_the_following_code_and_paste_it_into_your_MikroTik_router_s_terminal_": "To enable the router reboot functionality, please copy the following code and paste it into your MikroTik router&#39;s terminal:",
+    "Copy_Code": "Copy Code",
+    "Code_copied_to_clipboard_": "Code copied to clipboard!",
+    "Enable_Reboot_Here": "Enable Reboot Here",
+    "Enable_Reboot_Functionality": "Enable Reboot Functionality",
+    "To_enable_the_router_reboot_functionality__please_follow_the_instructions_below_": "To enable the router reboot functionality, please follow the instructions below:",
+    "Copy_the_code_snippet_from_the_box_below_": "Copy the code snippet from the box below.",
+    "Log_in_to_your_MikroTik_router_s_terminal_": "Log in to your MikroTik router&#39;s terminal.",
+    "Paste_the_code_into_the_terminal_and_press_Enter_": "Paste the code into the terminal and press Enter.",
+    "The_reboot_functionality_will_be_enabled_on_your_router_": "The reboot functionality will be enabled on your router."
 }

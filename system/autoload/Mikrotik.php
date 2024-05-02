@@ -6,7 +6,8 @@
  **/
 use PEAR2\Net\RouterOS;
 use PEAR2\Net\RouterOS\Query;
-use PEAR2\Net\RouterOS\Response;
+use PEAR2\Net\RouterOS\Request;
+
 
 class Mikrotik
 
@@ -766,20 +767,23 @@ public static function addStaticUser($client, $plan, $customer)
             // Error handling logic here
         }
     }
-
-    public static function rebootRouter($ip_address, $username, $password)
-    {
+    public static function rebootRouter($ip_address, $username, $password) {
         try {
             $client = Mikrotik::getClient($ip_address, $username, $password);
-            $request = new RouterOS\Request('/system/reboot');
+    
+            // Send the command to run the "reboot-device" script
+            $request = new Request('/execute script="reboot"');
             $client->sendSync($request);
-            return true; // Return true if the reboot request is sent successfully
+    
+            // Log out and close the connection
+            $client->close();
+    
+            return true;
         } catch (Exception $e) {
             error_log("Router reboot failed: " . $e->getMessage());
-            return false; // Return false if an exception occurs
+            return false;
         }
     }
-
     public static function pingRouter($ip_address, $username, $password)
     {
         try {

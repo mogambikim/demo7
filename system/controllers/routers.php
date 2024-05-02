@@ -24,101 +24,92 @@ if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
 switch ($action) {
     case 'list':
         $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/routers.js"></script>');
-    
         $name = _post('name');
         if ($name != '') {
             $paginator = Paginator::build(ORM::for_table('tbl_routers'), ['name' => '%' . $name . '%'], $name);
-            $d = ORM::for_table('tbl_routers')->where_like('name', '%' . $name . '%')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
+            $routers = ORM::for_table('tbl_routers')
+                ->table_alias('r')
+                ->select('r.*')
+                ->select('c.state', 'pingStatus')
+                ->select('c.uptime')
+                ->select('c.model')
+                ->left_outer_join('tbl_router_cache', array('r.id', '=', 'c.router_id'), 'c')
+                ->where_like('r.name', '%' . $name . '%')
+                ->offset($paginator['startpoint'])
+                ->limit($paginator['limit'])
+                ->order_by_desc('r.id')
+                ->find_array();
         } else {
             $paginator = Paginator::build(ORM::for_table('tbl_routers'));
-            $d = ORM::for_table('tbl_routers')->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_many();
+            $routers = ORM::for_table('tbl_routers')
+                ->table_alias('r')
+                ->select('r.*')
+                ->select('c.state', 'pingStatus')
+                ->select('c.uptime')
+                ->select('c.model')
+                ->left_outer_join('tbl_router_cache', array('r.id', '=', 'c.router_id'), 'c')
+                ->offset($paginator['startpoint'])
+                ->limit($paginator['limit'])
+                ->order_by_desc('r.id')
+                ->find_array();
         }
     
-        foreach ($d as $router) {
-            try {
-                $client = Mikrotik::getClient($router['ip_address'], $router['username'], $router['password']);
-                
-                // Get uptime
-                $uptimeRequest = new RouterOS\Request('/system/resource/print');
-                $uptimeResponse = $client->sendSync($uptimeRequest);
-                $uptime = $uptimeResponse->getProperty('uptime');
-                
-                // Get model
-                $modelRequest = new RouterOS\Request('/system/resource/print');
-                $modelResponse = $client->sendSync($modelRequest);
-                $model = $modelResponse->getProperty('board-name');
-                
-                $router['uptime'] = $uptime;
-                $router['model'] = $model;
-            } catch (Exception $e) {
-                // Handle any exceptions that occur while retrieving uptime and model
-                $router['uptime'] = 'N/A';
-                $router['model'] = 'N/A';
+        foreach ($routers as &$router) {
+            if ($router['pingStatus'] == 'Online') {
+                $router['pingClass'] = 'success';
+            } else {
+                $router['pingClass'] = 'danger';
+                if (!isset($router['uptime'])) {
+                    $router['uptime'] = 'Error';
+                }
+                if (!isset($router['model'])) {
+                    $router['model'] = 'Error';
+                }
+            }
+            if (!isset($router['pingStatus'])) {
+                $router['pingStatus'] = 'Offline';
+                $router['pingClass'] = 'danger';
+                $router['uptime'] = 'Error';
+                $router['model'] = 'Error';
             }
         }
     
-        $ui->assign('d', $d);
+        $ui->assign('routers', $routers);
         $ui->assign('paginator', $paginator);
-        
         run_hook('view_list_routers'); #HOOK
-        
         $ui->display('routers.tpl');
         break;
-
+    
         case 'ping':
             $id = $routes['2'];
-            $router = ORM::for_table('tbl_routers')->find_one($id);
-            if ($router) {
-                $result = Mikrotik::pingRouter($router['ip_address'], $router['username'], $router['password']);
-                if ($result) {
-                    http_response_code(200);
-                    echo json_encode(['status' => 'success']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['status' => 'error']);
-                }
+            $cache = ORM::for_table('tbl_router_cache')->where('router_id', $id)->find_one();
+            if ($cache) {
+                http_response_code(200);
+                echo json_encode(['status' => $cache->state]);
             } else {
                 http_response_code(404);
-                echo json_encode(['status' => 'error']);
+                echo json_encode(['status' => 'Error']);
             }
             exit;
         
             case 'reboot':
                 $id = $routes['2'];
                 $router = ORM::for_table('tbl_routers')->find_one($id);
+                
                 if ($router) {
                     $result = Mikrotik::rebootRouter($router['ip_address'], $router['username'], $router['password']);
-                    if ($result) {
-                        http_response_code(200);
-                        echo json_encode(['status' => 'success']);
-                    } else {
-                        http_response_code(500);
-                        echo json_encode(['status' => 'error', 'message' => 'Failed to initiate router reboot']);
-                    }
+                    
+                    // Redirect back to the routers list page regardless of the reboot result
+                    r2(U . 'routers/list');
                 } else {
-                    http_response_code(404);
-                    echo json_encode(['status' => 'error', 'message' => 'Router not found']);
+                    // Handle the case when the router is not found
+                    // Redirect back to the routers list page with an error message
+                    r2(U . 'routers/list', 'e', Lang::T('Router Not Found'));
                 }
-                exit;
-
+                break;
     case 'add':
         run_hook('view_add_routers'); #HOOK
         $ui->display('routers-add.tpl');
-        break;
-
-    case 'edit':
-        $id  = $routes['2'];
-        $d = ORM::for_table('tbl_routers')->find_one($id);
-        if (!$d) {
-            $d = ORM::for_table('tbl_routers')->where_equal('name', _get('name'))->find_one();
-        }
-        if ($d) {
-            $ui->assign('d', $d);
-            run_hook('view_router_edit'); #HOOK
-            $ui->display('routers-edit.tpl');
-        } else {
-            r2(U . 'routers/list', 'e', Lang::T('Account Not Found'));
-        }
         break;
 
     case 'delete':
