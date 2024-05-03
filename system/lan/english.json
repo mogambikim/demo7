@@ -723,5 +723,6 @@
     "Copy_the_code_snippet_from_the_box_below_": "Copy the code snippet from the box below.",
     "Log_in_to_your_MikroTik_router_s_terminal_": "Log in to your MikroTik router&#39;s terminal.",
     "Paste_the_code_into_the_terminal_and_press_Enter_": "Paste the code into the terminal and press Enter.",
-    "The_reboot_functionality_will_be_enabled_on_your_router_": "The reboot functionality will be enabled on your router."
+    "The_reboot_functionality_will_be_enabled_on_your_router_": "The reboot functionality will be enabled on your router.",
+    "Router_reboot_initiated": "Router reboot initiated"
 }

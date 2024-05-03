@@ -110,6 +110,21 @@ switch ($action) {
         $ui->display('routers-add.tpl');
         break;
 
+        case 'edit':
+            $id  = $routes['2'];
+            $d = ORM::for_table('tbl_routers')->find_one($id);
+            if (!$d) {
+                $d = ORM::for_table('tbl_routers')->where_equal('name', _get('name'))->find_one();
+            }
+            if ($d) {
+                $ui->assign('d', $d);
+                run_hook('view_router_edit'); #HOOK
+                $ui->display('routers-edit.tpl');
+            } else {
+                r2(U . 'routers/list', 'e', Lang::T('Account Not Found'));
+            }
+            break;
+
     case 'delete':
         $id  = $routes['2'];
         run_hook('router_delete'); #HOOK
