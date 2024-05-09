@@ -688,22 +688,87 @@ public static function addStaticUser($client, $plan, $customer)
             ->setArgument('comment', $addressListName) // Use comment to differentiate entries
     );
 
-    // Retrieve the bandwidth details from the database
-    $bandwidth = ORM::for_table('tbl_bandwidth')->find_one($plan['id_bw']);
-    $rateUp = $bandwidth['rate_up'] . (strtolower($bandwidth['rate_up_unit']) == 'kbps' ? 'k' : 'M');
-    $rateDown = $bandwidth['rate_down'] . (strtolower($bandwidth['rate_down_unit']) == 'kbps' ? 'k' : 'M');
-    $rateLimit = $rateUp . '/' . $rateDown;
+    // Retrieve bandwidth details from the database
+    $b = ORM::for_table('tbl_bandwidth')->where('id', $plan['id_bw'])->find_one();
 
-    // Set up a simple queue for rate limiting, using placeholder data if no IP address is found
-    $addQueueRequest = new RouterOS\Request('/queue/simple/add');
-    $client->sendSync(
-        $addQueueRequest
-            ->setArgument('name', $queueName)
-            ->setArgument('target', $ipAddress)
-            ->setArgument('max-limit', $rateLimit)
-    );
+    // Determine the rate unit and value for download
+    if ($b['rate_down_unit'] == 'Kbps') {
+        $unitdown = 'K';
+    } else {
+        $unitdown = 'M';
+    }
+    $rateDown = $b['rate_down'] . $unitdown;
+
+    // Determine the rate unit and value for upload
+    if ($b['rate_up_unit'] == 'Kbps') {
+        $unitup = 'K';
+    } else {
+        $unitup = 'M';
+    }
+    $rateUp = $b['rate_up'] . $unitup;
+
+    // Construct the max-limit string
+    $maxLimit = $rateUp . "/" . $rateDown;
+
+    // Check if all burst fields are entered
+    if (!empty($b['burst_limit_up']) && !empty($b['burst_limit_down']) && !empty($b['burst_threshold_up']) && !empty($b['burst_threshold_down']) && !empty($b['burst_time'])) {
+        // Determine the burst limit unit and value for upload
+        if ($b['burst_limit_up_unit'] == 'Kbps') {
+            $burstLimitUp = $b['burst_limit_up'] . 'K';
+        } else {
+            $burstLimitUp = $b['burst_limit_up'] . 'M';
+        }
+
+        // Determine the burst limit unit and value for download
+        if ($b['burst_limit_down_unit'] == 'Kbps') {
+            $burstLimitDown = $b['burst_limit_down'] . 'K';
+        } else {
+            $burstLimitDown = $b['burst_limit_down'] . 'M';
+        }
+        $burstLimit = $burstLimitUp . "/" . $burstLimitDown;
+
+        // Determine the burst threshold unit and value for upload
+        if ($b['burst_threshold_up_unit'] == 'Kbps') {
+            $burstThresholdUp = $b['burst_threshold_up'] . 'K';
+        } else {
+            $burstThresholdUp = $b['burst_threshold_up'] . 'M';
+        }
+
+        // Determine the burst threshold unit and value for download
+        if ($b['burst_threshold_down_unit'] == 'Kbps') {
+            $burstThresholdDown = $b['burst_threshold_down'] . 'K';
+        } else {
+            $burstThresholdDown = $b['burst_threshold_down'] . 'M';
+        }
+        $burstThreshold = $burstThresholdUp . "/" . $burstThresholdDown;
+
+        // Get the burst time and priority
+        $burstTime = $b['burst_time'] . "s/" . $b['burst_time'] . "s";
+        $priority = $b['priority'] . "/" . $b['priority'];
+
+        // Set up a simple queue for rate limiting with burst parameters
+        $addQueueRequest = new RouterOS\Request('/queue/simple/add');
+        $client->sendSync(
+            $addQueueRequest
+                ->setArgument('name', $queueName)
+                ->setArgument('target', $ipAddress)
+                ->setArgument('max-limit', $maxLimit)
+                ->setArgument('burst-limit', $burstLimit)
+                ->setArgument('burst-threshold', $burstThreshold)
+                ->setArgument('burst-time', $burstTime)
+                ->setArgument('priority', $priority)
+        );
+    } else {
+        // Set up a simple queue for rate limiting without burst parameters
+        $addQueueRequest = new RouterOS\Request('/queue/simple/add');
+        $client->sendSync(
+            $addQueueRequest
+                ->setArgument('name', $queueName)
+                ->setArgument('target', $ipAddress)
+                ->setArgument('max-limit', $maxLimit)
+        );
+    }
 }
-
 
 
 

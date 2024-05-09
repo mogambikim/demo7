@@ -159,39 +159,17 @@
 <ul class="nav nav-tabs">
     <li role="presentation" {if $v=='order' }class="active" {/if}><a href="{$_url}customers/view/{$d['id']}/order">30 {Lang::T('Order History')}</a></li>
     <li role="presentation" {if $v=='activation' }class="active" {/if}><a href="{$_url}customers/view/{$d['id']}/activation">30 {Lang::T('Activation History')}</a></li>
-    <li role="presentation" {if $v=='traffic' }class="active" {/if}><a href="{$_url}customers/view/{$d['id']}/traffic">{Lang::T('Traffic Monitor')}</a></li>
+                    <li role="presentation" {if $v=='traffic' }class="active" {/if}><a
+                        href="{$_url}customers/view/{$d['id']}/traffic">{Lang::T('Traffic Monitor')}</a></li>
 </ul>
         </ul>
         <div class="table-responsive" style="background-color: white;">
             <table id="datatable" class="table table-bordered table-striped">
-{if $v == 'traffic'}
-<div class="box box-solid">
-    <div class="box-header with-border">
-        <i class="fa fa-chart-line"></i>
-        <h3 class="box-title">{Lang::T('Traffic Monitor')}</h3>
-        <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-            <div class="btn-group">
-                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-wrench"></i>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a href="#" id="refreshData">{Lang::T('Refresh Data')}</a></li>
-                    <li><a href="#" id="clearChart">{Lang::T('Clear Chart')}</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="box-body">
-        <div class="chart-container">
-            <canvas id="trafficChart"></canvas>
-        </div>
-    </div>
-    <div class="overlay">
-        <i class="fa fa-refresh fa-spin"></i>
-    </div>
-</div>
-{/if}
+
+
+
+
+
                 {if Lang::arrayCount($activation)}
                     <thead>
                         <tr>
@@ -249,18 +227,26 @@
                                 <td>
                                     {if $ds['status']==1}{Lang::T('UNPAID')}
                                     {elseif $ds['status']==2}{Lang::T('PAID')}
-                                    {elseif $ds['status']==3}{Lang::T('FAILED')}
+                                    {elseif $ds['status']==3}{$_L['FAILED']}
                                     {elseif $ds['status']==4}{Lang::T('CANCELED')}
                                     {elseif $ds['status']==5}{Lang::T('UNKNOWN')}
-                                    {/if}
-                                </td>
+                                    {/if}</td>
                             </tr>
                         {/foreach}
                     </tbody>
                 {/if}
+                {if $v == traffic}
+                <div style="overflow-x:auto;" class="tab-pane">
+                    <div class="box-body">
+                        <div class="chart">
+                            <canvas id="trafficFlow" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                  </div>
+                {/if}
             </table>
         </div>
-        {$paginator['contents']}
+        {include file="pagination.tpl"}
     </div>
 </div>
 
@@ -285,33 +271,47 @@
         {/literal}setupMap({$d['coordinates']});{literal}
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
-<script>
-    var trafficChart;
 
-    function renderTrafficChart(trafficData) {
-        var ctx = document.getElementById('trafficChart').getContext('2d');
-        if (trafficChart) {
-            trafficChart.destroy();
-        }
-        trafficChart = new Chart(ctx, {
+
+
+{/literal}
+{/if}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Global variables for the chart and data
+    var chart;
+    var chartData = {
+        labels: [],
+        txData: [],
+        rxData: []
+    };
+
+    // Function to create and update the chart
+    function createChart() {
+        var ctx = document.getElementById('trafficFlow').getContext('2d');
+        chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: trafficData.labels,
-                datasets: [
-                    {
-                        label: 'TX',
-                        data: trafficData.rows.tx,
-                        borderColor: 'rgb(255, 99, 132)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)'
-                    },
-                    {
-                        label: 'RX',
-                        data: trafficData.rows.rx,
-                        borderColor: 'rgb(53, 162, 235)',
-                        backgroundColor: 'rgba(53, 162, 235, 0.5)'
-                    }
-                ]
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'TX',
+                    data: chartData.txData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 0,
+                    tension: 0.4,
+                    fill: 'start' // Use 'start' to fill the area from the starting point
+                }, {
+                    label: 'RX',
+                    data: chartData.rxData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 0,
+                    tension: 0.4,
+                    fill: 'start' // Use 'start' to fill the area from the starting point
+                }]
             },
             options: {
                 responsive: true,
@@ -327,54 +327,103 @@
                         display: true,
                         title: {
                             display: true,
-                            text: 'Traffic (bits/s)'
+                            text: 'Live Traffic'
+                        },
+                        ticks: {
+                            callback: function (value) {
+                                return formatBytes(value); // Format the tick values using formatBytes()
+                            }
                         }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                var label = context.dataset.label || '';
+                                var value = context.parsed.y || 0;
+                                return label + ': ' + formatBytes(value) + 'ps';
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 0, // Set the point radius to 0 to remove the dots
+                        hoverRadius: 0 // Set the hover point radius to 0 to remove the dots
+                    },
+                    line: {
+                        tension: 0 // Set the line tension to 0 to remove the curve
                     }
                 }
             }
         });
     }
 
-    function fetchTrafficData() {
-        $('.overlay').show();
-        $.ajax({
-            url: '{$_url}mikrotik/monitor-traffic',
-            method: 'GET',
-            data: {
-                router: {$router},
-                interface: '{$d.ip_address}'
-            },
-            success: function(data) {
-                renderTrafficChart(data);
-                $('.overlay').hide();
-            },
-            error: function() {
-                alert('Error fetching traffic data');
-                $('.overlay').hide();
-            }
-        });
+    function formatBytes(bytes) {
+        if (bytes === 0) {
+            return '0 B';
+        }
+        var k = 1024;
+        var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        var i = Math.floor(Math.log(bytes) / Math.log(k));
+        var formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
+        return formattedValue + ' ' + sizes[i];
     }
+    function updateTrafficValues() {
+      // Get the username and router values
+      var username = '{$d['username']}'; // Replace with the actual username
+      var router = '{$router}'; // Replace with the actual router
+  
+      // Create the AJAX request
+      $.ajax({
+        url: '{$_url}plugin/data_usage_monitor_traffic', // Replace with the actual PHP file path
+        type: 'GET',
+        dataType: 'json',
+        data: {
+          router: router,
+          username: username
+        },
+        success: function(data) {
+              var labels = data.labels;
+              var txData = data.rows.tx;
+              var rxData = data.rows.rx;
+              if (txData.length > 0 && rxData.length > 0) {
+                var TX = parseInt(txData[0]);
+                var RX = parseInt(rxData[0]);
+                // Update chart data
+                chartData.labels.push(labels[0]);
+                chartData.txData.push(TX);
+                chartData.rxData.push(RX);
+                // Limit the number of data points to display (e.g., show the last 10 entries)
+                var maxDataPoints = 10;
+                if (chartData.labels.length > maxDataPoints) {
+                  chartData.labels.shift();
+                  chartData.txData.shift();
+                  chartData.rxData.shift();
+                }
+                // Update the chart with the new data
+                chart.update();
+                // Update the table values
+                document.getElementById("tabletx").textContent = formatBytes(TX);
+                document.getElementById("tablerx").textContent = formatBytes(RX);
+              } else {
+                document.getElementById("tabletx").textContent = "0";
+                document.getElementById("tablerx").textContent = "0";
+              }
+            },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+          console.error("Status: " + textStatus + " request: " + XMLHttpRequest);
+          console.error("Error: " + errorThrown);
+        }
+      });
+    }
+   // Call createChart() to initialize the chart
+   createChart();
 
-    $(document).ready(function() {
-        $('#refreshData').on('click', function(e) {
-            e.preventDefault();
-            fetchTrafficData();
-        });
-
-        $('#clearChart').on('click', function(e) {
-            e.preventDefault();
-            if (trafficChart) {
-                trafficChart.data.labels = [];
-                trafficChart.data.datasets[0].data = [];
-                trafficChart.data.datasets[1].data = [];
-                trafficChart.update();
-            }
-        });
-
-        {if $v == 'traffic'}
-        fetchTrafficData();
-        {/if}
-    });
-</script>
-{/literal}
-{/if}
+// Example usage:
+// updateTrafficValues();
+// Update the traffic values every 1 seconds
+setInterval(updateTrafficValues, 1000);
+  
+  </script>

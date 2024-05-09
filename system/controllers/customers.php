@@ -429,12 +429,25 @@ EOT;
                     ->find_many();
                 $ui->assign('paginator', $paginator);
                 $ui->assign('activation', $activation);
+            } else if ($v == 'traffic') {
+                $v = 'traffic';
+                $routers = User::_billing($customer['id']);
+                if ($routers) {
+                    foreach ($routers as $row) {
+                        $userRouters = $row->routers;
+                        $mikrotik = Mikrotik::info($userRouters);
+                        $router = $mikrotik['id'];
+                    }
+                }
+                $ui->assign('traffic', $traffic);
+                $ui->assign('router', $router);
             }
             $package = ORM::for_table('tbl_user_recharges')->where('username', $customer['username'])->find_one();
             $ui->assign('package', $package);
             $ui->assign('v', $v);
             $ui->assign('d', $customer);
             $ui->assign('customFields', $customFields);
+            $ui->assign('xheader', $leafletpickerHeader);
             $ui->display('customers-view.tpl');
         } else {
             r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));

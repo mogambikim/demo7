@@ -28,17 +28,21 @@ switch ($action) {
     case 'sync':
         set_time_limit(-1);
         if ($routes['2'] == 'hotspot') {
-            $plans = ORM::for_table('tbl_bandwidth')->join('tbl_plans', array('tbl_bandwidth.id', '=', 'tbl_plans.id_bw'))->where('tbl_plans.type', 'Hotspot')->where('tbl_plans.enabled', '1')->find_many();
+            $plans = ORM::for_table('tbl_bandwidth')
+                ->join('tbl_plans', array('tbl_bandwidth.id', '=', 'tbl_plans.id_bw'))
+                ->where('tbl_plans.type', 'Hotspot')
+                ->where('tbl_plans.enabled', '1')
+                ->find_many();
             $log = '';
             $router = '';
             foreach ($plans as $plan) {
                 if ($plan['is_radius']) {
-                    if ($b['rate_down_unit'] == 'Kbps') {
+                    if ($plan['rate_down_unit'] == 'Kbps') {
                         $raddown = '000';
                     } else {
                         $raddown = '000000';
                     }
-                    if ($b['rate_up_unit'] == 'Kbps') {
+                    if ($plan['rate_up_unit'] == 'Kbps') {
                         $radup = '000';
                     } else {
                         $radup = '000000';
@@ -53,42 +57,36 @@ switch ($action) {
                         $router = $plan['routers'];
                     }
                     if ($plan['rate_down_unit'] == 'Kbps') {
-                        $unitdown = 'K';
+                        $unitdown = 'k';
                     } else {
                         $unitdown = 'M';
                     }
                     if ($plan['rate_up_unit'] == 'Kbps') {
-                        $unitup = 'K';
+                        $unitup = 'k';
                     } else {
                         $unitup = 'M';
                     }
-
-// Your existing code to construct the basic rate limit string
-$rate = $b['rate_up'] . $unitup . "/" . $b['rate_down'] . $unitdown;
-
-// Append burst limit parameters if they are set and not zero
-if (!empty($b['burst_limit_for_upload']) && !empty($b['burst_limit_for_download'])) {
-    $burstLimitUpload = $b['burst_limit_for_upload'] . $unitup;
-    $burstLimitDownload = $b['burst_limit_for_download'] . $unitdown;
-    $rate .= " $burstLimitUpload/$burstLimitDownload";
-}
-
-// Append burst threshold parameters if they are set and not zero
-if (!empty($b['burst_threshold_for_upload']) && !empty($b['burst_threshold_for_download'])) {
-    $burstThresholdUpload = $b['burst_threshold_for_upload'] . $unitup;
-    $burstThresholdDownload = $b['burst_threshold_for_download'] . $unitdown;
-    $rate .= " $burstThresholdUpload/$burstThresholdDownload";
-}
-
-// Append burst time parameters if they are set and not zero
-if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])) {
-    $burstTimeUpload = $b['burst_time_for_upload'];
-    $burstTimeDownload = $b['burst_time_for_download'];
-    $rate .= " $burstTimeUpload/$burstTimeDownload";
-}
-
-// Now $rate contains the full rate limit string, including burst settings if applicable
-// Continue with the code that sends this rate limit to MikroTik
+                    $rate = $plan['rate_up'] . $unitup . "/" . $plan['rate_down'] . $unitdown;
+    
+                    // Get the burst limit
+                    $burst_limit_up = $plan['burst_limit_up'];
+                    $burst_limit_up_unit = $plan['burst_limit_up_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_limit_down = $plan['burst_limit_down'];
+                    $burst_limit_down_unit = $plan['burst_limit_down_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_limit = $burst_limit_up . $burst_limit_up_unit . "/" . $burst_limit_down . $burst_limit_down_unit;
+    
+                    // Get the burst threshold
+                    $burst_threshold_up = $plan['burst_threshold_up'];
+                    $burst_threshold_up_unit = $plan['burst_threshold_up_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_threshold_down = $plan['burst_threshold_down'];
+                    $burst_threshold_down_unit = $plan['burst_threshold_down_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_threshold = $burst_threshold_up . $burst_threshold_up_unit . "/" . $burst_threshold_down . $burst_threshold_down_unit;
+    
+                    // Get the burst time
+                    $burst_time = $plan['burst_time'];
+    
+                    // Construct the rate limit string with burst information
+                    $rate = $rate . " " . $burst_limit . " " . $burst_threshold . " " . $burst_time . "/" . $burst_time;
 
                     Mikrotik::addHotspotPlan($client, $plan['name_plan'], $plan['shared_users'], $rate);
                     $log .= "DONE : $plan[name_plan], $plan[shared_users], $rate<br>";
@@ -103,24 +101,28 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         }
 
         else if ($routes['2'] == 'pppoe') {
-            $plans = ORM::for_table('tbl_bandwidth')->join('tbl_plans', array('tbl_bandwidth.id', '=', 'tbl_plans.id_bw'))->where('tbl_plans.type', 'PPPOE')->where('tbl_plans.enabled', '1')->find_many();
+            $plans = ORM::for_table('tbl_bandwidth')
+                ->join('tbl_plans', array('tbl_bandwidth.id', '=', 'tbl_plans.id_bw'))
+                ->where('tbl_plans.type', 'PPPOE')
+                ->where('tbl_plans.enabled', '1')
+                ->find_many();
             $log = '';
             $router = '';
             foreach ($plans as $plan) {
                 if ($plan['is_radius']) {
-                    if ($b['rate_down_unit'] == 'Kbps') {
+                    if ($plan['rate_down_unit'] == 'Kbps') {
                         $raddown = '000';
                     } else {
                         $raddown = '000000';
                     }
-                    if ($b['rate_up_unit'] == 'Kbps') {
+                    if ($plan['rate_up_unit'] == 'Kbps') {
                         $radup = '000';
                     } else {
                         $radup = '000000';
                     }
                     $radiusRate = $plan['rate_up'] . $radup . '/' . $plan['rate_down'] . $raddown;
                     Radius::planUpSert($plan['id'], $radiusRate, $plan['pool']);
-                    $log .= "DONE : RADIUS $plan[name_plan], $plan[pool], $rate<br>";
+                    $log .= "DONE : RADIUS $plan[name_plan], $plan[pool], $radiusRate<br>";
                 } else {
                     if ($router != $plan['routers']) {
                         $mikrotik = Mikrotik::info($plan['routers']);
@@ -128,52 +130,36 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                         $router = $plan['routers'];
                     }
                     if ($plan['rate_down_unit'] == 'Kbps') {
-                        $unitdown = 'K';
+                        $unitdown = 'k';
                     } else {
                         $unitdown = 'M';
                     }
                     if ($plan['rate_up_unit'] == 'Kbps') {
-                        $unitup = 'K';
+                        $unitup = 'k';
                     } else {
                         $unitup = 'M';
                     }
-                    //check here oncase of anything
-
-
-// Basic Rate Limit
-$rate = $plan['rate_up'] . $unitup . "/" . $plan['rate_down'] . $unitdown;
-
-// Check if burst is enabled and append burst parameters
-if (isset($plan['burst_limit_for_upload']) && isset($plan['burst_limit_for_download']) &&
-    isset($plan['burst_threshold_for_upload']) && isset($plan['burst_threshold_for_download']) &&
-    isset($plan['burst_time_for_upload']) && isset($plan['burst_time_for_download'])) {
-
-    // Burst Limit
-    $burstLimitUpload = $plan['burst_limit_for_upload'] . $unitup;
-    $burstLimitDownload = $plan['burst_limit_for_download'] . $unitdown;
-
-    // Burst Threshold
-    $burstThresholdUpload = $plan['burst_threshold_for_upload'] . $unitup;
-    $burstThresholdDownload = $plan['burst_threshold_for_download'] . $unitdown;
-
-    // Burst Time
-    $burstTimeUpload = $plan['burst_time_for_upload']; // Assuming these are already in seconds
-    $burstTimeDownload = $plan['burst_time_for_download'];
-
-    // Append Burst Parameters to Rate String
-    $rate .= " " . $burstLimitUpload . '/' . $burstLimitDownload . " " .
-             $burstThresholdUpload . '/' . $burstThresholdDownload . " " .
-             $burstTimeUpload . '/' . $burstTimeDownload;
-}
-
-
-
-
-
-
-
-
-
+                    $rate = $plan['rate_up'] . $unitup . "/" . $plan['rate_down'] . $unitdown;
+        
+                    // Get the burst limit
+                    $burst_limit_up = $plan['burst_limit_up'];
+                    $burst_limit_up_unit = $plan['burst_limit_up_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_limit_down = $plan['burst_limit_down'];
+                    $burst_limit_down_unit = $plan['burst_limit_down_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_limit = $burst_limit_up . $burst_limit_up_unit . "/" . $burst_limit_down . $burst_limit_down_unit;
+        
+                    // Get the burst threshold
+                    $burst_threshold_up = $plan['burst_threshold_up'];
+                    $burst_threshold_up_unit = $plan['burst_threshold_up_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_threshold_down = $plan['burst_threshold_down'];
+                    $burst_threshold_down_unit = $plan['burst_threshold_down_unit'] == 'Kbps' ? 'k' : 'M';
+                    $burst_threshold = $burst_threshold_up . $burst_threshold_up_unit . "/" . $burst_threshold_down . $burst_threshold_down_unit;
+        
+                    // Get the burst time
+                    $burst_time = $plan['burst_time'];
+        
+                    // Construct the rate limit string with burst information
+                    $rate = $rate . "/" . $burst_limit . "/" . $burst_threshold . "/" . $burst_time . "/" . $burst_time;
                     Mikrotik::addPpoePlan($client, $plan['name_plan'], $plan['pool'], $rate);
                     $log .= "DONE : $plan[name_plan], $plan[pool], $rate<br>";
                     if (!empty($plan['pool_expired'])) {
@@ -377,18 +363,18 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         }
 
         run_hook('add_plan'); #HOOK
-
+        
         if ($msg == '') {
             $b = ORM::for_table('tbl_bandwidth')->where('id', $id_bw)->find_one();
             if ($b['rate_down_unit'] == 'Kbps') {
-                $unitdown = 'K';
+                $unitdown = 'k';
                 $raddown = '000';
             } else {
                 $unitdown = 'M';
                 $raddown = '000000';
             }
             if ($b['rate_up_unit'] == 'Kbps') {
-                $unitup = 'K';
+                $unitup = 'k';
                 $radup = '000';
             } else {
                 $unitup = 'M';
@@ -396,7 +382,29 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             }
             $rate = $b['rate_up'] . $unitup . "/" . $b['rate_down'] . $unitdown;
             $radiusRate = $b['rate_up'] . $radup . '/' . $b['rate_down'] . $raddown;
-            $rate = trim($rate . " " . $b['burst']);            
+    
+            // Check if all burst fields are entered
+            if (!empty($b['burst_limit_up']) && !empty($b['burst_limit_down']) && !empty($b['burst_threshold_up']) && !empty($b['burst_threshold_down']) && !empty($b['burst_time'])) {
+                // Get the burst limit
+                $burst_limit_up = $b['burst_limit_up'];
+                $burst_limit_up_unit = $b['burst_limit_up_unit'] == 'Kbps' ? 'k' : 'M';
+                $burst_limit_down = $b['burst_limit_down'];
+                $burst_limit_down_unit = $b['burst_limit_down_unit'] == 'Kbps' ? 'k' : 'M';
+                $burst_limit = $burst_limit_up . $burst_limit_up_unit . "/" . $burst_limit_down . $burst_limit_down_unit;
+    
+                // Get the burst threshold
+                $burst_threshold_up = $b['burst_threshold_up'];
+                $burst_threshold_up_unit = $b['burst_threshold_up_unit'] == 'Kbps' ? 'k' : 'M';
+                $burst_threshold_down = $b['burst_threshold_down'];
+                $burst_threshold_down_unit = $b['burst_threshold_down_unit'] == 'Kbps' ? 'k' : 'M';
+                $burst_threshold = $burst_threshold_up . $burst_threshold_up_unit . "/" . $burst_threshold_down . $burst_threshold_down_unit;
+    
+                // Get the burst time
+                $burst_time = $b['burst_time'];
+    
+                // Construct the rate limit string with burst information
+                $rate = $rate . " " . $burst_limit . " " . $burst_threshold . " " . $burst_time . "/" . $burst_time;
+            }
 
             $d = ORM::for_table('tbl_plans')->create();
             $d->name_plan = $name;
@@ -483,14 +491,14 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
         if ($msg == '') {
             $b = ORM::for_table('tbl_bandwidth')->where('id', $id_bw)->find_one();
             if ($b['rate_down_unit'] == 'Kbps') {
-                $unitdown = 'K';
+                $unitdown = 'k';
                 $raddown = '000';
             } else {
                 $unitdown = 'M';
                 $raddown = '000000';
             }
             if ($b['rate_up_unit'] == 'Kbps') {
-                $unitup = 'K';
+                $unitup = 'k';
                 $radup = '000';
             } else {
                 $unitup = 'M';
@@ -498,8 +506,44 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             }
             $rate = $b['rate_up'] . $unitup . "/" . $b['rate_down'] . $unitdown;
             $radiusRate = $b['rate_up'] . $radup . '/' . $b['rate_down'] . $raddown;
-
-            $rate = trim($rate . " " . $b['burst']);
+    
+            // Check if all burst fields are entered
+            if (!empty($b['burst_limit_up']) && !empty($b['burst_limit_down']) && !empty($b['burst_threshold_up']) && !empty($b['burst_threshold_down']) && !empty($b['burst_time'])) {
+                // Burst Limit
+                if ($b['burst_limit_up_unit'] == 'Kbps') {
+                    $burstlimitup = $b['burst_limit_up'] . 'k';
+                } else {
+                    $burstlimitup = $b['burst_limit_up'] . 'M';
+                }
+                if ($b['burst_limit_down_unit'] == 'Kbps') {
+                    $burstlimitdown = $b['burst_limit_down'] . 'k';
+                } else {
+                    $burstlimitdown = $b['burst_limit_down'] . 'M';
+                }
+                $burstlimit = $burstlimitup . "/" . $burstlimitdown;
+    
+                // Burst Threshold
+                if ($b['burst_threshold_up_unit'] == 'Kbps') {
+                    $burstthresholdup = $b['burst_threshold_up'] . 'k';
+                } else {
+                    $burstthresholdup = $b['burst_threshold_up'] . 'M';
+                }
+                if ($b['burst_threshold_down_unit'] == 'Kbps') {
+                    $burstthresholddown = $b['burst_threshold_down'] . 'k';
+                } else {
+                    $burstthresholddown = $b['burst_threshold_down'] . 'M';
+                }
+                $burstthreshold = $burstthresholdup . "/" . $burstthresholddown;
+    
+                // Burst Time
+                $bursttime = $b['burst_time'];
+    
+                // Priority
+                $priority = $b['priority'];
+    
+                // Append burst parameters to the rate
+                $rate .= " " . $burstlimit . " " . $burstthreshold . " " . $bursttime . "/" . $bursttime;
+            }
 
 
             if ($d['is_radius']) {
@@ -674,7 +718,44 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             }
             $rate = $b['rate_up'] . $unitup . "/" . $b['rate_down'] . $unitdown;
             $radiusRate = $b['rate_up'] . $radup . '/' . $b['rate_down'] . $raddown;
-            $rate = trim($rate . " " . $b['burst']);
+            
+            // Check if all burst fields are entered
+            if (!empty($b['burst_limit_up']) && !empty($b['burst_limit_down']) && !empty($b['burst_threshold_up']) && !empty($b['burst_threshold_down']) && !empty($b['burst_time'])) {
+                // Burst Limit
+                if ($b['burst_limit_up_unit'] == 'Kbps') {
+                    $burstlimitup = $b['burst_limit_up'] . 'K';
+                } else {
+                    $burstlimitup = $b['burst_limit_up'] . 'M';
+                }
+                if ($b['burst_limit_down_unit'] == 'Kbps') {
+                    $burstlimitdown = $b['burst_limit_down'] . 'K';
+                } else {
+                    $burstlimitdown = $b['burst_limit_down'] . 'M';
+                }
+                $burstlimit = $burstlimitup . "/" . $burstlimitdown;
+                
+                // Burst Threshold
+                if ($b['burst_threshold_up_unit'] == 'Kbps') {
+                    $burstthresholdup = $b['burst_threshold_up'] . 'K';
+                } else {
+                    $burstthresholdup = $b['burst_threshold_up'] . 'M';
+                }
+                if ($b['burst_threshold_down_unit'] == 'Kbps') {
+                    $burstthresholddown = $b['burst_threshold_down'] . 'K';
+                } else {
+                    $burstthresholddown = $b['burst_threshold_down'] . 'M';
+                }
+                $burstthreshold = $burstthresholdup . "/" . $burstthresholddown;
+                
+                // Burst Time
+                $bursttime = $b['burst_time'];
+                
+                // Priority
+                $priority = $b['priority'];
+                
+                // Append burst parameters to the rate
+                $rate .= "/" . $burstlimit . "/" . $burstthreshold . "/" . $bursttime . "/" . $priority;
+            }
 
             $d = ORM::for_table('tbl_plans')->create();
             $d->type = 'PPPOE';
@@ -746,7 +827,6 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             $msg .= Lang::T('Data Not Found') . '<br>';
         }
 
-        //check below
         run_hook('edit_ppoe'); #HOOK
         if ($msg == '') {
             $b = ORM::for_table('tbl_bandwidth')->where('id', $id_bw)->find_one();
@@ -766,7 +846,44 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             }
             $rate = $b['rate_up'] . $unitup . "/" . $b['rate_down'] . $unitdown;
             $radiusRate = $b['rate_up'] . $radup . '/' . $b['rate_down'] . $raddown;
-            $rate = trim($rate . " " . $b['burst']);
+            
+            // Check if all burst fields are entered
+            if (!empty($b['burst_limit_up']) && !empty($b['burst_limit_down']) && !empty($b['burst_threshold_up']) && !empty($b['burst_threshold_down']) && !empty($b['burst_time'])) {
+                // Burst Limit
+                if ($b['burst_limit_up_unit'] == 'Kbps') {
+                    $burstlimitup = $b['burst_limit_up'] . 'K';
+                } else {
+                    $burstlimitup = $b['burst_limit_up'] . 'M';
+                }
+                if ($b['burst_limit_down_unit'] == 'Kbps') {
+                    $burstlimitdown = $b['burst_limit_down'] . 'K';
+                } else {
+                    $burstlimitdown = $b['burst_limit_down'] . 'M';
+                }
+                $burstlimit = $burstlimitup . "/" . $burstlimitdown;
+                
+                // Burst Threshold
+                if ($b['burst_threshold_up_unit'] == 'Kbps') {
+                    $burstthresholdup = $b['burst_threshold_up'] . 'K';
+                } else {
+                    $burstthresholdup = $b['burst_threshold_up'] . 'M';
+                }
+                if ($b['burst_threshold_down_unit'] == 'Kbps') {
+                    $burstthresholddown = $b['burst_threshold_down'] . 'K';
+                } else {
+                    $burstthresholddown = $b['burst_threshold_down'] . 'M';
+                }
+                $burstthreshold = $burstthresholdup . "/" . $burstthresholddown;
+                
+                // Burst Time
+                $bursttime = $b['burst_time'];
+                
+                // Priority
+                $priority = $b['priority'];
+                
+                // Append burst parameters to the rate
+                $rate .= "/" . $burstlimit . "/" . $burstthreshold . "/" . $bursttime . "/" . $priority;
+            }
             if ($d['is_radius']) {
                 Radius::planUpSert($id, $radiusRate, $pool);
             } else {
