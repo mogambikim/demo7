@@ -105,20 +105,6 @@
                                 readonly>
                         </div>
                     </div>
-                    <legend><sub>{Lang::T('Optional')}</sub></legend>                  
-                    <div class="form-group">
-                        <label class="col-md-2 control-label"><a
-                                href="{$_url}pool/add">{Lang::T('Expired IP Pool')}</a></label>
-                        <div class="col-md-6">
-                            <select id="pool_expired" name="pool_expired" class="form-control select2">
-                                <option value=''>{Lang::T('Select Pool')}</option>
-                                {foreach $p as $ps}
-                                    <option value="{$ps['pool_name']}" {if $d['pool_expired'] eq $ps['pool_name']} selected
-                                        {/if}>{$ps['pool_name']}</option>
-                                {/foreach}
-                            </select>
-                        </div>
-                    </div>
                     {* <div class="form-group" id="AddressList">
                         <label class="col-md-2 control-label">{Lang::T('Address List')}</label>
                         <div class="col-md-6">

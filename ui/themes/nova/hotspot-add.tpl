@@ -155,17 +155,7 @@
                             </div>
                         </div>
                     </span>
-                    <legend><sub>{Lang::T('Optional')}</sub></legend>
-                    <div class="form-group" id="ipPool">                    
-                        <label class="col-md-2 control-label"><a
-                                href="{$_url}pool/add">{Lang::T('Expired IP Pool')}</a></label>
-                        <div class="col-md-6">
-                            <select id="pool_expired" name="pool_expired" class="form-control select2">
-                                <option value=''>{Lang::T('Select Pool')}</option>
-                            </select>
-                             <p class="help-block">Leave the "Expired IP Pool" option unselected if your router doesnt have enough Storage/Powerful, to ensure expired users are removed from the router.</p>
-                        </div>
-                    </div>
+
                     {* <div class="form-group" id="AddressList">
                         <label class="col-md-2 control-label">{Lang::T('Address List')}</label>
                         <div class="col-md-6">

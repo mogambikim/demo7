@@ -105,17 +105,7 @@
                             </select>
                         </div>
                     </div>
-                    <legend><sub>{Lang::T('Optional')}</sub></legend>
-                    <div class="form-group" id="ipPool">                    
-                        <label class="col-md-2 control-label"><a
-                                href="{$_url}pool/add">{Lang::T('Expired IP Pool')}</a></label>
-                        <div class="col-md-6">
-                            <select id="pool_expired" name="pool_expired" class="form-control select2">
-                                <option value=''>{Lang::T('Select Pool')}</option>
-                            </select>
-                             <p class="help-block">Fill the "Expired IP Pool" option if you want to avoid authentication failure on logs so that expired users will be moved to a pool without internet.</p>
-                        </div>
-                    </div>
+
                     {* <div class="form-group" id="AddressList">
                         <label class="col-md-2 control-label">{Lang::T('Address List')}</label>
                         <div class="col-md-6">
