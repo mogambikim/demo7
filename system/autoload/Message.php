@@ -216,12 +216,31 @@ class Message
             !empty($customer['phonenumber']) && strlen($customer['phonenumber']) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
         ) {
+            // Create a unique cache key for the customer
+            $cacheKey = 'package_notification_' . $customer['phonenumber'];
+    
+            // Create a shared memory cache
+            $sharedCache = new SharedMemoryCache($cacheKey);
+    
+            // Check if any package notification was sent to the same customer within the last 2 minutes
+            if ($sharedCache->has($cacheKey)) {
+                $lastSentTime = $sharedCache->get($cacheKey);
+                if (time() - $lastSentTime < 120) {
+                    // Package notification already sent within the last 2 minutes, ignore the request
+                    return "$via: Package notification request ignored";
+                }
+            }
+    
             if ($via == 'sms') {
                 Message::sendSMS($customer['phonenumber'], $msg);
             } else if ($via == 'wa') {
                 Message::sendWhatsapp($customer['phonenumber'], $msg);
             }
+    
+            // Update the shared memory cache with the current timestamp
+            $sharedCache->set($cacheKey, time());
         }
+    
         return "$via: $msg";
     }
     
@@ -355,7 +374,7 @@ class Message
         $invoiceCache = new SharedMemoryCache('invoice_cache');
         $invoiceCache->clear();
     }
-    
+
     
     public static function checkCacheClearTime()
     {
