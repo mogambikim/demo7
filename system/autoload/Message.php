@@ -1,68 +1,11 @@
 <?php
-
 /**
  *  PHP Mikrotik Billing (https://github.com/hotspo/)
  *  by https://t.me/ibnux
  **/
 
-// Helper function to get the real thread ID (if available)
-function getRealThreadID()
-{
-    $threadId = null;
-    if (function_exists('pthread_self')) {
-        $threadId = pthread_self();
-    }
-    return $threadId;
-}
-
-class SharedMemoryCache
-{
-    private $cache;
-    private $key;
-
-    public function __construct($key)
-    {
-        $this->key = $key;
-        $this->cache = [];
-    }
-
-    public function has($key)
-    {
-        return isset($this->cache[$this->getKey($key)]);
-    }
-
-    public function get($key)
-    {
-        return $this->cache[$this->getKey($key)] ?? null;
-    }
-
-    public function set($key, $value, $expiration = 0)
-    {
-        $this->cache[$this->getKey($key)] = $value;
-    }
-
-    public function delete($key)
-    {
-        unset($this->cache[$this->getKey($key)]);
-    }
-
-    public function clear()
-    {
-        $this->cache = [];
-    }
-
-    private function getKey($key)
-    {
-        return $this->key . '_' . $key;
-    }
-}
 class Message
 {
-    private static $smsCache = [];
-    public static $invoiceCache = array();
-    private static $maxCacheSize = 1000; // Maximum number of cached entries
-    private static $cacheClearTime = '00:00:00'; // Time to clear the cache (midnight)
-
     public static function sendTelegram($txt)
     {
         global $config;
@@ -76,21 +19,6 @@ class Message
     {
         global $config;
         run_hook('send_sms'); #HOOK
-
-        // Get the current process ID and thread ID
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-
-        // Create a shared memory cache
-        $sharedCache = new SharedMemoryCache('sms_cache');
-
-        // Check if SMS was sent to the same customer within the last 120 seconds
-        if ($sharedCache->has($phone)) {
-            $lastSentTime = $sharedCache->get($phone);
-            if (time() - $lastSentTime < 120) {
-                return "SMS not sent. Sent within the last 120 seconds.";
-            }
-        }
 
         $response = '';
 
@@ -121,9 +49,6 @@ class Message
                 $smsurl = str_replace('[text]', urlencode($txt), $smsurl);
                 $response = Http::getData($smsurl);
             }
-
-            // Update the shared memory cache with the current timestamp
-            $sharedCache->set($phone, time());
         }
 
         return $response;
@@ -133,37 +58,19 @@ class Message
     {
         global $config;
         run_hook('send_whatsapp'); #HOOK
-    
-        // Get the current process ID and thread ID
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-    
-        // Create a shared memory cache
-        $sharedCache = new SharedMemoryCache('whatsapp_cache');
-    
-        // Check if WhatsApp message was sent to the same customer within the last 120 seconds
-        if ($sharedCache->has($phone)) {
-            $lastSentTime = $sharedCache->get($phone);
-            if (time() - $lastSentTime < 120) {
-                return "WhatsApp message not sent. Sent within the last 120 seconds.";
-            }
-        }
-    
+
         if (!empty($config['wa_url'])) {
             $waurl = str_replace('[number]', urlencode(Lang::phoneFormat($phone)), $config['wa_url']);
             $waurl = str_replace('[text]', urlencode($txt), $waurl);
             Http::getData($waurl);
-    
-            // Update the shared memory cache with the current timestamp
-            $sharedCache->set($phone, time());
         }
     }
-    
+
     public static function sendEmail($to, $subject, $body)
     {
         global $config;
         run_hook('send_email'); #HOOK
-    
+
         if (empty($config['smtp_host'])) {
             $attr = "";
             if (!empty($config['mail_from'])) {
@@ -197,13 +104,10 @@ class Message
             die();
         }
     }
-    
+
     public static function sendPackageNotification($customer, $package, $price, $message, $via)
     {
         global $u;
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-    
         $msg = str_replace('[[name]]', $customer['fullname'], $message);
         $msg = str_replace('[[username]]', $customer['username'], $msg);
         $msg = str_replace('[[package]]', $package, $msg);
@@ -211,49 +115,28 @@ class Message
         if ($u) {
             $msg = str_replace('[[expired_date]]', Lang::dateAndTimeFormat($u['expiration'], $u['time']), $msg);
         }
-    
+
         if (
             !empty($customer['phonenumber']) && strlen($customer['phonenumber']) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
         ) {
-            // Create a unique cache key for the customer
-            $cacheKey = 'package_notification_' . $customer['phonenumber'];
-    
-            // Create a shared memory cache
-            $sharedCache = new SharedMemoryCache($cacheKey);
-    
-            // Check if any package notification was sent to the same customer within the last 2 minutes
-            if ($sharedCache->has($cacheKey)) {
-                $lastSentTime = $sharedCache->get($cacheKey);
-                if (time() - $lastSentTime < 120) {
-                    // Package notification already sent within the last 2 minutes, ignore the request
-                    return "$via: Package notification request ignored";
-                }
-            }
-    
             if ($via == 'sms') {
                 Message::sendSMS($customer['phonenumber'], $msg);
             } else if ($via == 'wa') {
                 Message::sendWhatsapp($customer['phonenumber'], $msg);
             }
-    
-            // Update the shared memory cache with the current timestamp
-            $sharedCache->set($cacheKey, time());
         }
-    
+
         return "$via: $msg";
     }
-    
+
     public static function sendBalanceNotification($phone, $name, $balance, $balance_now, $message, $customer, $via)
     {
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-    
         $msg = str_replace('[[username]]', $customer['username'], $message);
         $msg = str_replace('[[name]]', $name, $message);
         $msg = str_replace('[[current_balance]]', Lang::moneyFormat($balance_now), $msg);
         $msg = str_replace('[[balance]]', Lang::moneyFormat($balance), $msg);
-    
+
         if (
             !empty($phone) && strlen($phone) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
@@ -293,43 +176,22 @@ class Message
         $textInvoice = str_replace('[[password]]', $cust['password'], $textInvoice);
         $textInvoice = str_replace('[[expired_date]]', Lang::dateAndTimeFormat($trx['expiration'], $trx['time']), $textInvoice);
         $textInvoice = str_replace('[[footer]]', $config['note'], $textInvoice);
-    
+
         $phoneNumber = $cust['phonenumber'];
-    
-        // Get the current process ID and thread ID
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-    
-        // Create a shared memory cache
-        $sharedCache = new SharedMemoryCache('invoice_cache');
-    
-        // Check if an invoice was sent to the same customer within the last 120 seconds
-        if ($sharedCache->has($phoneNumber)) {
-            $lastSentTime = $sharedCache->get($phoneNumber);
-            if (time() - $lastSentTime < 120) {
-                return; // Do not send invoice if sent within the last 120 seconds
-            }
-        }
-    
+
         if ($config['user_notification_payment'] == 'sms') {
             Message::sendSMS($phoneNumber, $textInvoice);
         } else if ($config['user_notification_payment'] == 'wa') {
             Message::sendWhatsapp($phoneNumber, $textInvoice);
         }
-    
-        // Update the shared memory cache with the current timestamp
-        $sharedCache->set($phoneNumber, time());
     }
-    
+
     public static function sendAccountCreateNotification($phone, $name, $username, $password, $message, $via)
     {
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-    
         $msg = str_replace('[[name]]', $name, $message);
         $msg = str_replace('[[user_name]]', $username, $msg);
         $msg = str_replace('[[user_password]]', $password, $msg);
-    
+
         if (
             !empty($phone) && strlen($phone) > 5
             && !empty($message) && in_array($via, ['sms', 'wa'])
@@ -342,16 +204,13 @@ class Message
         }
         return "$via: $msg";
     }
-    
+
     public static function sendUnknownPayment($phone, $amount, $message, $via)
     {
-        $processId = getmypid();
-        $threadId = getRealThreadID();
-    
         if (!empty($message)) {
             $msg = str_replace('[[amount]]', $amount, $message);
             $msg = str_replace('[[phone]]', $phone, $msg);
-    
+
             if (!empty($phone) && strlen($phone) > 5) {
                 if ($via == 'sms') {
                     Message::sendSMS($phone, $msg);
@@ -361,26 +220,5 @@ class Message
             }
         }
         return "$via: $msg";
-    }
-    
-    public static function clearCache()
-    {
-        $smsCache = new SharedMemoryCache('sms_cache');
-        $smsCache->clear();
-    
-        $whatsappCache = new SharedMemoryCache('whatsapp_cache');
-        $whatsappCache->clear();
-    
-        $invoiceCache = new SharedMemoryCache('invoice_cache');
-        $invoiceCache->clear();
-    }
-
-    
-    public static function checkCacheClearTime()
-    {
-        $currentTime = date('H:i:s');
-        if ($currentTime === self::$cacheClearTime) {
-            self::clearCache();
-        }
     }
 }
