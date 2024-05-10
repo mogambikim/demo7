@@ -23,32 +23,32 @@ class SharedMemoryCache
     public function __construct($key)
     {
         $this->key = $key;
-        $this->cache = new APCu();
+        $this->cache = [];
     }
 
     public function has($key)
     {
-        return $this->cache->exists($this->getKey($key));
+        return isset($this->cache[$this->getKey($key)]);
     }
 
     public function get($key)
     {
-        return $this->cache->fetch($this->getKey($key));
+        return $this->cache[$this->getKey($key)] ?? null;
     }
 
     public function set($key, $value, $expiration = 0)
     {
-        return $this->cache->store($this->getKey($key), $value, $expiration);
+        $this->cache[$this->getKey($key)] = $value;
     }
 
     public function delete($key)
     {
-        return $this->cache->delete($this->getKey($key));
+        unset($this->cache[$this->getKey($key)]);
     }
 
     public function clear()
     {
-        return $this->cache->clear();
+        $this->cache = [];
     }
 
     private function getKey($key)
@@ -355,6 +355,7 @@ class Message
         $invoiceCache = new SharedMemoryCache('invoice_cache');
         $invoiceCache->clear();
     }
+    
     
     public static function checkCacheClearTime()
     {
