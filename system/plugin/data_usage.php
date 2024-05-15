@@ -4,8 +4,8 @@
 use PEAR2\Net\RouterOS;
 
 //register_menu(" Data Usage", true, "data_usage", 'AFTER_SETTINGS', 'fa fa-bar-chart');
-register_menu(" Data Usage", false, "data_usage_clients", 'AFTER_HISTORY', 'fa fa-pie-chart');
-register_menu(" Live Traffic", false, "data_usage_traffic", 'AFTER_HISTORY', 'fa fa-bar-chart');
+register_menu('<i class="fa fa-pie-chart"></i> Data Usage', false, 'data_usage_clients', 'AFTER_HISTORY');
+register_menu('<i class="fa fa-bar-chart"></i> Live Traffic', false, 'data_usage_traffic', 'AFTER_HISTORY');
 
 function data_usage()
 {

@@ -1,6 +1,4 @@
 {include file="sections/header.tpl"}
-
-
 <div class="row">
     <div class="col-lg-3 col-xs-6">
         <div class="small-box bg-aqua">
@@ -21,128 +19,226 @@
             <div class="inner">
                 <h4><sup>{$_c['currency_code']}</sup>
                     {number_format($imonth,0,$_c['dec_point'],$_c['thousands_sep'])}</h4>
-
-                <p>{Lang::T('Income This Month')}</p>
-            </div>
-            <div class="icon">
-                <i class="ion ion-stats-bars"></i>
-            </div>
-           <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i
-                    class="fa fa-arrow-circle-right"></i></a>
+<p>{Lang::T('Income This Month')}</p>
         </div>
-    </div>
-    <div class="col-lg-3 col-xs-6">
-        <div class="small-box bg-yellow">
-            <div class="inner">
-                <h4>{$u_act}/{$u_all}</h4>
-
-               <p>{Lang::T('Users Active')}</p>
-            </div>
-            <div class="icon">
-                <i class="ion ion-person"></i>
-            </div>
-            <a href="{$_url}prepaid/list" class="small-box-footer">{Lang::T('View All')} <i
-                    class="fa fa-arrow-circle-right"></i></a>
+        <div class="icon">
+            <i class="ion ion-stats-bars"></i>
         </div>
+       <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i
+                class="fa fa-arrow-circle-right"></i></a>
     </div>
-    <div class="col-lg-3 col-xs-6">
-        <div class="small-box bg-red">
-            <div class="inner">
-                <h4>{$c_all}</h4>
+</div>
+<div class="col-lg-3 col-xs-6">
+    <div class="small-box bg-yellow">
+        <div class="inner">
+            <h4>{$u_act}/{$u_all}</h4>
 
-                <p>{Lang::T('Total Users')}</p>
-            </div>
-            <div class="icon">
-                <i class="fa fa-users"></i>
-            </div>
-           <a href="{$_url}customers/list" class="small-box-footer">{Lang::T('View All')} <i
-                    class="fa fa-arrow-circle-right"></i></a>
+           <p>{Lang::T('Users Active')}</p>
         </div>
+        <div class="icon">
+            <i class="ion ion-person"></i>
+        </div>
+        <a href="{$_url}prepaid/list" class="small-box-footer">{Lang::T('View All')} <i
+                class="fa fa-arrow-circle-right"></i></a>
     </div>
+</div>
+<div class="col-lg-3 col-xs-6">
+    <div class="small-box bg-red">
+        <div class="inner">
+            <h4>{$c_all}</h4>
+
+            <p>{Lang::T('Total Users')}</p>
+        </div>
+        <div class="icon">
+            <i class="fa fa-users"></i>
+        </div>
+       <a href="{$_url}customers/list" class="small-box-footer">{Lang::T('View All')} <i
+                class="fa fa-arrow-circle-right"></i></a>
+    </div>
+</div>
 </div>
 <div class="row">
     <div class="col-md-7">
+   <!-- solid sales graph -->
+    {if $_c['hide_mrc'] != 'yes'}
+        <div class="box box-solid ">
+            <div class="box-header">
+                <i class="fa fa-th"></i>
 
-        <!-- solid sales graph -->
-        {if $_c['hide_mrc'] != 'yes'}
-            <div class="box box-solid ">
-                <div class="box-header">
-                    <i class="fa fa-th"></i>
+                <h3 class="box-title">{Lang::T('Monthly Registered Customers')}</h3>
 
-                    <h3 class="box-title">{Lang::T('Monthly Registered Customers')}</h3>
-
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                        </button>
-                        <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
-                                class="fa fa-times"></i>
-                        </a>
-                    </div>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
+                            class="fa fa-times"></i>
+                    </a>
                 </div>
-                <div class="box-body border-radius-none">
-                    <canvas class="chart" id="chart" style="height: 250px;"></canvas>
+            </div>
+            <div class="box-body border-radius-none">
+                <canvas class="chart" id="chart" style="height: 250px;"></canvas>
+            </div>
+        </div>
+    {/if}
+
+    <!-- solid sales graph -->
+    {if $_c['hide_tms'] != 'yes'}
+        <div class="box box-solid ">
+            <div class="box-header">
+                <i class="fa fa-inbox"></i>
+
+                <h3 class="box-title">{Lang::T('Total Monthly Sales')}</h3>
+
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
+                            class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="box-body border-radius-none">
+                <canvas class="chart" id="salesChart" style="height: 250px;"></canvas>
+            </div>
+                </div>
+                   {/if} 
+ <div class="data-usage">
+  <div class="row">
+    <div class="col-md-12">
+      <!-- Section title goes here -->
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h4>Today's Data Usage</h4>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="chart-container flex-grow-1">
+            <canvas id="todayUsageChart"></canvas>
+          </div>
+          <div class="usage-info">
+            <p><strong>Upload:</strong> {$todayUpload|convert_bytes}</p>
+            <p><strong>Download:</strong> {$todayDownload|convert_bytes}</p>
+            <p><strong>Total:</strong> {($todayUpload + $todayDownload)|convert_bytes}</p>
+            <p><strong>Date:</strong> {$smarty.now|date_format:"%Y-%m-%d"}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4>Weekly Data Usage</h4>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="weeklyUsageChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .data-usage {
+    padding: 20px;
+  }
+.section-title {
+font-size: 24px;
+font-weight: bold;
+margin-bottom: 20px;
+}
+.card {
+border-radius: 5px;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+margin-bottom: 20px;
+height: 100%;
+}
+.card-header {
+background-color: #f8f9fa;
+border-bottom: 1px solid #dee2e6;
+padding: 10px;
+}
+.card-header h4 {
+margin: 0;
+}
+.card-body {
+padding: 20px;
+}
+.chart-container {
+margin-bottom: 20px;
+}
+.usage-info p {
+margin-bottom: 5px;
+}
+</style>
+ {if $_c['disable_voucher'] != 'yes' && $stocks['unused']>0 || $stocks['used']>0}
+        {if $_c['hide_vs'] != 'yes'}
+            <div class="panel panel-primary mb20 panel-hovered project-stats table-responsive">
+                <div class="panel-heading">Vouchers Stock</div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>{Lang::T('Plan Name')}</th>
+                                <th>unused</th>
+                                <th>used</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $plans as $stok}
+                                <tr>
+                                    <td>{$stok['name_plan']}</td>
+                                    <td>{$stok['unused']}</td>
+                                    <td>{$stok['used']}</td>
+                                </tr>
+                            </tbody>
+                        {/foreach}
+                        <tr>
+                            <td>Total</td>
+                            <td>{$stocks['unused']}</td>
+                            <td>{$stocks['used']}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         {/if}
-
-        <!-- solid sales graph -->
-        {if $_c['hide_tms'] != 'yes'}
-            <div class="box box-solid ">
-                <div class="box-header">
-                    <i class="fa fa-inbox"></i>
-
-                    <h3 class="box-title">{Lang::T('Total Monthly Sales')}</h3>
-
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
-                        </button>
-                        <a href="{$_url}settings/app#hide_dashboard_content" class="btn bg-teal btn-sm"><i
-                                class="fa fa-times"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="box-body border-radius-none">
-                    <canvas class="chart" id="salesChart" style="height: 250px;"></canvas>
-                </div>
-                    </div>
-                       {/if}
-        {if $_c['disable_voucher'] != 'yes' && $stocks['unused']>0 || $stocks['used']>0}
-            {if $_c['hide_vs'] != 'yes'}
-                <div class="panel panel-primary mb20 panel-hovered project-stats table-responsive">
-                    <div class="panel-heading">Vouchers Stock</div>
-                    <div class="table-responsive">
-                        <table class="table table-condensed">
-                            <thead>
-                                <tr>
-                                    <th>{Lang::T('Plan Name')}</th>
-                                    <th>unused</th>
-                                    <th>used</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {foreach $plans as $stok}
-                                    <tr>
-                                        <td>{$stok['name_plan']}</td>
-                                        <td>{$stok['unused']}</td>
-                                        <td>{$stok['used']}</td>
-                                    </tr>
-                                </tbody>
-                            {/foreach}
+    {/if}
+ {if $_c['disable_voucher'] != 'yes' && $stocks['unused']>0 || $stocks['used']>0}
+        {if $_c['hide_vs'] != 'yes'}
+            <div class="panel panel-primary mb20 panel-hovered project-stats table-responsive">
+                <div class="panel-heading">Vouchers Stock</div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <thead>
                             <tr>
-                                <td>Total</td>
-                                <td>{$stocks['unused']}</td>
-                                <td>{$stocks['used']}</td>
+                                <th>{Lang::T('Plan Name')}</th>
+                                <th>unused</th>
+                                <th>used</th>
                             </tr>
-                        </table>
-                    </div>
+                        </thead>
+                        <tbody>
+                            {foreach $plans as $stok}
+                                <tr>
+                                    <td>{$stok['name_plan']}</td>
+                                    <td>{$stok['unused']}</td>
+                                    <td>{$stok['used']}</td>
+                                </tr>
+                            </tbody>
+                        {/foreach}
+                        <tr>
+                            <td>Total</td>
+                            <td>{$stocks['unused']}</td>
+                            <td>{$stocks['used']}</td>
+                        </tr>
+                    </table>
                 </div>
-            {/if}
+            </div>
         {/if}
-
-
-
-
-<div class="box box-solid">
+    {/if}
+    <div class="box box-solid">
     <div class="box-header">
         <i class="fa fa-line-chart"></i>
         <h3 class="box-title">{Lang::T('Customers Growth')}</h3>
@@ -152,11 +248,6 @@
         <canvas class="chart" id="customersGrowthChart" style="height: 250px;"></canvas>
     </div>
 </div>
-
-
-
-
-
 <div class="row">
 <div class="col-md-6">
     <div class="panel panel-primary">
@@ -222,53 +313,65 @@
     </div>
 </div>
 
-
-
-        {if $_c['hide_uet'] != 'yes'}
-            <div class="panel panel-warning mb20 panel-hovered project-stats table-responsive">
-                      <div class="panel-heading">{Lang::T('Users Expiring Today')}</div>
-                <div class="table-responsive">
-                    <table class="table table-condensed">
-                        <thead>
+{if $_c['hide_uet'] != 'yes'}
+        <div class="panel panel-warning mb20 panel-hovered project-stats table-responsive">
+                  <div class="panel-heading">{Lang::T('Users Expiring Today')}</div>
+            <div class="table-responsive">
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                             <th>{Lang::T('Username')}</th>
+                             <th>{Lang::T('Created On')}</th>
+                            <th>{Lang::T('Expires On')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $expire as $expired}
                             <tr>
-                                 <th>{Lang::T('Username')}</th>
-                                 <th>{Lang::T('Created On')}</th>
-                                <th>{Lang::T('Expires On')}</th>
+                                <td><a href="{$_url}customers/viewu/{$expired['username']}">{$expired['username']}</a></td>
+                                <td>{Lang::dateAndTimeFormat($expired['recharged_on'],$expired['recharged_time'])}
+                                </td>
+                                <td>{Lang::dateAndTimeFormat($expired['expiration'],$expired['time'])}
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {foreach $expire as $expired}
-                                <tr>
-                                    <td><a href="{$_url}customers/viewu/{$expired['username']}">{$expired['username']}</a></td>
-                                    <td>{Lang::dateAndTimeFormat($expired['recharged_on'],$expired['recharged_time'])}
-                                    </td>
-                                    <td>{Lang::dateAndTimeFormat($expired['expiration'],$expired['time'])}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        {/foreach}
-                    </table>
-                </div>
-                &nbsp; {$paginator['contents']}
+                        </tbody>
+                    {/foreach}
+                </table>
             </div>
-        {/if}
-    </div>
+            &nbsp; {$paginator['contents']}
+        </div>
+    {/if}
+</div>
 
 
-    <div class="col-md-5">
-        {if $_c['hide_pg'] != 'yes'}
-            <div class="panel panel-success panel-hovered mb20 activities">
-                <div class="panel-heading">{Lang::T('Payment Gateway')}: {$_c['payment_gateway']}</div>
+<div class="col-md-5">
+    {if $_c['hide_pg'] != 'yes'}
+        <div class="panel panel-success panel-hovered mb20 activities">
+            <div class="panel-heading">{Lang::T('Payment Gateway')}: {$_c['payment_gateway']}</div>
+        </div>
+    {/if}
+    {if $_c['hide_aui'] != 'yes'}
+        <div class="panel panel-info panel-hovered mb20 activities">
+            <div class="panel-heading">{Lang::T('All Users Insights')}</div>
+            <div class="panel-body">
+                <canvas id="userRechargesChart"></canvas>
             </div>
-        {/if}
-        {if $_c['hide_aui'] != 'yes'}
-            <div class="panel panel-info panel-hovered mb20 activities">
-                <div class="panel-heading">{Lang::T('All Users Insights')}</div>
-                <div class="panel-body">
-                    <canvas id="userRechargesChart"></canvas>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Monthly Data Usage</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="monthlyUsageChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
-        {/if}
+        </div>
+    {/if}
 <div class="row">
     <div class="col-md-6">
         <div class="panel panel-success">
@@ -329,28 +432,111 @@
         </div>
     </div>
 </div>
-
-
-        {if $_c['hide_al'] != 'yes'}
-            <div class="panel panel-info panel-hovered mb20 activities">
-                <div class="panel-heading"><a href="{$_url}logs">{Lang::T('Activity Log')}</a></div>
-                <div class="panel-body">
-                    <ul class="list-unstyled">
-                        {foreach $dlog as $dlogs}
-                            <li class="primary">
-                                <span class="point"></span>
-                                <span class="time small text-muted">{Lang::timeElapsed($dlogs['date'],true)}</span>
-                                <p>{$dlogs['description']}</p>
-                            </li>
-                        {/foreach}
-                    </ul>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-download"></i> Top 5 Data Users</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $topDownloaders as $downloader}
+                                <tr>
+                                    <td>{$downloader.username}</td>
+                                    <td>{$downloader.download|convert_bytes}</td>
+                                </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        {/if}
+        </div>
     </div>
-
-
 </div>
+{if $_c['hide_al'] != 'yes'}
+<div class="row">
+<div class="col-md-12">
+<div class="panel panel-info panel-hovered mb20 activities">
+<div class="panel-heading"><a href="{$_url}logs">{Lang::T('Activity Log')}</a></div>
+<div class="panel-body">
+<ul class="list-unstyled">
+{foreach $dlog as $dlogs}
+<li class="primary">
+<span class="point"></span>
+<span class="time small text-muted">{Lang::timeElapsed($dlogs['date'],true)}</span>
+<p>{$dlogs['description']}</p>
+</li>
+{/foreach}
+</ul>
+</div>
+</div>
+</div>
+</div>
+{/if}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
@@ -593,6 +779,235 @@ for (var i = cumulativeValues.length; i < monthNames.length; i++) {
         });
 
     });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Today's Usage Chart
+    var todayUsageCtx = document.getElementById('todayUsageChart').getContext('2d');
+    var todayUsageChart = new Chart(todayUsageCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Upload', 'Download'],
+            datasets: [{
+                data: [{$todayUpload}, {$todayDownload}],
+                backgroundColor: ['rgba(54, 162, 235, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Today\'s Data Usage'
+                }
+            },
+            cutout: '50%',
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+    });
+
+    // Weekly Usage Chart
+    var weeklyUsageCtx = document.getElementById('weeklyUsageChart').getContext('2d');
+    var weeklyUsageChart = new Chart(weeklyUsageCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            datasets: [{
+                label: 'Upload',
+                data: [
+                    {$mondayUpload},
+                    {$tuesdayUpload},
+                    {$wednesdayUpload},
+                    {$thursdayUpload},
+                    {$fridayUpload},
+                    {$saturdayUpload},
+                    {$sundayUpload}
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Download',
+                data: [
+                    {$mondayDownload},
+                    {$tuesdayDownload},
+                    {$wednesdayDownload},
+                    {$thursdayDownload},
+                    {$fridayDownload},
+                    {$saturdayDownload},
+                    {$sundayDownload}
+                ],
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Weekly Data Usage'
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                    ticks: {
+                        callback: function(value) {
+                            return formatBytes(value);
+                        }
+                    }
+                }
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(context) {
+                        var label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += formatBytes(context.parsed.y);
+                        return label;
+                    }
+                }
+            }
+        }
+    });
+
+    // Monthly Usage Chart
+    var monthlyUsageCtx = document.getElementById('monthlyUsageChart').getContext('2d');
+    var monthlyUsageChart = new Chart(monthlyUsageCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Upload',
+                data: [
+                    {$januaryUpload},
+                    {$februaryUpload},
+                    {$marchUpload},
+                    {$aprilUpload},
+                    {$mayUpload},
+                    {$juneUpload},
+                    {$julyUpload},
+                    {$augustUpload},
+                    {$septemberUpload},
+                    {$octoberUpload},
+                    {$novemberUpload},
+                    {$decemberUpload}
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Download',
+                data: [
+                    {$januaryDownload},
+                    {$februaryDownload},
+                    {$marchDownload},
+                    {$aprilDownload},
+                    {$mayDownload},
+                    {$juneDownload},
+                    {$julyDownload},
+                    {$augustDownload},
+                    {$septemberDownload},
+                    {$octoberDownload},
+                    {$novemberDownload},
+                    {$decemberDownload}
+                ],
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Monthly Data Usage'
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                    ticks: {
+                        callback: function(value) {
+                            return formatBytes(value);
+                        }
+                    }
+                }
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(context) {
+                        var label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += formatBytes(context.parsed.y);
+                        return label;
+                    }
+                }
+            }
+        }
+    });
+
+    // Format bytes to a readable format
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
 </script>
 
 {include file="sections/footer.tpl"}

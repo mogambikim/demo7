@@ -16,7 +16,7 @@
         <i class="fa fa-dashboard">
         </i> {Lang::T('Dashboard')}</a>
     </li>
-    <li class="active">{Lang::T('Support Tickets')}</li>
+    <li class="active">{Lang::T('Support Ticket')}</li>
   </ol>
 </section>
 
@@ -29,7 +29,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">{Lang::T('Support Tickets Settings')}</h4>
+        <h4 class="modal-title">{Lang::T('Support Ticket Settings')}</h4>
       </div>
       <div class="box-body">
         <div class="tab-pane">
@@ -227,7 +227,7 @@
             Ticket')}</button> <br>
           <div class="box box-solid">
             <div class="box-header with-border">
-              <h3 class="box-title">{Lang::T('Support Tickets')}</h3>
+              <h3 class="box-title">{Lang::T('Support Ticket')}</h3>
               <div class="box-tools">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse">
                   <i class="fa fa-minus">
@@ -548,6 +548,6 @@
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     var portalLink = "https://freeispradius.com";
-    $('#version').html('Support Tickets | Ver: 1.5.3 | by: <a href="' + portalLink + '">FreeIspRadius</a>');
+    $('#version').html('Support Ticket | Ver: 1.5.3 | by: <a href="' + portalLink + '">FreeIspRadius</a>');
   });
 </script> {include file="sections/footer.tpl"}

@@ -44,7 +44,6 @@
                         </thead>
                         <tbody>
                             {foreach $d as $ds}
-                                 <tr {if $ds['status'] != 'Active'}class="danger"{/if}>
                                     <td>{$ds['id']}</td>
                                     <td>{$ds['username']}</td>
                                     <td>{$ds['fullname']}</td>

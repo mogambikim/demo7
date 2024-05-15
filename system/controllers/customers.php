@@ -19,6 +19,17 @@
  $leafletpickerHeader = <<<EOT
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
 EOT;
+function smarty_modifier_convert_bytes($bytes) {
+    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+    $unit = 0;
+
+    while ($bytes >= 1024 && $unit < 4) {
+        $bytes /= 1024;
+        $unit++;
+    }
+
+    return round($bytes, 2) . ' ' . $units[$unit];
+}
  
  switch ($action) {
     case 'csv':
@@ -392,67 +403,111 @@ EOT;
         }
         r2(U . 'customers/view/' . $id_customer, 'e', 'Cannot find active plan');
         break;
-    case 'viewu':
-        $customer = ORM::for_table('tbl_customers')->where('username', $routes['2'])->find_one();
-    case 'view':
-        $id  = $routes['2'];
-        run_hook('view_customer'); #HOOK
-        if (!$customer) {
-            $customer = ORM::for_table('tbl_customers')->find_one($id);
-        }
-        if ($customer) {
-            // Fetch the Customers Attributes values from the tbl_customer_custom_fields table
-            $customFields = ORM::for_table('tbl_customers_fields')
-                        ->where('customer_id', $customer['id'])
-                        ->find_many();
+        case 'viewu':
+            $customer = ORM::for_table('tbl_customers')->where('username', $routes['2'])->find_one();
+        case 'view':
+            $id = $routes['2'];
+            run_hook('view_customer'); #HOOK
+            if (!$customer) {
+                $customer = ORM::for_table('tbl_customers')->find_one($id);
+            }
+            if ($customer) {
+                // Fetch the Customers Attributes values from the tbl_customer_custom_fields table
+                $customFields = ORM::for_table('tbl_customers_fields')
+                    ->where('customer_id', $customer['id'])
+                    ->find_many();
         
-            $v  = $routes['3'];
-            if (empty($v) || $v == 'order') {
-                $v = 'order';
-                $paginator = Paginator::build(ORM::for_table('tbl_payment_gateway'), ['username' => $customer['username']]);
-                $order = ORM::for_table('tbl_payment_gateway')
-                    ->where('username', $customer['username'])
-                    ->offset($paginator['startpoint'])
-                    ->limit($paginator['limit'])
-                    ->order_by_desc('id')
-                    ->find_many();
-                $ui->assign('paginator', $paginator);
-                $ui->assign('order', $order);
-                $ui->assign('ip_address', $customer['ip_address']);
-            } else if ($v == 'activation') {
-                 $paginator = Paginator::build(ORM::for_table('tbl_transactions'), ['username' => $customer['username']]);
-                $activation = ORM::for_table('tbl_transactions')
-                    ->where('username', $customer['username'])
-                    ->offset($paginator['startpoint'])
-                    ->limit($paginator['limit'])
-                    ->order_by_desc('id')
-                    ->find_many();
-                $ui->assign('paginator', $paginator);
-                $ui->assign('activation', $activation);
-            } else if ($v == 'traffic') {
-                $v = 'traffic';
-                $routers = User::_billing($customer['id']);
-                if ($routers) {
-                    foreach ($routers as $row) {
-                        $userRouters = $row->routers;
-                        $mikrotik = Mikrotik::info($userRouters);
-                        $router = $mikrotik['id'];
+                $v = $routes['3'];
+                if (empty($v) || $v == 'order') {
+                    $v = 'order';
+                    $paginator = Paginator::build(ORM::for_table('tbl_payment_gateway'), ['username' => $customer['username']]);
+                    $order = ORM::for_table('tbl_payment_gateway')
+                        ->where('username', $customer['username'])
+                        ->offset($paginator['startpoint'])
+                        ->limit($paginator['limit'])
+                        ->order_by_desc('id')
+                        ->find_many();
+                    $ui->assign('paginator', $paginator);
+                    $ui->assign('order', $order);
+                    $ui->assign('ip_address', $customer['ip_address']);
+                } else if ($v == 'activation') {
+                    $paginator = Paginator::build(ORM::for_table('tbl_transactions'), ['username' => $customer['username']]);
+                    $activation = ORM::for_table('tbl_transactions')
+                        ->where('username', $customer['username'])
+                        ->offset($paginator['startpoint'])
+                        ->limit($paginator['limit'])
+                        ->order_by_desc('id')
+                        ->find_many();
+                    $ui->assign('paginator', $paginator);
+                    $ui->assign('activation', $activation);
+                } else if ($v == 'traffic') {
+                    $v = 'traffic';
+                    $routers = User::_billing($customer['id']);
+                    if ($routers) {
+                        foreach ($routers as $row) {
+                            $userRouters = $row->routers;
+                            $mikrotik = Mikrotik::info($userRouters);
+                            $router = $mikrotik['id'];
+                        }
+                    }
+                    $ui->assign('traffic', $traffic);
+                    $ui->assign('router', $router);
+                }           if ($v == 'data-usage') {
+                    // Fetch today's data usage for the customer
+                    $todayUsage = ORM::for_table('tbl_daily_data_usage')
+                        ->where('customer_id', $customer['id'])
+                        ->where_raw('DATE(date) = DATE(NOW())')
+                        ->find_one();
+        
+                    if ($todayUsage) {
+                        $ui->assign('todayUsage', $todayUsage);
+                        $ui->assign('hasTodayUsage', true);
+                    } else {
+                        $ui->assign('hasTodayUsage', false);
+                    }
+        
+                    // Fetch weekly data usage for the customer
+                    $weeklyUsage = ORM::for_table('tbl_weekly_data_usage')
+                        ->where('customer_id', $customer['id'])
+                        ->order_by_desc('week_start_date')
+                        ->limit(1)
+                        ->find_one();
+        
+                    if ($weeklyUsage) {
+                        $ui->assign('weeklyUsage', $weeklyUsage);
+                        $ui->assign('hasWeeklyUsage', true);
+                    } else {
+                        $ui->assign('hasWeeklyUsage', false);
+                    }
+        
+                    // Fetch monthly data usage for the customer
+                    $monthlyUsage = ORM::for_table('tbl_monthly_data_usage')
+                        ->where('customer_id', $customer['id'])
+                        ->order_by_desc('year')
+                        ->order_by_desc('month')
+                        ->limit(1)
+                        ->find_one();
+        
+                    if ($monthlyUsage) {
+                        $ui->assign('monthlyUsage', $monthlyUsage);
+                        $ui->assign('hasMonthlyUsage', true);
+                    } else {
+                        $ui->assign('hasMonthlyUsage', false);
                     }
                 }
-                $ui->assign('traffic', $traffic);
-                $ui->assign('router', $router);
+                
+        
+                $package = ORM::for_table('tbl_user_recharges')->where('username', $customer['username'])->find_one();
+                $ui->assign('package', $package);
+                $ui->assign('v', $v);
+                $ui->assign('d', $customer);
+                $ui->assign('customFields', $customFields);
+                $ui->assign('xheader', $leafletpickerHeader);
+                $ui->display('customers-view.tpl');
+            } else {
+                r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
             }
-            $package = ORM::for_table('tbl_user_recharges')->where('username', $customer['username'])->find_one();
-            $ui->assign('package', $package);
-            $ui->assign('v', $v);
-            $ui->assign('d', $customer);
-            $ui->assign('customFields', $customFields);
-            $ui->assign('xheader', $leafletpickerHeader);
-            $ui->display('customers-view.tpl');
-        } else {
-            r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
-        }
-        break;
+            break;
         
         case 'edit':
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {

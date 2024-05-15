@@ -77,9 +77,9 @@ $newTicket = ORM::for_table('tbl_support_tickets')
 
 if ($newTicket) {
     //if is new ticket submitted there should be notification on dashboard
-    register_menu(" Support Tickets", true, "support_tickets", 'AFTER_REPORTS', 'fa fa-envelope-o', $newTicket, "red");
+    register_menu(" Support Ticket", true, "support_tickets", 'AFTER_REPORTS', 'fa fa-envelope-o', $newTicket, "red");
 } else {
-    register_menu(" Support Tickets", true, "support_tickets", 'AFTER_REPORTS', 'fa fa-envelope-o');
+    register_menu(" Support Ticket", true, "support_tickets", 'AFTER_REPORTS', 'fa fa-envelope-o');
 }
 $configFile = 'system/plugin/support_tickets_config.json';
 $defaultConfig = array(
@@ -99,13 +99,13 @@ $settings = json_decode(file_get_contents($configFile), true);
 
 // Check if the 'ucp' setting is set to 'enable'
 if ($settings['ucp'] === 'enable') {
-    register_menu("Support Tickets", false, "support_tickets_clients", '', '', "", "");
+    register_menu("Support Ticket", false, "support_tickets_clients", '', '', "", "");
 }
 function support_tickets()
 {
     global $ui, $config, $routes;
     _admin();
-    $ui->assign('_title', 'Support Tickets');
+    $ui->assign('_title', 'Support Ticket');
     $ui->assign('_system_menu', '');
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
@@ -202,7 +202,7 @@ function support_tickets()
                 Message::sendWhatsapp($phonenumber, $message);
             }
         }
-        // Redirect to the Support Tickets page
+        // Redirect to the Support Ticket page
         r2(U . 'plugin/support_tickets', 's', Lang::T("Ticket Submitted Successfully"));
         // ... Add your code here to redirect the user after the form submission ...
     }
@@ -344,7 +344,7 @@ function support_tickets_clients()
 {
     global $ui, $routes;
     _auth();
-    $ui->assign('_title', 'Support Tickets');
+    $ui->assign('_title', 'Support Ticket');
     $ui->assign('_system_menu', 'support_tickets_clients');
     $user = User::_info();
     $ui->assign('_user', $user);
@@ -672,7 +672,7 @@ function support_tickets_view()
     _admin();
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
-    $ui->assign('_title', 'Support Tickets Details');
+    $ui->assign('_title', 'Support Ticket Details');
     $ui->assign('_system_menu', '');
     $ticketId = $routes['2'];
 
@@ -765,8 +765,8 @@ function support_tickets_clients_view()
 {
     global $ui, $routes;
     _auth();
-    $ui->assign('_title', 'Support Tickets');
-    $ui->assign('_system_menu', 'Support Tickets');
+    $ui->assign('_title', 'Support Ticket');
+    $ui->assign('_system_menu', 'Support Ticket');
     $user = User::_info();
     $ui->assign('_user', $user);
     $ticketId = $routes['2'];
