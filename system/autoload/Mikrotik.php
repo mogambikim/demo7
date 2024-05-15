@@ -849,72 +849,18 @@ public static function addStaticUser($client, $plan, $customer)
             return false;
         }
     }
-
-    public static function getWeeklyDataUsage($client, $username)
+    public static function pingRouter($ip_address, $username, $password)
     {
-        global $_app_stage;
-        if ($_app_stage == 'demo') {
-            return null;
+        try {
+            $client = Mikrotik::getClient($ip_address, $username, $password);
+            $request = new RouterOS\Request('/ping');
+            $request->setArgument('address', $ip_address);
+            $request->setArgument('count', 1);
+            $response = $client->sendSync($request);
+            return $response->getType() === RouterOS\Response::TYPE_FINAL;
+        } catch (Exception $e) {
+            return false;
         }
-
-        $weeklyUsage = array(
-            'upload' => array(),
-            'download' => array(),
-            'total' => array()
-        );
-
-        $printRequest = new RouterOS\Request('/ip/hotspot/user/print');
-        $printRequest->setQuery(RouterOS\Query::where('name', $username));
-        $response = $client->sendSync($printRequest);
-
-        if ($response->getProperty('.id')) {
-            $userData = $response->getProperty('?traffic-stats');
-
-            for ($i = 0; $i < 7; $i++) {
-                $weeklyUsage['upload'][$i] = $userData[$i]['tx-byte'];
-                $weeklyUsage['download'][$i] = $userData[$i]['rx-byte'];
-                $weeklyUsage['total'][$i] = $userData[$i]['tx-byte'] + $userData[$i]['rx-byte'];
-            }
-        }
-
-        return $weeklyUsage;
-    }
-
-    public static function getMonthlyDataUsage($client, $username)
-    {
-        global $_app_stage;
-        if ($_app_stage == 'demo') {
-            return null;
-        }
-
-        $monthlyUsage = array(
-            'upload' => array(),
-            'download' => array(),
-            'current' => 0,
-            'previous' => 0
-        );
-
-        $printRequest = new RouterOS\Request('/ip/hotspot/user/print');
-        $printRequest->setQuery(RouterOS\Query::where('name', $username));
-        $response = $client->sendSync($printRequest);
-
-        if ($response->getProperty('.id')) {
-            $userData = $response->getProperty('?traffic-stats');
-
-            foreach ($userData as $month => $usage) {
-                $monthlyUsage['upload'][] = $usage['tx-byte'];
-                $monthlyUsage['download'][] = $usage['rx-byte'];
-                $totalUsage = $usage['tx-byte'] + $usage['rx-byte'];
-
-                if ($month == date('m')) {
-                    $monthlyUsage['current'] = $totalUsage;
-                } else {
-                    $monthlyUsage['previous'] += $totalUsage;
-                }
-            }
-        }
-
-        return $monthlyUsage;
-    }
+    }  
 
 }

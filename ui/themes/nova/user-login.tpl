@@ -66,9 +66,9 @@
             <form class="space-y-4" action="{$_url}login/post" method="post">
 <form class="space-y-4" action="{$_url}login/post" method="post">
   <div class="fromGroup">
-    <label class="block capitalize form-label">{Lang::T('Username')}</label>
+    <label class="block capitalize form-label">{Lang::T('Phone Number')}</label>
     <div class="relative ">
-<input type="text" name="username" class="form-control py-2" required value="{$username|default:''}" placeholder="{Lang::T('username')}">
+      <input type="text" name="username" class="form-control py-2" required value="{$username|default:''}" placeholder="{if $_c['country_code_phone']!= ''}{$_c['country_code_phone']}{/if} {Lang::T('Phone Number')}">
     </div>
   </div>
   <div class="fromGroup">

@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4106794';
-$consumerkey    = "aeFIh5bSWPGpHbJinSwFKKaKqK9WYLzi7mwCoxaF9dVMAuGV";
-$consumersecret = "ggVLDoHNsYa7GdNHitXIUQEBRG5TpBhRcgkZHX3Ew4AcJcTM6tT76BbOvo3N4tIA";
-$validationurl = "https://furahafiber.freeispradius.com/validation_url.php";
+$shortcode = '4066803';
+$consumerkey    = "eG0wDTqd9FYIoG28A6UN0PvGRJ8vh5Rxe7b3bjqpGdcVozNQ";
+$consumersecret = "1yHQTRiaqUsN4bSa0GlcMX4oUqsGinaHsD7fw4WdmQHFUslj6bLzKLkVjg0Vi5zE";
+$validationurl = "https://medalinetworks.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://furahafiber.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://medalinetworks.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
