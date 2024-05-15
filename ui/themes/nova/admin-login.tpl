@@ -250,7 +250,7 @@
       </div>
       <button type="submit" class="login__button">{Lang::T('Login')}</button>
 <p class="login__register">
-        <a href="https://freeispradius.com/CHANGELOG.md" target="_blank">{Lang::T('Updates')}</a> |
+        <a href="https://t.me/freeispradius" target="_blank">{Lang::T('Updates')}</a> |
         <a href="https://chat.whatsapp.com/I8a7YGalCLD5c4QLcpiSvz" target="_blank">{Lang::T('Whatsapp')}</a> |
         <a href="https://t.me/freeispradius" target="_blank">{Lang::T('Telegram')}</a>
       </p>

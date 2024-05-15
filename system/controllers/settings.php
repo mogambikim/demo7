@@ -570,7 +570,7 @@ switch ($action) {
                         ['user_type' => 'Report'],
                         ['user_type' => 'Agent'],
                         ['user_type' => 'Sales'],
-                    ['id' => $admin['id']]
+                        ['id' => $admin['id']]
                     ])->find_one($id);
                 } else {
                     $d = ORM::for_table('tbl_users')->where('root', $admin['id'])->find_one($id);
@@ -587,6 +587,10 @@ switch ($action) {
             }
             run_hook('edit_admin'); #HOOK
             if ($msg == '') {
+                // Modify the 'status' column to VARCHAR(50)
+                $alter_query = "ALTER TABLE tbl_users MODIFY COLUMN status VARCHAR(50)";
+                ORM::get_db()->exec($alter_query);
+        
                 $d->username = $username;
                 if ($password != '') {
                     $password = Password::_crypt($password);
@@ -603,23 +607,22 @@ switch ($action) {
                 $d->subdistrict = $subdistrict;
                 $d->ward = $ward;
                 $d->status = $status;
-    
+        
                 if ($admin['user_type'] == 'Agent') {
                     // Prevent hacking from form
                     $d->root = $admin['id'];
                 } else if ($user_type == 'Sales') {
                     $d->root = $root;
                 }
-    
+        
                 $d->save();
-    
+        
                 _log('[' . $admin['username'] . ']: $username ' . Lang::T('User Updated Successfully'), $admin['user_type'], $admin['id']);
                 r2(U . 'settings/users', 's', 'User Updated Successfully');
             } else {
                 r2(U . 'settings/users-edit/' . $id, 'e', $msg);
             }
             break;
-
 
     case 'change-password':
         run_hook('view_change_password'); #HOOK

@@ -13,7 +13,7 @@
         <i class="fa fa-dashboard">
         </i> {Lang::T('Dashboard')}</a>
     </li>
-    <li class="active">{Lang::T('Support Tickets')}</li>
+    <li class="active">{Lang::T('Support Ticket')}</li>
   </ol>
 </section>
 <div class="modal fade" id="create">
@@ -553,6 +553,6 @@
 <script>
   window.addEventListener('DOMContentLoaded', function () {
     var portalLink = "https://freeispradius.com";
-    $('#version').html('Support Tickets | Ver: 1.5.3 | by: <a href="' + portalLink + '">FreeIspRadius</a>');
+    $('#version').html('Support Ticket | Ver: 1.5.3 | by: <a href="' + portalLink + '">FreeIspRadius</a>');
   });
 </script> {include file="sections/footer.tpl"}
