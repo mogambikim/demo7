@@ -615,8 +615,8 @@
     "Static_Plan": "Static Plan",
     "Customers_Growth": "Customers Growth",
     "Monthly_Customer_Increase": "Monthly Customer Increase",
-    "Support_Tickets": "Support Ticket",
-    "Support_Tickets_Settings": "Support Ticket Settings",
+    "Support_Tickets": "Support Tickets",
+    "Support_Tickets_Settings": "Support Tickets Settings",
     "Enable_In_UCP": "Enable In UCP",
     "Enable": "Enable",
     "Disable": "Disable",
@@ -725,7 +725,5 @@
     "Paste_the_code_into_the_terminal_and_press_Enter_": "Paste the code into the terminal and press Enter.",
     "The_reboot_functionality_will_be_enabled_on_your_router_": "The reboot functionality will be enabled on your router.",
     "Router_reboot_initiated": "Router reboot initiated",
-    "Edit_Plan": "Edit Plan",
-    "username": "username",
-    "Data_Usage": "Data Usage"
+    "Edit_Plan": "Edit Plan"
 }
