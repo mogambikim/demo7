@@ -233,17 +233,14 @@ function CreateHostspotUser()
 
 
 
-        $Userexist = ORM::for_table('tbl_customers')->where('username', $phone)->count() > 0;
-
-
-
-
+        $Userexist = ORM::for_table('tbl_customers')->where('username', $phone)->find_one();
         if ($Userexist) {
-
+            // Update the router ID for the existing user
+            $Userexist->router_id = $routerId;
+            $Userexist->save();
+        
             InitiateStkpush($phone, $planId, $routerId);
-
             exit();
-
         }
 
 
@@ -252,7 +249,7 @@ function CreateHostspotUser()
         $defmail = $phone . '@gmail.com';
         $router = $routerId;
 
-        
+
         $createUser = ORM::for_table('tbl_customers')->create();
         $createUser->username = $phone;
         $createUser->password = $defpass;
