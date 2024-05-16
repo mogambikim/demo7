@@ -44,7 +44,7 @@
                     <div class="panel-body">
                         <form action="{$_url}login/activation" method="post">
                             <div class="form-group">
-                                <label>{Lang::T('Phone Number')}</label>
+                                <label>{Lang::T('Username')}</label>
                                 <div class="input-group">
                                     {if $_c['country_code_phone']!= ''}
                                         <span class="input-group-addon" id="basic-addon1">+</span>
