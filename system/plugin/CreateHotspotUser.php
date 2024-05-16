@@ -250,7 +250,9 @@ function CreateHostspotUser()
         $defpass = '1234';
         $defaddr = 'FreeispRadius';
         $defmail = $phone . '@gmail.com';
+        $router = $routerId;
 
+        
         $createUser = ORM::for_table('tbl_customers')->create();
         $createUser->username = $phone;
         $createUser->password = $defpass;
@@ -260,6 +262,8 @@ function CreateHostspotUser()
         $createUser->address = $defaddr;
         $createUser->email = $defmail;
         $createUser->service_type = 'Hotspot';
+        $createUser->router_id = $router;
+
 
 
 
