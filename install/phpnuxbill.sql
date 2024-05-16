@@ -426,3 +426,101 @@ INSERT INTO `tbl_banks` (`id`, `name`, `paybill`) VALUES
 -- --------------------------------------------------------
 
 --
+
+
+-- New SQL statements
+CREATE TABLE `tbl_data_usage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) NOT NULL,
+  `old_upload` bigint(20) NOT NULL DEFAULT '0',
+  `old_download` bigint(20) NOT NULL DEFAULT '0',
+  `prev_upload` bigint(20) NOT NULL DEFAULT '0',
+  `prev_download` bigint(20) NOT NULL DEFAULT '0',
+  `new_upload` bigint(20) NOT NULL DEFAULT '0',
+  `new_download` bigint(20) NOT NULL DEFAULT '0',
+  `upload` bigint(20) NOT NULL DEFAULT '0',
+  `download` bigint(20) NOT NULL DEFAULT '0',
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `tbl_daily_data_usage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) NOT NULL,
+  `upload` bigint(20) NOT NULL DEFAULT '0',
+  `download` bigint(20) NOT NULL DEFAULT '0',
+  `yesterday_total_upload` bigint(20) NOT NULL DEFAULT '0',
+  `yesterday_total_download` bigint(20) NOT NULL DEFAULT '0',
+  `today_total_upload` bigint(20) NOT NULL DEFAULT '0',
+  `today_total_download` bigint(20) NOT NULL DEFAULT '0',
+  `date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `tbl_weekly_data_usage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) NOT NULL,
+  `monday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `monday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `tuesday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `tuesday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `wednesday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `wednesday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `thursday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `thursday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `friday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `friday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `saturday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `saturday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `sunday_upload` BIGINT(20) NOT NULL DEFAULT '0',
+  `sunday_download` BIGINT(20) NOT NULL DEFAULT '0',
+  `week_start_date` date NOT NULL,
+  `week_end_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `tbl_monthly_data_usage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) NOT NULL,
+  `year` int(4) NOT NULL,
+  `january_upload` bigint(20) NOT NULL DEFAULT '0',
+  `january_download` bigint(20) NOT NULL DEFAULT '0',
+  `february_upload` bigint(20) NOT NULL DEFAULT '0',
+  `february_download` bigint(20) NOT NULL DEFAULT '0',
+  `march_upload` bigint(20) NOT NULL DEFAULT '0',
+  `march_download` bigint(20) NOT NULL DEFAULT '0',
+  `april_upload` bigint(20) NOT NULL DEFAULT '0',
+  `april_download` bigint(20) NOT NULL DEFAULT '0',
+  `may_upload` bigint(20) NOT NULL DEFAULT '0',
+  `may_download` bigint(20) NOT NULL DEFAULT '0',
+  `june_upload` bigint(20) NOT NULL DEFAULT '0',
+  `june_download` bigint(20) NOT NULL DEFAULT '0',
+  `july_upload` bigint(20) NOT NULL DEFAULT '0',
+  `july_download` bigint(20) NOT NULL DEFAULT '0',
+  `august_upload` bigint(20) NOT NULL DEFAULT '0',
+  `august_download` bigint(20) NOT NULL DEFAULT '0',
+  `september_upload` bigint(20) NOT NULL DEFAULT '0',
+  `september_download` bigint(20) NOT NULL DEFAULT '0',
+  `october_upload` bigint(20) NOT NULL DEFAULT '0',
+  `october_download` bigint(20) NOT NULL DEFAULT '0',
+  `november_upload` bigint(20) NOT NULL DEFAULT '0',
+  `november_download` bigint(20) NOT NULL DEFAULT '0',
+  `december_upload` bigint(20) NOT NULL DEFAULT '0',
+  `december_download` bigint(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `tbl_reset_counters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) NOT NULL,
+  `month` int(2) NOT NULL,
+  `year` int(4) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `tbl_users` MODIFY COLUMN `status` VARCHAR(50);
