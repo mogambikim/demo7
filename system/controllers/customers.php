@@ -483,9 +483,6 @@ function smarty_modifier_convert_bytes($bytes) {
                     // Fetch monthly data usage for the customer
                     $monthlyUsage = ORM::for_table('tbl_monthly_data_usage')
                         ->where('customer_id', $customer['id'])
-                        ->order_by_desc('year')
-                        ->order_by_desc('month')
-                        ->limit(1)
                         ->find_one();
         
                     if ($monthlyUsage) {
