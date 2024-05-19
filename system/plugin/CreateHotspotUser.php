@@ -192,13 +192,11 @@ function CreateHostspotUser()
     $phone = isset($input['phone_number']) ? $input['phone_number'] : '';
     $planId = isset($input['plan_id']) ? $input['plan_id'] : '';
     $routerId = isset($input['router_id']) ? $input['router_id'] : '';
+    $deviceFingerprint = isset($input['device_fingerprint']) ? $input['device_fingerprint'] : '';
 
     // Your POST request processing code here...
-
-    // Output response
     header('Content-Type: application/json'); // Ensure JSON content type header
     //echo json_encode(['status' => 'error', 'code' => 405, 'message' => 'phone is ' .$phoneNumber]);
-
 
     $phone = (substr($phone, 0, 1) == '+') ? str_replace('+', '', $phone) : $phone;
     $phone = (substr($phone, 0, 1) == '0') ? preg_replace('/^0/', '254', $phone) : $phone;
@@ -207,51 +205,39 @@ function CreateHostspotUser()
     $phone = (substr($phone, 0, 1) == '0') ? preg_replace('/^01/', '2541', $phone) : $phone;
     $phone = (substr($phone, 0, 1) == '0') ? preg_replace('/^07/', '2547', $phone) : $phone;
 
-
     if (strlen($phone) !== 12) {
-
-
         echo json_encode(['status' => 'error', 'code' => 1, 'message' => 'Phone number is invalid please confirm']);
-
         exit();
     }
 
     if (strlen($phone) == 12 && !empty($planId) && !empty($routerId)) {
-
-
         $PlanExist = ORM::for_table('tbl_plans')->where('id', $planId)->count() > 0;
-
         $RouterExist = ORM::for_table('tbl_routers')->where('id', $routerId)->count() > 0;
 
         if (!$PlanExist && !$RouterExist) {
-
-
-            echo json_encode(["status" => "error", "message" => "Unable to precoess your request, please refresh the page"]);
+            echo json_encode(["status" => "error", "message" => "Unable to process your request, please refresh the page"]);
             exit();
-
         }
 
+        $username = $phone . '-' . substr($deviceFingerprint, -5);
 
-
-        $Userexist = ORM::for_table('tbl_customers')->where('username', $phone)->find_one();
+        $Userexist = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
         if ($Userexist) {
             // Update the router ID for the existing user
             $Userexist->router_id = $routerId;
             $Userexist->save();
         
-            InitiateStkpush($phone, $planId, $routerId);
+            InitiateStkpush($phone,$username, $planId, $routerId);
             exit();
         }
-
 
         $defpass = '1234';
         $defaddr = 'FreeispRadius';
         $defmail = $phone . '@gmail.com';
         $router = $routerId;
 
-
         $createUser = ORM::for_table('tbl_customers')->create();
-        $createUser->username = $phone;
+        $createUser->username = $username; // Use $username instead of $phone
         $createUser->password = $defpass;
         $createUser->fullname = $phone;
         $createUser->phonenumber = $phone;
@@ -261,71 +247,22 @@ function CreateHostspotUser()
         $createUser->service_type = 'Hotspot';
         $createUser->router_id = $router;
 
-
-
-
         if ($createUser->save()) {
-
-
-
-
-
-            InitiateStkpush($phone, $planId, $routerId);
-
-
+            InitiateStkpush($phone, $username, $planId, $routerId);
             // we do the stk push here okay
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             exit();
-
         } else {
-
             echo json_encode(["status" => "error", "message" => "There was a system error when registering user, please contact support"]);
             exit();
         }
-
-
-
-
-
-
-
-
-
-
     }
-
-
-
-
-
 }
 
-function InitiateStkpush($phone, $planId, $routerId)
+
+
+
+function InitiateStkpush($phone, $username, $planId, $routerId)
 {
-
-
-
-
-
     $gateway = ORM::for_table('tbl_appconfig')
         ->where('setting', 'payment_gateway')
         ->find_one();
@@ -333,82 +270,41 @@ function InitiateStkpush($phone, $planId, $routerId)
     $gateway = ($gateway) ? $gateway->value : null;
 
     if ($gateway == "MpesatillStk") {
-
         $url = (U . "plugin/initiatetillstk");
-
     } elseif ($gateway == "BankStkPush") {
-
-
         $url = (U . "plugin/initiatebankstk");
-
-
-    }
-
-    elseif ($gateway == "MpesaPaybill") {
-
-
+    } elseif ($gateway == "MpesaPaybill") {
         $url = (U . "plugin/initiatePaybillStk");
-
-
     }
-
-
 
     $Planname = ORM::for_table('tbl_plans')
         ->where('id', $planId)
         ->order_by_desc('id')
         ->find_one();
 
-
-        $Findrouter = ORM::for_table('tbl_routers')
+    $Findrouter = ORM::for_table('tbl_routers')
         ->where('id', $routerId)
         ->order_by_desc('id')
         ->find_one();
 
-        $rname=$Findrouter->name;
-
-
+    $rname = $Findrouter->name;
     $price = $Planname->price;
     $Planname = $Planname->name_plan;
 
-
-
     $Checkorders = ORM::for_table('tbl_payment_gateway')
-        ->where('username', $phone)
+        ->where('username', $username)
         ->where('status', 1)
         ->order_by_desc('id')
         ->find_many();
 
-
     if ($Checkorders) {
-
-
         foreach ($Checkorders as $Dorder) {
-
-
             $Dorder->delete();
-
-
         }
-
-
     }
 
-
-
-
-
-
-
-
- 
-
-
-
-
-
     $d = ORM::for_table('tbl_payment_gateway')->create();
-    $d->username = $phone;
+    $d->username = $username;
     $d->gateway = $gateway;
     $d->plan_id = $planId;
     $d->plan_name = $Planname;
@@ -424,31 +320,14 @@ function InitiateStkpush($phone, $planId, $routerId)
     $d->status = 1;
     $d->save();
 
-
-
     echo json_encode(["status" => "success", "phone" => $phone, "message" => "Registration complete,Please enter Mpesa Pin to activate the package"]);
 
-
-
-
-
-
-    SendSTKcred($phone, $url);
-
-
-
-
-
-
-
-
-
+SendSTKcred($phone, $username, $url);
 
 
 
 }
-
-function SendSTKcred($phone, $url)
+function SendSTKcred($phone, $username, $url)
 {
 
 
@@ -456,7 +335,7 @@ function SendSTKcred($phone, $url)
     $link = $url;
     // what post fields?
     $fields = array(
-        'username' => $phone,
+        'username' => $username,
         'phone' => $phone,
         'channel' => 'Yes',
 
