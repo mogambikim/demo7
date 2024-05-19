@@ -19,94 +19,73 @@ function hotspot_settings() {
             $updateStmt->execute([$newHotspotTitle]);
         }
 
-        // Add similar logic for FAQ fields here
         // FAQ Headline 1 Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['frequently_asked_questions_headline1']) ? trim($_POST['frequently_asked_questions_headline1']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_headline1'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newFaqHeadline1 = isset($_POST['frequently_asked_questions_headline1']) ? trim($_POST['frequently_asked_questions_headline1']) : '';
+        if (!empty($newFaqHeadline1)) {
+            $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_headline1'");
+            $updateFaqStmt1->execute([$newFaqHeadline1]);
         }
 
         // FAQ Headline 2 Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['frequently_asked_questions_headline2']) ? trim($_POST['frequently_asked_questions_headline2']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_headline2'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newFaqHeadline2 = isset($_POST['frequently_asked_questions_headline2']) ? trim($_POST['frequently_asked_questions_headline2']) : '';
+        if (!empty($newFaqHeadline2)) {
+            $updateFaqStmt2 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_headline2'");
+            $updateFaqStmt2->execute([$newFaqHeadline2]);
         }
 
         // FAQ Headline 3 Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['frequently_asked_questions_headline3']) ? trim($_POST['frequently_asked_questions_headline3']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_headline3'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newFaqHeadline3 = isset($_POST['frequently_asked_questions_headline3']) ? trim($_POST['frequently_asked_questions_headline3']) : '';
+        if (!empty($newFaqHeadline3)) {
+            $updateFaqStmt3 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_headline3'");
+            $updateFaqStmt3->execute([$newFaqHeadline3]);
         }
 
         // FAQ Answer 1 Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['frequently_asked_questions_answer1']) ? trim($_POST['frequently_asked_questions_answer1']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_answer1'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newFaqAnswer1 = isset($_POST['frequently_asked_questions_answer1']) ? trim($_POST['frequently_asked_questions_answer1']) : '';
+        if (!empty($newFaqAnswer1)) {
+            $updateFaqAnswerStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_answer1'");
+            $updateFaqAnswerStmt1->execute([$newFaqAnswer1]);
         }
 
         // FAQ Answer 2 Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['frequently_asked_questions_answer2']) ? trim($_POST['frequently_asked_questions_answer2']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_answer2'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newFaqAnswer2 = isset($_POST['frequently_asked_questions_answer2']) ? trim($_POST['frequently_asked_questions_answer2']) : '';
+        if (!empty($newFaqAnswer2)) {
+            $updateFaqAnswerStmt2 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_answer2'");
+            $updateFaqAnswerStmt2->execute([$newFaqAnswer2]);
         }
 
         // FAQ Answer 3 Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['frequently_asked_questions_answer3']) ? trim($_POST['frequently_asked_questions_answer3']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_answer3'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newFaqAnswer3 = isset($_POST['frequently_asked_questions_answer3']) ? trim($_POST['frequently_asked_questions_answer3']) : '';
+        if (!empty($newFaqAnswer3)) {
+            $updateFaqAnswerStmt3 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'frequently_asked_questions_answer3'");
+            $updateFaqAnswerStmt3->execute([$newFaqAnswer3]);
         }
 
         // FAQ Description Posting To Database
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $newFaqHeadline1 = isset($_POST['description']) ? trim($_POST['description']) : '';
-            if (!empty($newFaqHeadline1)) {
-                $updateFaqStmt1 = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'description'");
-                $updateFaqStmt1->execute([$newFaqHeadline1]);
-            }
+        $newDescription = isset($_POST['description']) ? trim($_POST['description']) : '';
+        if (!empty($newDescription)) {
+            $updateDescriptionStmt = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'description'");
+            $updateDescriptionStmt->execute([$newDescription]);
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Get router name from user input
-            $routerName = isset($_POST['router_name']) ? trim($_POST['router_name']) : '';
+        // Get the selected router ID from user input
+        $routerId = isset($_POST['router_id']) ? trim($_POST['router_id']) : '';
 
-            if (!empty($routerName)) {
-                // Fetch the router ID based on the router name
-                $routerStmt = $conn->prepare("SELECT id FROM tbl_routers WHERE name = :router_name");
-                $routerStmt->execute(['router_name' => $routerName]);
-                $router = $routerStmt->fetch(PDO::FETCH_ASSOC);
+        if (!empty($routerId)) {
+            // Update router_id in tbl_appconfig
+            $updateRouterIdStmt = $conn->prepare("UPDATE tbl_appconfig SET value = :router_id WHERE setting = 'router_id'");
+            $updateRouterIdStmt->execute(['router_id' => $routerId]);
 
-                if ($router) {
-                    // Update router_id in tbl_appconfig
-                    $updateRouterIdStmt = $conn->prepare("UPDATE tbl_appconfig SET value = :router_id WHERE setting = 'router_id'");
-                    $updateRouterIdStmt->execute(['router_id' => $router['id']]);
+            // Fetch the router name based on the selected router ID
+            $routerStmt = $conn->prepare("SELECT name FROM tbl_routers WHERE id = :router_id");
+            $routerStmt->execute(['router_id' => $routerId]);
+            $router = $routerStmt->fetch(PDO::FETCH_ASSOC);
 
-                    // Update router_name in tbl_appconfig
-                    $updateRouterNameStmt = $conn->prepare("UPDATE tbl_appconfig SET value = :router_name WHERE setting = 'router_name'");
-                    $updateRouterNameStmt->execute(['router_name' => $routerName]);
-                } else {
-                    // Handle the case where no matching router is found
-                    // For example, you can set an error message or take any other appropriate action
-                }
+            if ($router) {
+                // Update router_name in tbl_appconfig
+                $updateRouterNameStmt = $conn->prepare("UPDATE tbl_appconfig SET value = :router_name WHERE setting = 'router_name'");
+                $updateRouterNameStmt->execute(['router_name' => $router['name']]);
             }
-            // Other form handling code (if any)
         }
 
         // Get the selected color scheme from the form submission
@@ -192,76 +171,77 @@ function hotspot_settings() {
     // Assign the fetched title to the template
     $ui->assign('description', $description);
 
-    // Fetch the current router name from the database for display in the form
+    // Fetch the available routers from the tbl_routers table
+    $routerStmt = $conn->prepare("SELECT id, name FROM tbl_routers");
+    $routerStmt->execute();
+    $routers = $routerStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch the current router ID from the tbl_appconfig table
     $routerIdStmt = $conn->prepare("SELECT value FROM tbl_appconfig WHERE setting = 'router_id'");
     $routerIdStmt->execute();
     $routerIdResult = $routerIdStmt->fetch(PDO::FETCH_ASSOC);
-    if ($routerIdResult) {
-        $routerStmt = $conn->prepare("SELECT name FROM tbl_routers WHERE id = :router_id");
-        $routerStmt->execute(['router_id' => $routerIdResult['value']]);
-        $router = $routerStmt->fetch(PDO::FETCH_ASSOC);
-        if ($router) {
-            $ui->assign('router_name', $router['name']);
-        }
+    $selectedRouterId = $routerIdResult ? $routerIdResult['value'] : '';
+
+    // Assign the routers and selected router ID to the template
+    $ui->assign('routers', $routers);
+    $ui->assign('selected_router_id', $selectedRouterId);
+
+    // Define color schemes
+    $colorSchemes = [
+        'green' => [
+            'primary' => 'green',
+            'secondary' => 'teal',
+        ],
+        'brown' => [
+            'primary' => 'yellow',
+            'secondary' => 'orange',
+        ],
+        'orange' => [
+            'primary' => 'orange',
+            'secondary' => 'yellow',
+        ],
+        'red' => [
+            'primary' => 'red',
+            'secondary' => 'pink',
+        ],
+        'blue' => [
+            'primary' => 'blue',
+            'secondary' => 'indigo',
+        ],
+        'black' => [
+            'primary' => 'black',
+            'secondary' => 'gray',
+        ],
+        'yellow' => [
+            'primary' => 'yellow',
+            'secondary' => 'red',
+        ],
+        'pink' => [
+            'primary' => 'pink',
+            'secondary' => 'fuchsia',
+        ],
+    ];
+
+    // Check if the color scheme setting exists in the database
+    $stmt = $conn->prepare("SELECT value FROM tbl_appconfig WHERE setting = 'color_scheme'");
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$result) {
+        // If the setting doesn't exist, insert the default color scheme into the database
+        $defaultColorScheme = 'green';
+        $insertStmt = $conn->prepare("INSERT INTO tbl_appconfig (setting, value) VALUES ('color_scheme', ?)");
+        $insertStmt->execute([$defaultColorScheme]);
     }
 
-// Define color schemes
-$colorSchemes = [
-  'green' => [
-      'primary' => 'green',
-      'secondary' => 'teal',
-  ],
-  'brown' => [
-      'primary' => 'yellow',
-      'secondary' => 'orange',
-  ],
-  'orange' => [
-      'primary' => 'orange',
-      'secondary' => 'yellow',
-  ],
-  'red' => [
-      'primary' => 'red',
-      'secondary' => 'pink',
-  ],
-  'blue' => [
-      'primary' => 'blue',
-      'secondary' => 'indigo',
-  ],
-  'black' => [
-      'primary' => 'black',
-      'secondary' => 'gray',
-  ],
-  'yellow' => [
-      'primary' => 'yellow',
-      'secondary' => 'red',
-  ],
-  'pink' => [
-      'primary' => 'pink',
-      'secondary' => 'fuchsia',
-  ],
-];
+    // Fetch the selected color scheme from the database
+    $stmt = $conn->prepare("SELECT value FROM tbl_appconfig WHERE setting = 'color_scheme'");
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $selectedColorScheme = $result['value'];
 
-// Check if the color scheme setting exists in the database
-$stmt = $conn->prepare("SELECT value FROM tbl_appconfig WHERE setting = 'color_scheme'");
-$stmt->execute();
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$result) {
-  // If the setting doesn't exist, insert the default color scheme into the database
-  $defaultColorScheme = 'green';
-  $insertStmt = $conn->prepare("INSERT INTO tbl_appconfig (setting, value) VALUES ('color_scheme', ?)");
-  $insertStmt->execute([$defaultColorScheme]);
-}
-
-// Fetch the selected color scheme from the database
-$stmt = $conn->prepare("SELECT value FROM tbl_appconfig WHERE setting = 'color_scheme'");
-$stmt->execute();
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-$selectedColorScheme = $result['value'];
-
-// Assign the selected color scheme to the template
-$ui->assign('selected_color_scheme', $selectedColorScheme);
-
+    // Assign the selected color scheme to the template
+    $ui->assign('selected_color_scheme', $selectedColorScheme);
 
     // Render the template
     $ui->display('hotspot_settings.tpl');
