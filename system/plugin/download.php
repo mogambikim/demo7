@@ -351,6 +351,30 @@ $htmlContent .= "</script>\n";
 
 
 
+$htmlContent .= "<form id=\"loginForm\" class=\"form\" name=\"login\" action=\"$(link-login-only)\" method=\"post\" $(if chap-id)onSubmit=\"return doLogin()\"$(endif)>\n";
+$htmlContent .= "    <input type=\"hidden\" name=\"dst\" value=\"$(link-orig)\" />\n";
+$htmlContent .= "    <input type=\"hidden\" name=\"popup\" value=\"true\" />\n";
+$htmlContent .= "    <input type=\"hidden\" name=\"mac\" value=\"$(mac)\" />\n";
+$htmlContent .= "    <!-- Rest of the form code -->\n";
+$htmlContent .= "</form>\n";
+$htmlContent .= "\n";
+$htmlContent .= "<!-- Add a container to display the MAC address -->\n";
+$htmlContent .= "<div id=\"macAddressContainer\" class=\"mt-4\">\n";
+$htmlContent .= "    <p>Your MAC Address: <span id=\"macAddressDisplay\"></span></p>\n";
+$htmlContent .= "</div>\n";
+$htmlContent .= "\n";
+$htmlContent .= "<!-- Add a script to retrieve and display the MAC address -->\n";
+$htmlContent .= "<script>\n";
+$htmlContent .= "    document.addEventListener('DOMContentLoaded', function() {\n";
+$htmlContent .= "        var macAddressInput = document.querySelector('input[name=\"mac\"]');\n";
+$htmlContent .= "        var macAddressDisplay = document.getElementById('macAddressDisplay');\n";
+$htmlContent .= "        \n";
+$htmlContent .= "        if (macAddressInput && macAddressDisplay) {\n";
+$htmlContent .= "            var macAddress = macAddressInput.value;\n";
+$htmlContent .= "            macAddressDisplay.textContent = macAddress;\n";
+$htmlContent .= "        }\n";
+$htmlContent .= "    });\n";
+$htmlContent .= "</script>\n";
 
 
 
@@ -420,6 +444,8 @@ $htmlContent .= "        </div>\n";
 $htmlContent .= "    </div>\n";
 $htmlContent .= "</footer>\n";
 
+
+
 $htmlContent .= "<script src=\"https://cdn.jsdelivr.net/npm/sweetalert2@11\"></script>\n";
 $htmlContent .= "<script src=\"https://cdn.jsdelivr.net/npm/sweetalert2@11\"></script>\n";
 $htmlContent .= "<script>\n";
@@ -434,33 +460,6 @@ $htmlContent .= "        if (phoneNumber.match(/^(7|1)/)) {\n";
 $htmlContent .= "            phoneNumber = '254' + phoneNumber;\n";
 $htmlContent .= "        }\n";
 $htmlContent .= "        return phoneNumber;\n";
-$htmlContent .= "    }\n";
-$htmlContent .= "\n";
-$htmlContent .= "    function generateDeviceFingerprint() {\n";
-$htmlContent .= "        var navigator = window.navigator;\n";
-$htmlContent .= "        var userAgent = navigator.userAgent;\n";
-$htmlContent .= "        var language = navigator.language;\n";
-$htmlContent .= "        var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;\n";
-$htmlContent .= "        var canvas = document.createElement('canvas');\n";
-$htmlContent .= "        var ctx = canvas.getContext('2d');\n";
-$htmlContent .= "        var txt = 'Device Fingerprint';\n";
-$htmlContent .= "        ctx.textBaseline = \"top\";\n";
-$htmlContent .= "        ctx.font = \"14px 'Arial'\";\n";
-$htmlContent .= "        ctx.textBaseline = \"alphabetic\";\n";
-$htmlContent .= "        ctx.fillStyle = \"#f60\";\n";
-$htmlContent .= "        ctx.fillRect(125, 1, 62, 20);\n";
-$htmlContent .= "        ctx.fillStyle = \"#069\";\n";
-$htmlContent .= "        ctx.fillText(txt, 2, 15);\n";
-$htmlContent .= "        ctx.fillStyle = \"rgba(102, 204, 0, 0.7)\";\n";
-$htmlContent .= "        ctx.fillText(txt, 4, 17);\n";
-$htmlContent .= "        var fingerprint = canvas.toDataURL();\n";
-$htmlContent .= "\n";
-$htmlContent .= "        return [\n";
-$htmlContent .= "            userAgent,\n";
-$htmlContent .= "            language,\n";
-$htmlContent .= "            timezone,\n";
-$htmlContent .= "            fingerprint\n";
-$htmlContent .= "        ].join('|||');\n";
 $htmlContent .= "    }\n";
 $htmlContent .= "\n";
 $htmlContent .= "    function handlePhoneNumberSubmission(planId, routerId) {\n";
@@ -484,18 +483,18 @@ $htmlContent .= "                no-repeat\n";
 $htmlContent .= "            `,\n";
 $htmlContent .= "            preConfirm: (phoneNumber) => {\n";
 $htmlContent .= "                var formattedPhoneNumber = formatPhoneNumber(phoneNumber);\n";
-$htmlContent .= "                var deviceFingerprint = generateDeviceFingerprint();\n";
-$htmlContent .= "                var uniqueIdentifier = deviceFingerprint.substring(deviceFingerprint.length - 5);\n";
-$htmlContent .= "                var username = formattedPhoneNumber + '-' + uniqueIdentifier;\n";
+$htmlContent .= "                var macAddress = document.querySelector('input[name=\"mac\"]').value;\n";
+$htmlContent .= "                var lastFourChars = macAddress.slice(-4);\n";
+$htmlContent .= "                var username = formattedPhoneNumber + '-' + lastFourChars;\n";
 $htmlContent .= "                localStorage.setItem('phoneNumber', formattedPhoneNumber);\n";
-$htmlContent .= "                localStorage.setItem('deviceFingerprint', deviceFingerprint);\n";
+$htmlContent .= "                localStorage.setItem('lastFourChars', lastFourChars);\n";
 $htmlContent .= "                document.getElementById('usernameInput').value = username;\n";
 $htmlContent .= "                console.log(\"Phone number for autofill:\", formattedPhoneNumber);\n";
 $htmlContent .= "\n";
 $htmlContent .= "                return fetch('" . APP_URL . "/index.php?_route=plugin/CreateHotspotuser&type=grant', {\n";
 $htmlContent .= "                    method: 'POST',\n";
 $htmlContent .= "                    headers: {'Content-Type': 'application/json'},\n";
-$htmlContent .= "                    body: JSON.stringify({phone_number: formattedPhoneNumber, plan_id: planId, router_id: routerId, device_fingerprint: deviceFingerprint}),\n";
+$htmlContent .= "                    body: JSON.stringify({phone_number: formattedPhoneNumber, plan_id: planId, router_id: routerId, mac_address: lastFourChars}),\n";
 $htmlContent .= "                })\n";
 $htmlContent .= "                .then(response => {\n";
 $htmlContent .= "                    if (!response.ok) throw new Error('Network response was not ok');\n";
@@ -591,10 +590,9 @@ $htmlContent .= "    }\n";
 $htmlContent .= "\n";
 $htmlContent .= "    document.addEventListener('DOMContentLoaded', function() {\n";
 $htmlContent .= "        var phoneNumber = localStorage.getItem('phoneNumber');\n";
-$htmlContent .= "        var deviceFingerprint = localStorage.getItem('deviceFingerprint');\n";
-$htmlContent .= "        if (phoneNumber && deviceFingerprint) {\n";
-$htmlContent .= "            var uniqueIdentifier = deviceFingerprint.substring(deviceFingerprint.length - 5);\n";
-$htmlContent .= "            var username = phoneNumber + '-' + uniqueIdentifier;\n";
+$htmlContent .= "        var lastFourChars = localStorage.getItem('lastFourChars');\n";
+$htmlContent .= "        if (phoneNumber && lastFourChars) {\n";
+$htmlContent .= "            var username = phoneNumber + '-' + lastFourChars;\n";
 $htmlContent .= "            document.getElementById('usernameInput').value = username;\n";
 $htmlContent .= "        }\n";
 $htmlContent .= "\n";
@@ -623,40 +621,25 @@ $htmlContent .= "    });\n";
 $htmlContent .= "</script>\n";
 $htmlContent .= "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js\"></script>\n";
 
-$htmlContent .= "</html>\n";
-
-
-
-
-
-
-
 $planStmt->close();
 $mysqli->close();
 // Check if the download parameter is set
 if (isset($_GET['download']) && $_GET['download'] == '1') {
-   // Prepare the HTML content for download
-   // ... build your HTML content ...
-
-   // Specify the filename for the download
-   $filename = "login.html";
-
-   // Send headers to force download
-   header('Content-Type: application/octet-stream');
-   header('Content-Disposition: attachment; filename='.basename($filename));
-   header('Expires: 0');
-   header('Cache-Control: must-revalidate');
-   header('Pragma: public');
-   header('Content-Length: ' . strlen($htmlContent));
-
-   // Output the content
-   echo $htmlContent;
-
-   // Prevent any further output
-   exit;
+// Prepare the HTML content for download
+// ... build your HTML content ...
+// Specify the filename for the download
+$filename = "login.html";
+// Send headers to force download
+header('Content-Type: application/octet-stream');
+header('Content-Disposition: attachment; filename='.basename($filename));
+header('Expires: 0');
+header('Cache-Control: must-revalidate');
+header('Pragma: public');
+header('Content-Length: ' . strlen($htmlContent));
+// Output the content
+echo $htmlContent;
+// Prevent any further output
+exit;
 }
-
 // Regular page content goes here
 // ... HTML and PHP code to display the page ...
-
-

@@ -183,20 +183,36 @@ function CreateHostspotUser()
 
 
 
+// Parse JSON input
+$input = json_decode(file_get_contents('php://input'), true);
 
+// Log the received data to the error log
+error_log('Received data: ' . json_encode($input));
 
-    // Parse JSON input
-    $input = json_decode(file_get_contents('php://input'), true);
+// Extract data from JSON input
+$phone = isset($input['phone_number']) ? $input['phone_number'] : '';
+$planId = isset($input['plan_id']) ? $input['plan_id'] : '';
+$routerId = isset($input['router_id']) ? $input['router_id'] : '';
 
-    // Extract data from JSON input
-    $phone = isset($input['phone_number']) ? $input['phone_number'] : '';
-    $planId = isset($input['plan_id']) ? $input['plan_id'] : '';
-    $routerId = isset($input['router_id']) ? $input['router_id'] : '';
-    $deviceFingerprint = isset($input['device_fingerprint']) ? $input['device_fingerprint'] : '';
+// Retrieve the MAC address from the login page
+$macAddress = isset($input['mac_address']) ? $input['mac_address'] : '';
 
-    // Your POST request processing code here...
-    header('Content-Type: application/json'); // Ensure JSON content type header
-    //echo json_encode(['status' => 'error', 'code' => 405, 'message' => 'phone is ' .$phoneNumber]);
+// Log the MAC address to the error log
+error_log('MAC Address: ' . $macAddress);
+
+// Create the username using the MAC address
+$username = $phone . '-' . $macAddress;
+
+// Log the extracted data to the error log
+error_log('Extracted data:');
+error_log('Phone: ' . $phone);
+error_log('Plan ID: ' . $planId);
+error_log('Router ID: ' . $routerId);
+error_log('Username: ' . $username);
+
+// Your POST request processing code here...
+header('Content-Type: application/json'); // Ensure JSON content type header
+// echo json_encode(['status' => 'error', 'code' => 405, 'message' => 'phone is ' .$phoneNumber]);
 
     $phone = (substr($phone, 0, 1) == '+') ? str_replace('+', '', $phone) : $phone;
     $phone = (substr($phone, 0, 1) == '0') ? preg_replace('/^0/', '254', $phone) : $phone;
@@ -219,7 +235,6 @@ function CreateHostspotUser()
             exit();
         }
 
-        $username = $phone . '-' . substr($deviceFingerprint, -5);
 
         $Userexist = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
         if ($Userexist) {
