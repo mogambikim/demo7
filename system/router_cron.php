@@ -709,3 +709,71 @@ function updateWeeklyDataUsage($customerId) {
                 }
                 } catch (Exception $e) {
                 }
+
+// Check if columns `state` and `last_seen` exist, if not, add them
+$columns = ORM::for_table('tbl_user_recharges')->raw_query("SHOW COLUMNS FROM `tbl_user_recharges` LIKE 'state'")->find_one();
+if (!$columns) {
+    ORM::raw_execute("ALTER TABLE `tbl_user_recharges` ADD COLUMN `state` VARCHAR(10) NOT NULL DEFAULT 'Offline'");
+}
+
+$columns = ORM::for_table('tbl_user_recharges')->raw_query("SHOW COLUMNS FROM `tbl_user_recharges` LIKE 'last_seen'")->find_one();
+if (!$columns) {
+    ORM::raw_execute("ALTER TABLE `tbl_user_recharges` ADD COLUMN `last_seen` DATETIME NULL DEFAULT NULL");
+}
+
+// Fetch all customers from the database
+$customers = ORM::for_table('tbl_customers')->find_many();
+
+foreach ($customers as $customer) {
+    try {
+        $router = ORM::for_table('tbl_routers')->find_one($customer['router_id']);
+        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
+
+        // Check if the user is online for hotspot users
+        $activeUsers = $client->sendSync(new RouterOS\Request('/ip/hotspot/active/print'))->getAllOfType(RouterOS\Response::TYPE_DATA);
+        $isOnline = false;
+        foreach ($activeUsers as $activeUser) {
+            if ($activeUser->getProperty('user') == $customer['username']) {
+                $isOnline = true;
+                break;
+            }
+        }
+
+        // Check if the user is online for PPPoE users
+        $activePPPoEUsers = $client->sendSync(new RouterOS\Request('/ppp/active/print'))->getAllOfType(RouterOS\Response::TYPE_DATA);
+        foreach ($activePPPoEUsers as $activeUser) {
+            if ($activeUser->getProperty('name') == $customer['username']) {
+                $isOnline = true;
+                break;
+            }
+        }
+
+        // Check if the user is online for static users (assuming traffic passing check)
+        $queueUsers = $client->sendSync(new RouterOS\Request('/queue/simple/print'))->getAllOfType(RouterOS\Response::TYPE_DATA);
+        foreach ($queueUsers as $queueUser) {
+            if ($queueUser->getProperty('name') == 'Queue-' . $customer['username']) {
+                $traffic = explode('/', $queueUser->getProperty('bytes'));
+                if ($traffic[0] > 0 || $traffic[1] > 0) {
+                    $isOnline = true;
+                    break;
+                }
+            }
+        }
+
+        $state = $isOnline ? 'Online' : 'Offline';
+
+        // Update user's state and last seen in tbl_user_recharges
+        $userRecharge = ORM::for_table('tbl_user_recharges')->where('username', $customer['username'])->find_one();
+        if ($userRecharge) {
+            if ($userRecharge->state == 'Online' && $state == 'Offline') {
+                $userRecharge->last_seen = date('Y-m-d H:i:s');
+            }
+            $userRecharge->state = $state;
+            $userRecharge->save();
+        }
+
+    } catch (Exception $e) {
+        // Handle exceptions
+        echo "Error: " . $e->getMessage() . "\n";
+    }
+}

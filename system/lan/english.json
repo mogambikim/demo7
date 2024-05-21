@@ -727,5 +727,7 @@
     "Router_reboot_initiated": "Router reboot initiated",
     "Edit_Plan": "Edit Plan",
     "username": "username",
-    "Data_Usage": "Data Usage"
+    "Data_Usage": "Data Usage",
+    "Last_Seen": "Last Seen",
+    "Currently_Online": "Currently Online"
 }

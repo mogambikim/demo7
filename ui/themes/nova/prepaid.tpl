@@ -7,7 +7,7 @@
                 {if in_array($_admin['user_type'],['SuperAdmin','Admin'])}
                     <div class="btn-group pull-right">
                         <a class="btn btn-primary btn-xs" title="save" href="{$_url}prepaid/sync"
-                            onclick="return confirm('This will sync/send Caustomer active plan to Mikrotik?')"><span
+                            onclick="return confirm('This will sync/send Customer active plan to Mikrotik?')"><span
                                 class="glyphicon glyphicon-refresh" aria-hidden="true"></span> sync</a>
                     </div>
                     <div class="btn-group pull-right">
@@ -43,7 +43,6 @@
                     <table id="datatable" class="table table-bordered table-striped table-condensed">
                         <thead>
                             <tr>
-
                                 <th>{Lang::T('Username')}</th>
                                 <th>{Lang::T('Plan Name')}</th>
                                 <th>{Lang::T('Type')}</th>
@@ -51,6 +50,8 @@
                                 <th>{Lang::T('Expires On')}</th>
                                 <th>{Lang::T('Method')}</th>
                                 <th>{Lang::T('Routers')}</th>
+                                <th>{Lang::T('Status')}</th>
+                                <th>{Lang::T('Last Seen')}</th>
                                 <th>{Lang::T('Manage')}</th>
                             </tr>
                         </thead>
@@ -60,10 +61,22 @@
                                     <td><a href="{$_url}customers/viewu/{$ds['username']}">{$ds['username']}</a></td>
                                     <td>{$ds['namebp']}</td>
                                     <td>{$ds['type']}</td>
-                                    <td>{Lang::dateAndTimeFormat($ds['recharged_on'],$ds['recharged_time'])}</td>
-                                    <td>{Lang::dateAndTimeFormat($ds['expiration'],$ds['time'])}</td>
+                                    <td>{Lang::dateAndTimeFormat($ds['recharged_on'], $ds['recharged_time'])}</td>
+                                    <td>{Lang::dateAndTimeFormat($ds['expiration'], $ds['time'])}</td>
                                     <td>{$ds['method']}</td>
                                     <td>{$ds['routers']}</td>
+                                    <td>
+                                        <span class="label {if $ds['state'] == 'Online'}label-success{else}label-danger{/if}">
+                                            {$ds['state']}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {if $ds['state'] == 'Online'}
+                                            {Lang::T('Currently Online')}
+                                        {else}
+                                            {Lang::dateAndTimeFormat($ds['last_seen'], '')}
+                                        {/if}
+                                    </td>
                                     <td>
                                         <a href="{$_url}prepaid/edit/{$ds['id']}"
                                            class="btn btn-warning btn-xs">{Lang::T('Edit')}</a>
@@ -83,6 +96,5 @@
         </div>
     </div>
 </div>
-
 
 {include file="sections/footer.tpl"}
