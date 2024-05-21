@@ -917,4 +917,14 @@ public static function addStaticUser($client, $plan, $customer)
         return $monthlyUsage;
     }
 
+
+    public static function uploadFile($client, $filePath, $remotePath) {
+        $fileContent = file_get_contents($filePath);
+        $client->write('/tool/fetch', false);
+        $client->write('=url=file://' . $filePath, false);
+        $client->write('=dst-path=' . $remotePath, true);
+        $response = $client->read();
+        return $response;
+    }
+
 }

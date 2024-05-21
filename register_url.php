@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4235572';
-$consumerkey    = "TYdL3cgVvMSGKqGGaWQXh1oqGVDopefR1306r41PjXvl3hO3";
-$consumersecret = "3GR6iCWMNPDNVX074XsA4MSchjq1C7gBoWmrrPn1V8w6JPFUYGIBv7dFnuVEFj9b";
-$validationurl = "https://topspeedconnections.freeispradius.com/validation_url.php";
+$shortcode = '4100647';
+$consumerkey    = "A8nyCI1Hb73yzSKjgbE95hseB27tBH1C9qvqqTw0ne1YwB8V";
+$consumersecret = "NuARXwOQP8xD1Bth1SZHsbYX3gYy80Kyi6OH4gQkPuWbKyQtFbsjDlPDhnXSrUoo";
+$validationurl = "https://onmaktechnologies.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://topspeedconnections.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://onmaktechnologies.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
