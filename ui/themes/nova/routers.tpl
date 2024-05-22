@@ -36,30 +36,38 @@
                                 <th>{Lang::T('State')}</th>
                                 <th>{Lang::T('Uptime')}</th>
                                 <th>{Lang::T('Model')}</th>
+                                <th>{Lang::T('Last Seen')}</th>
                                 <th>{Lang::T('Reboot')}</th>
                                 <th>{Lang::T('Manage')}</th>
                             </tr>
                         </thead>
-<tbody>
-    {foreach $routers as $router}
-    <tr {if $router['enabled'] != 1}class="danger" title="disabled"{/if}>
-        <td>{$router['id']}</td>
-        <td>{$router['name']}</td>
-        <td>{$router['ip_address']}</td>
-        <td>{$router['username']}</td>
-        <td>{$router['description']}</td>
-        <td>{if $router['enabled'] == 1}Enabled{else}Disabled{/if}</td>
-        <td><span class="label label-{$router['pingClass']}">{$router['pingStatus']}</span></td>
-        <td>{$router['uptime']}</td>
-        <td>{$router['model']}</td>
-        <td><a href="{$_url}routers/reboot/{$router['id']}" class="btn btn-warning btn-xs">Reboot</a></td>
-        <td>
-            <a href="{$_url}routers/edit/{$router['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
-            <a href="{$_url}routers/delete/{$router['id']}" id="{$router['id']}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
-        </td>
-    </tr>
-    {/foreach}
-</tbody>
+                        <tbody>
+                            {foreach $routers as $router}
+                            <tr {if $router['enabled'] != 1}class="danger" title="disabled"{/if}>
+                                <td>{$router['id']}</td>
+                                <td>{$router['name']}</td>
+                                <td>{$router['ip_address']}</td>
+                                <td>{$router['username']}</td>
+                                <td>{$router['description']}</td>
+                                <td>{if $router['enabled'] == 1}Enabled{else}Disabled{/if}</td>
+                                <td><span class="label label-{$router['pingClass']}">{$router['pingStatus']}</span></td>
+                                <td>{$router['uptime']}</td>
+                                <td>{$router['model']}</td>
+                                <td>
+                                    {if $router['pingStatus'] == 'Online'}
+                                        <span class="label label-success">Currently Online</span>
+                                    {else}
+                                        {Lang::dateAndTimeFormat($router['last_seen'], '')}
+                                    {/if}
+                                </td>
+                                <td><a href="{$_url}routers/reboot/{$router['id']}" class="btn btn-warning btn-xs">Reboot</a></td>
+                                <td>
+                                    <a href="{$_url}routers/edit/{$router['id']}" class="btn btn-info btn-xs">{Lang::T('Edit')}</a>
+                                    <a href="{$_url}routers/delete/{$router['id']}" id="{$router['id']}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </tbody>
                     </table>
                 </div>
                 {$paginator['contents']}

@@ -72,9 +72,9 @@
                                     </td>
                                     <td>
                                         {if $ds['state'] == 'Online'}
-                                            {Lang::T('Currently Online')}
+                                            <span class="label label-success">{Lang::T('Currently Online')}</span>
                                         {else}
-                                            {Lang::dateAndTimeFormat($ds['last_seen'], '')}
+                                            <span class="label label-danger">{Lang::dateAndTimeFormat($ds['last_seen'], '')}</span>
                                         {/if}
                                     </td>
                                     <td>
