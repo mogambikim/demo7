@@ -766,13 +766,16 @@ foreach ($routers as $router) {
                 }
             }
 
-            // Check if the user is online in queue users (assuming traffic passing check)
+            // Check if the user is online in queue users (assuming traffic passing check) and is a static user
             foreach ($queueUsers as $queueUser) {
-                if ($queueUser->getProperty('name') == 'Queue-' . $customer['username']) {
-                    $traffic = explode('/', $queueUser->getProperty('bytes'));
-                    if ($traffic[0] > 0 || $traffic[1] > 0) {
-                        $isOnline = true;
-                        break;
+                if (strpos($queueUser->getProperty('name'), 'Queue-') === 0) {
+                    $staticUsername = str_replace('Queue-', '', $queueUser->getProperty('name'));
+                    if ($staticUsername == $customer['username']) {
+                        $traffic = explode('/', $queueUser->getProperty('bytes'));
+                        if ($traffic[0] > 0 || $traffic[1] > 0) {
+                            $isOnline = true;
+                            break;
+                        }
                     }
                 }
             }
