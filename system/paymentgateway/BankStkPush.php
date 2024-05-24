@@ -78,8 +78,6 @@ function BankStkPush_create_transaction($trx, $user )
 
 }
 
-
-
 function BankStkPush_payment_notification()
 {
     $captureLogs = file_get_contents("php://input");
@@ -154,9 +152,9 @@ function BankStkPush_payment_notification()
                 exit();
             }
 
-            $now = date('Y-m-d H:i:s');
-            $date = date('Y-m-d');
-            $time = date('H:i:s');
+            $now = new DateTime('now', new DateTimeZone('GMT+3'));
+            $date = $now->format('Y-m-d');
+            $time = $now->format('H:i:s');
 
             $plan_type = $plans->type;
             $UserId = $userid->id;
@@ -175,11 +173,11 @@ function BankStkPush_payment_notification()
 
                 $unit_seconds = $unit_in_seconds[$units];
                 $expiry_timestamp = time() + ($validity * $unit_seconds);
-                $expiry_date = date("Y-m-d", $expiry_timestamp);
-                $expiry_time = date("H:i:s", $expiry_timestamp);
+                $expiry_date = (new DateTime('@' . $expiry_timestamp, new DateTimeZone('GMT+3')))->format('Y-m-d');
+                $expiry_time = (new DateTime('@' . $expiry_timestamp, new DateTimeZone('GMT+3')))->format('H:i:s');
 
-                $recharged_on = date("Y-m-d");
-                $recharged_time = date("H:i:s");
+                $recharged_on = $now->format('Y-m-d');
+                $recharged_time = $now->format('H:i:s');
 
                 $updated_count = ORM::for_table('tbl_user_recharges')
                     ->where('username', $uname)
@@ -263,7 +261,7 @@ function BankStkPush_payment_notification()
                 }
 
                 $PaymentGatewayRecord->status = 2;
-                $PaymentGatewayRecord->paid_date = $now;
+                $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
                 $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
                 $PaymentGatewayRecord->save();
 
@@ -278,8 +276,8 @@ function BankStkPush_payment_notification()
     }
 
     if ($response_code == "1032") {
-        $now = date('Y-m-d H:i:s');
-        $PaymentGatewayRecord->paid_date = $now;
+        $now = new DateTime('now', new DateTimeZone('GMT+3'));
+        $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
         $PaymentGatewayRecord->status = 4;
         $PaymentGatewayRecord->save();
         exit();
@@ -306,6 +304,7 @@ function BankStkPush_payment_notification()
         exit();
     }
 }
+
 
 
 //below is the previous code with stk from the customer portal
