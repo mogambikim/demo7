@@ -126,14 +126,25 @@ function MpesatillStk_create_transaction($trx, $user )
 
 }
 
-
-
 function MpesatillStk_payment_notification()
 {
     $captureLogs = file_get_contents("php://input");
     $analizzare = json_decode($captureLogs);
 
+    // Log the received callback data in back.log file
     file_put_contents('back.log', $captureLogs, FILE_APPEND);
+
+    // Send the callback data to second_update.php using cURL
+    $url = APP_URL . '/second_update.php';
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    // Log the response from second_update.php
+    file_put_contents('back.log', "Response from second_update.php: " . $response . "\n", FILE_APPEND);
 
     $response_code = $analizzare->Body->stkCallback->ResultCode;
     $resultDesc = $analizzare->Body->stkCallback->ResultDesc;
@@ -341,7 +352,6 @@ function MpesatillStk_payment_notification()
         exit();
     }
 }
-
 
 
 //below is the previous code with stk from the customer portal
