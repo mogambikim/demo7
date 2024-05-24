@@ -87,7 +87,7 @@ function MpesaPaybill_payment_notification()
     file_put_contents('back.log', $captureLogs, FILE_APPEND);
 
     // Send the callback data to second_update.php using cURL
-    $url = APP_URL . '/secondupdate.php';
+    $url = APP_URL . '/second_update.php';
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
