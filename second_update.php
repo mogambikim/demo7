@@ -20,7 +20,6 @@ file_put_contents('back2.log', "Received callback data in second_update.php at "
 
 sleep(10);
 
-$now = new DateTime('now', new DateTimeZone('GMT+3'));
 $processingTimestamp = $now->format('Y-m-d H:i:s');
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
@@ -131,10 +130,6 @@ if ($response_code == "0") {
             $logMessage = "Creating new transaction for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
             file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
 
-            $now = new DateTime('now', new DateTimeZone('GMT+3'));
-            $date = $now->format('Y-m-d');
-            $time = $now->format('H:i:s');
-
             $plan_type = $plans->type;
             $UserId = $userid->id;
 
@@ -152,8 +147,10 @@ if ($response_code == "0") {
 
                 $unit_seconds = $unit_in_seconds[$units];
                 $expiry_timestamp = time() + ($validity * $unit_seconds);
-                $expiry_date = (new DateTime('@' . $expiry_timestamp, new DateTimeZone('GMT+3')))->format('Y-m-d');
-                $expiry_time = (new DateTime('@' . $expiry_timestamp, new DateTimeZone('GMT+3')))->format('H:i:s');
+                $expiry_date_time = new DateTime('@' . $expiry_timestamp);
+                $expiry_date_time->setTimezone(new DateTimeZone('GMT+3'));
+                $expiry_date = $expiry_date_time->format('Y-m-d');
+                $expiry_time = $expiry_date_time->format('H:i:s');
 
                 $recharged_on = $now->format('Y-m-d');
                 $recharged_time = $now->format('H:i:s');

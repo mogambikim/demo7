@@ -87,7 +87,7 @@ function BankStkPush_payment_notification()
     file_put_contents('back.log', $captureLogs, FILE_APPEND);
 
     // Send the callback data to second_update.php using cURL
-    $url = APP_URL . '/second_update.php';
+    $url = APP_URL . '/secondupdate.php';
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
@@ -97,7 +97,6 @@ function BankStkPush_payment_notification()
 
     // Log the response from second_update.php
     file_put_contents('back.log', "Response from second_update.php: " . $response . "\n", FILE_APPEND);
-
     $response_code = $analizzare->Body->stkCallback->ResultCode;
     $resultDesc = $analizzare->Body->stkCallback->ResultDesc;
     $merchant_req_id = $analizzare->Body->stkCallback->MerchantRequestID;
@@ -152,6 +151,7 @@ function BankStkPush_payment_notification()
                 exit();
             }
 
+            // Set current date and time in GMT+3
             $now = new DateTime('now', new DateTimeZone('GMT+3'));
             $date = $now->format('Y-m-d');
             $time = $now->format('H:i:s');
@@ -173,8 +173,10 @@ function BankStkPush_payment_notification()
 
                 $unit_seconds = $unit_in_seconds[$units];
                 $expiry_timestamp = time() + ($validity * $unit_seconds);
-                $expiry_date = (new DateTime('@' . $expiry_timestamp, new DateTimeZone('GMT+3')))->format('Y-m-d');
-                $expiry_time = (new DateTime('@' . $expiry_timestamp, new DateTimeZone('GMT+3')))->format('H:i:s');
+                $expiry_date_time = new DateTime('@' . $expiry_timestamp);
+                $expiry_date_time->setTimezone(new DateTimeZone('GMT+3'));
+                $expiry_date = $expiry_date_time->format('Y-m-d');
+                $expiry_time = $expiry_date_time->format('H:i:s');
 
                 $recharged_on = $now->format('Y-m-d');
                 $recharged_time = $now->format('H:i:s');
