@@ -10,344 +10,181 @@ ORM::configure('password', $db_password);
 ORM::configure('return_result_sets', true);
 ORM::configure('logging', true);
 
-// second_update.php
 $captureLogs = file_get_contents("php://input");
 $analizzare = json_decode($captureLogs);
 
 $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
-file_put_contents('back2.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs . "\n", FILE_APPEND);
+file_put_contents('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs . "\n", FILE_APPEND);
 
-sleep(10);
-
-$processingTimestamp = $now->format('Y-m-d H:i:s');
+sleep(12);
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
-$resultDesc = $analizzare->Body->stkCallback->ResultDesc;
-$merchant_req_id = $analizzare->Body->stkCallback->MerchantRequestID;
-$checkout_req_id = $analizzare->Body->stkCallback->CheckoutRequestID;
+$resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
+$merchant_req_id = ($analizzare->Body->stkCallback->MerchantRequestID);
+$checkout_req_id = ($analizzare->Body->stkCallback->CheckoutRequestID);
 
-$amount_paid = $analizzare->Body->stkCallback->CallbackMetadata->Item[0]->Value;
-$mpesa_code = $analizzare->Body->stkCallback->CallbackMetadata->Item[1]->Value;
-$sender_phone = $analizzare->Body->stkCallback->CallbackMetadata->Item[4]->Value;
+$amount_paid = ($analizzare->Body->stkCallback->CallbackMetadata->Item['0']->Value);
+$mpesa_code = ($analizzare->Body->stkCallback->CallbackMetadata->Item['1']->Value);
+$sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item['3']->Value);  // Adjusted index to 3 for phone number
 
-$logMessage = "Processing data for Transaction ID: " . $mpesa_code . " started at " . $processingTimestamp . "\n";
-file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-$PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
-    ->where('checkout', $checkout_req_id)
-    ->order_by_desc('id')
-    ->find_one();
-
-if (!$PaymentGatewayRecord) {
-    $logMessage = "Payment Gateway Record not found for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-    exit();
-}
-
-$logMessage = "Payment Gateway Record found for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-$logMessage .= "Payment Gateway Record Details:\n";
-$logMessage .= "ID: " . $PaymentGatewayRecord->id . "\n";
-$logMessage .= "Username: " . $PaymentGatewayRecord->username . "\n";
-$logMessage .= "Plan ID: " . $PaymentGatewayRecord->plan_id . "\n";
-$logMessage .= "Checkout: " . $PaymentGatewayRecord->checkout . "\n";
-file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-$uname = $PaymentGatewayRecord->username;
-$plan_id = $PaymentGatewayRecord->plan_id;
-
-$userid = ORM::for_table('tbl_customers')
-    ->where('username', $uname)
-    ->order_by_desc('id')
-    ->find_one();
-
-if (!$userid) {
-    $logMessage = "User not found for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-    exit();
-}
-
-$logMessage = "User found for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-$logMessage .= "User Details:\n";
-$logMessage .= "ID: " . $userid->id . "\n";
-$logMessage .= "Username: " . $userid->username . "\n";
-$logMessage .= "Full Name: " . $userid->fullname . "\n";
-$logMessage .= "Phone Number: " . $userid->phonenumber . "\n";
-file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-$userid->username = $uname;
-$userid->save();
-
-$logMessage = "User updated for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-$logMessage .= "Updated User Details:\n";
-$logMessage .= "ID: " . $userid->id . "\n";
-$logMessage .= "Username: " . $userid->username . "\n";
-file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-$plans = ORM::for_table('tbl_plans')
-    ->where('id', $plan_id)
-    ->order_by_desc('id')
-    ->find_one();
-
-if (!$plans) {
-    $logMessage = "Plan not found for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-    exit();
-}
-
-$logMessage = "Plan found for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-$logMessage .= "Plan Details:\n";
-$logMessage .= "ID: " . $plans->id . "\n";
-$logMessage .= "Name: " . $plans->name_plan . "\n";
-$logMessage .= "Type: " . $plans->type . "\n";
-$logMessage .= "Price: " . $plans->price . "\n";
-file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
+// Log the extracted callback data
+file_put_contents('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone\n", FILE_APPEND);
 
 if ($response_code == "0") {
-    try {
-        ORM::get_db()->beginTransaction();
+    $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
+        ->where('checkout', $checkout_req_id)
+        ->order_by_desc('id')
+        ->find_one();
 
-        $existingTransaction = ORM::for_table('tbl_payment_gateway')
-            ->where('gateway_trx_id', $mpesa_code)
-            ->find_one();
-
-        if ($existingTransaction) {
-            $logMessage = "Transaction already exists for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . ". Updating data.\n";
-            file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-            $existingTransaction->paid_date = $now->format('Y-m-d H:i:s');
-            $existingTransaction->save();
-
-            $logMessage = "Transaction updated for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-            $logMessage .= "Updated Transaction Details:\n";
-            $logMessage .= "ID: " . $existingTransaction->id . "\n";
-            $logMessage .= "Username: " . $existingTransaction->username . "\n";
-            $logMessage .= "Plan ID: " . $existingTransaction->plan_id . "\n";
-            $logMessage .= "Gateway Transaction ID: " . $existingTransaction->gateway_trx_id . "\n";
-            $logMessage .= "Paid Date: " . $existingTransaction->paid_date . "\n";
-            file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-        } else {
-            $logMessage = "Creating new transaction for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-            file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-            $plan_type = $plans->type;
-            $UserId = $userid->id;
-
-            if ($plan_type == "Hotspot") {
-                $plan_id = $plans->id;
-                $validity = $plans->validity;
-                $units = $plans->validity_unit;
-
-                $unit_in_seconds = [
-                    'Mins' => 60,
-                    'Hrs' => 3600,
-                    'Days' => 86400,
-                    'Months' => 2592000 // Assuming 30 days per month for simplicity
-                ];
-
-                $unit_seconds = $unit_in_seconds[$units];
-                $expiry_timestamp = time() + ($validity * $unit_seconds);
-                $expiry_date_time = new DateTime('@' . $expiry_timestamp);
-                $expiry_date_time->setTimezone(new DateTimeZone('GMT+3'));
-                $expiry_date = $expiry_date_time->format('Y-m-d');
-                $expiry_time = $expiry_date_time->format('H:i:s');
-
-                $recharged_on = $now->format('Y-m-d');
-                $recharged_time = $now->format('H:i:s');
-
-                $logMessage = "Updating user recharges for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-                $updated_count = ORM::for_table('tbl_user_recharges')
-                    ->where('username', $uname)
-                    ->find_many();
-
-                foreach ($updated_count as $record) {
-                    $record->status = 'on';
-                    $record->save();
-
-                    $logMessage = "User recharge updated for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                    $logMessage .= "Updated User Recharge Details:\n";
-                    $logMessage .= "ID: " . $record->id . "\n";
-                    $logMessage .= "Username: " . $record->username . "\n";
-                    $logMessage .= "Plan ID: " . $record->plan_id . "\n";
-                    $logMessage .= "Status: " . $record->status . "\n";
-                    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-                }
-
-                $plan_name = $plans->name_plan;
-                $routerId = $PaymentGatewayRecord->routers_id;
-
-                $file_path = 'system/adduser.php';
-                include_once $file_path;
-
-                $rname = ORM::for_table('tbl_routers')
-                    ->where('id', $routerId)
-                    ->find_one();
-
-                $routername = $rname->name;
-
-                $logMessage = "Deleting existing user recharges for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-                ORM::for_table('tbl_user_recharges')
-                    ->where('username', $uname)
-                    ->delete_many();
-
-                $logMessage = "Creating new user recharge for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-                $userRecharge = ORM::for_table('tbl_user_recharges')->create(array(
-                    'customer_id' => $UserId,
-                    'username' => $uname,
-                    'plan_id' => $plan_id,
-                    'namebp' => $plan_name,
-                    'recharged_on' => $recharged_on,
-                    'recharged_time' => $recharged_time,
-                    'expiration' => $expiry_date,
-                    'time' => $expiry_time,
-                    'status' => "on",
-                    'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-                    'routers' => $routername,
-                    'type' => $plan_type
-                ))->save();
-
-                $logMessage = "New user recharge created for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                $logMessage .= "New User Recharge Details:\n";
-                $logMessage .= "ID: " . $userRecharge->id . "\n";
-                $logMessage .= "Customer ID: " . $userRecharge->customer_id . "\n";
-                $logMessage .= "Username: " . $userRecharge->username . "\n";
-                $logMessage .= "Plan ID: " . $userRecharge->plan_id . "\n";
-                $logMessage .= "Name: " . $userRecharge->namebp . "\n";
-                $logMessage .= "Recharged On: " . $userRecharge->recharged_on . "\n";
-                $logMessage .= "Recharged Time: " . $userRecharge->recharged_time . "\n";
-                $logMessage .= "Expiration: " . $userRecharge->expiration . "\n";
-                $logMessage .= "Time: " . $userRecharge->time . "\n";
-                $logMessage .= "Status: " . $userRecharge->status . "\n";
-                $logMessage .= "Method: " . $userRecharge->method . "\n";
-                $logMessage .= "Routers: " . $userRecharge->routers . "\n";
-                $logMessage .= "Type: " . $userRecharge->type . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-                $logMessage = "User recharge status set to 'on' for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-                $logMessage = "Creating new transaction for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-                $transaction = ORM::for_table('tbl_transactions')->create(array(
-                    'invoice' => $mpesa_code,
-                    'username' => $uname,
-                    'plan_name' => $plan_name,
-                    'price' => $amount_paid,
-                    'recharged_on' => $recharged_on,
-                    'recharged_time' => $recharged_time,
-                    'expiration' => $expiry_date,
-                    'time' => $expiry_time,
-                    'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-                    'routers' => $routername,
-                    'type' => $plan_type
-                ))->save();
-
-                $logMessage = "New transaction created for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                $logMessage .= "New Transaction Details:\n";
-                $logMessage .= "ID: " . $transaction->id . "\n";
-                $logMessage .= "Invoice: " . $transaction->invoice . "\n";
-                $logMessage .= "Username: " . $transaction->username . "\n";
-                $logMessage .= "Plan Name: " . $transaction->plan_name . "\n";
-                $logMessage .= "Price: " . $transaction->price . "\n";
-                $logMessage .= "Recharged On: " . $transaction->recharged_on . "\n";
-                $logMessage .= "Recharged Time: " . $transaction->recharged_time . "\n";
-                $logMessage .= "Expiration: " . $transaction->expiration . "\n";
-                $logMessage .= "Time: " . $transaction->time . "\n";
-                $logMessage .= "Method: " . $transaction->method . "\n";
-                $logMessage .= "Routers: " . $transaction->routers . "\n";
-                $logMessage .= "Type: " . $transaction->type . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-                
-                $PaymentGatewayRecord->status = 2;
-                $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
-                $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
-                $PaymentGatewayRecord->save();
-                
-                $logMessage = "Payment Gateway Record updated for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-                $logMessage .= "Updated Payment Gateway Record Details:\n";
-                $logMessage .= "ID: " . $PaymentGatewayRecord->id . "\n";
-                $logMessage .= "Status: " . $PaymentGatewayRecord->status . "\n";
-                $logMessage .= "Paid Date: " . $PaymentGatewayRecord->paid_date . "\n";
-                $logMessage .= "Gateway Transaction ID: " . $PaymentGatewayRecord->gateway_trx_id . "\n";
-                file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-            }
-        }
-
-        ORM::get_db()->commit();
-        $logMessage = "Transaction processed successfully for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-        file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-    } catch (Exception $e) {
-        ORM::get_db()->rollBack();
-        $logMessage = "Error processing transaction for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . ". Error: " . $e->getMessage() . "\n";
-        file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
+    if (!$PaymentGatewayRecord) {
+        file_put_contents('secondupdate.log', "PaymentGatewayRecord not found for Checkout Request ID: $checkout_req_id\n", FILE_APPEND);
         exit();
     }
-}
 
-if ($response_code == "1032") {
-    $now = new DateTime('now', new DateTimeZone('GMT+3'));
+    $uname = $PaymentGatewayRecord->username;
+    $plan_id = $PaymentGatewayRecord->plan_id;
+    $routerId = $PaymentGatewayRecord->routers_id;
+
+    $userid = ORM::for_table('tbl_customers')
+        ->where('username', $uname)
+        ->order_by_desc('id')
+        ->find_one();
+
+    if (!$userid) {
+        file_put_contents('secondupdate.log', "User not found for username: $uname\n", FILE_APPEND);
+        exit();
+    }
+
+    $plans = ORM::for_table('tbl_plans')
+        ->where('id', $plan_id)
+        ->order_by_desc('id')
+        ->find_one();
+
+    if (!$plans) {
+        file_put_contents('secondupdate.log', "Plan not found for plan_id: $plan_id\n", FILE_APPEND);
+        exit();
+    }
+
+    $plan_type = $plans->type;
+    $plan_name = $plans->name_plan;
+    $validity = $plans->validity;
+    $units = $plans->validity_unit;
+
+    // Convert units to seconds
+    $unit_in_seconds = [
+        'Mins' => 60,
+        'Hrs' => 3600,
+        'Days' => 86400,
+        'Months' => 2592000 // Assuming 30 days per month for simplicity
+    ];
+
+    $unit_seconds = $unit_in_seconds[$units];
+    $expiry_timestamp = $now->getTimestamp() + ($validity * $unit_seconds); // Use $now to get the current timestamp
+
+    // Set the timezone explicitly for expiry date and time
+    $expiry_datetime = new DateTime("@$expiry_timestamp");
+    $expiry_datetime->setTimezone(new DateTimeZone('GMT+3'));
+    $expiry_date = $expiry_datetime->format('Y-m-d');
+    $expiry_time = $expiry_datetime->format('H:i:s');
+
+    $recharged_on = $now->format('Y-m-d');
+    $recharged_time = $now->format('H:i:s');
+
+    // Log the recharge details
+    file_put_contents('secondupdate.log', "Recharge details:\nPlan Type: $plan_type\nPlan Name: $plan_name\nValidity: $validity $units\nExpiry Date: $expiry_date\nExpiry Time: $expiry_time\n", FILE_APPEND);
+
+    // Update any existing records for the username to status 'off'
+    $existing_recharges = ORM::for_table('tbl_user_recharges')
+        ->where('username', $uname)
+        ->where('status', 'on')
+        ->find_many();
+
+    foreach ($existing_recharges as $record) {
+        $record->status = 'off';
+        $record->save();
+    }
+
+    // Include the external script
+    $file_path = 'system/adduser.php';
+    if (file_exists($file_path)) {
+        include_once $file_path;
+        file_put_contents('secondupdate.log', "Included file: $file_path\n", FILE_APPEND);
+    } else {
+        file_put_contents('secondupdate.log', "File not found: $file_path\n", FILE_APPEND);
+        exit();
+    }
+
+    // Fetch the router name
+    $router = ORM::for_table('tbl_routers')
+        ->where('id', $routerId)
+        ->find_one();
+
+    if (!$router) {
+        file_put_contents('secondupdate.log', "Router not found for router ID: $routerId\n", FILE_APPEND);
+        exit();
+    }
+
+    $router_name = $router->name;
+
+    // Delete existing records for the username
+    $deleted_count = ORM::for_table('tbl_user_recharges')
+        ->where('username', $uname)
+        ->delete_many();
+
+    file_put_contents('secondupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
+
+    // Insert new record into tbl_user_recharges
+    try {
+        ORM::for_table('tbl_user_recharges')->create(array(
+            'customer_id' => $userid->id,
+            'username' => $uname,
+            'plan_id' => $plan_id,
+            'namebp' => $plan_name,
+            'recharged_on' => $recharged_on,
+            'recharged_time' => $recharged_time,
+            'expiration' => $expiry_date,
+            'time' => $expiry_time,
+            'status' => "on",
+            'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
+            'routers' => $router_name, // Use the router name instead of the ID
+            'type' => $plan_type
+        ))->save();
+
+        file_put_contents('secondupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
+
+        // Insert new record into tbl_transactions
+        ORM::for_table('tbl_transactions')->create(array(
+            'invoice' => $mpesa_code,
+            'username' => $uname,
+            'plan_name' => $plan_name,
+            'price' => $amount_paid,
+            'recharged_on' => $recharged_on,
+            'recharged_time' => $recharged_time,
+            'expiration' => $expiry_date,
+            'time' => $expiry_time,
+            'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
+            'routers' => $router_name,
+            'type' => $plan_type
+        ))->save();
+
+        file_put_contents('secondupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
+
+ 
+        
+    } catch (Exception $e) {
+        file_put_contents('secondupdate.log', "Error inserting new recharge record: " . $e->getMessage() . "\n", FILE_APPEND);
+    }
+
+    $PaymentGatewayRecord->status = 2;
     $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
-    $PaymentGatewayRecord->status = 4;
+    $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
     $PaymentGatewayRecord->save();
 
-    $logMessage = "Transaction canceled by user for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    $logMessage .= "Updated Payment Gateway Record Details:\n";
-    $logMessage .= "ID: " . $PaymentGatewayRecord->id . "\n";
-    $logMessage .= "Paid Date: " . $PaymentGatewayRecord->paid_date . "\n";
-    $logMessage .= "Status: " . $PaymentGatewayRecord->status . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-    exit();
+    // Log completion
+    $completionTimestamp = (new DateTime('now', new DateTimeZone('GMT+3')))->format('Y-m-d H:i:s');
+    file_put_contents('secondupdate.log', "Process completed at $completionTimestamp\n", FILE_APPEND);
+} else {
+    file_put_contents('secondupdate.log', "Response code is not 0. No action taken.\n", FILE_APPEND);
 }
-
-if ($response_code == "1037") {
-    $PaymentGatewayRecord->status = 1;
-    $PaymentGatewayRecord->pg_paid_response = 'User failed to enter pin';
-    $PaymentGatewayRecord->save();
-
-    $logMessage = "User failed to enter PIN for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    $logMessage .= "Updated Payment Gateway Record Details:\n";
-    $logMessage .= "ID: " . $PaymentGatewayRecord->id . "\n";
-    $logMessage .= "Status: " . $PaymentGatewayRecord->status . "\n";
-    $logMessage .= "Response: " . $PaymentGatewayRecord->pg_paid_response . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-    exit();
-}
-
-if ($response_code == "1") {
-    $PaymentGatewayRecord->status = 1;
-    $PaymentGatewayRecord->pg_paid_response = 'Not enough balance';
-    $PaymentGatewayRecord->save();
-
-    $logMessage = "Not enough balance for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    $logMessage .= "Updated Payment Gateway Record Details:\n";
-    $logMessage .= "ID: " . $PaymentGatewayRecord->id . "\n";
-    $logMessage .= "Status: " . $PaymentGatewayRecord->status . "\n";
-    $logMessage .= "Response: " . $PaymentGatewayRecord->pg_paid_response . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-    exit();
-}
-
-if ($response_code == "2001") {
-    $PaymentGatewayRecord->status = 1;
-    $PaymentGatewayRecord->pg_paid_response = 'Wrong Mpesa pin';
-    $PaymentGatewayRecord->save();
-
-    $logMessage = "Wrong M-Pesa PIN for Transaction ID: " . $mpesa_code . " at " . $now->format('Y-m-d H:i:s') . "\n";
-    $logMessage .= "Updated Payment Gateway Record Details:\n";
-    $logMessage .= "ID: " . $PaymentGatewayRecord->id . "\n";
-    $logMessage .= "Status: " . $PaymentGatewayRecord->status . "\n";
-    $logMessage .= "Response: " . $PaymentGatewayRecord->pg_paid_response . "\n";
-    file_put_contents('secondupdate.log', $logMessage, FILE_APPEND);
-
-    exit();
-}
+?>
