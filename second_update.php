@@ -153,25 +153,69 @@ if ($response_code == "0") {
 
         file_put_contents('secondupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
 
-        // Insert new record into tbl_transactions
-        ORM::for_table('tbl_transactions')->create(array(
-            'invoice' => $mpesa_code,
-            'username' => $uname,
-            'plan_name' => $plan_name,
-            'price' => $amount_paid,
-            'recharged_on' => $recharged_on,
-            'recharged_time' => $recharged_time,
-            'expiration' => $expiry_date,
-            'time' => $expiry_time,
-            'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-            'routers' => $router_name,
-            'type' => $plan_type
-        ))->save();
+        // Check if a transaction with the same invoice already exists
+        $existingTransactions = ORM::for_table('tbl_transactions')
+            ->where('invoice', $mpesa_code)
+            ->order_by_desc('id')
+            ->find_many();
 
-        file_put_contents('secondupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
+        if (count($existingTransactions) > 1) {
+            // Delete older transactions and keep the latest one
+            $keepTransaction = array_shift($existingTransactions); // Keep the latest transaction
+            foreach ($existingTransactions as $transaction) {
+                $transaction->delete();
+                file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code\n", FILE_APPEND);
+            }
+        }
 
- 
-        
+        if (count($existingTransactions) == 0) {
+            // Insert new record into tbl_transactions
+            ORM::for_table('tbl_transactions')->create(array(
+                'invoice' => $mpesa_code,
+                'username' => $uname,
+                'plan_name' => $plan_name,
+                'price' => $amount_paid,
+                'recharged_on' => $recharged_on,
+                'recharged_time' => $recharged_time,
+                'expiration' => $expiry_date,
+                'time' => $expiry_time,
+                'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
+                'routers' => $router_name,
+                'type' => $plan_type
+            ))->save();
+
+            file_put_contents('secondupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
+        } else {
+            file_put_contents('secondupdate.log', "Transaction record already exists for invoice: $mpesa_code\n", FILE_APPEND);
+        }
+
+        // Fetch the customer details
+        $customer = ORM::for_table('tbl_customers')
+            ->where('username', $uname)
+            ->find_one();
+
+        if ($customer) {
+            // Prepare the customer and transaction data
+            $cust = array(
+                'phonenumber' => $customer->phonenumber,
+                'fullname' => $customer->fullname,
+                'password' => $customer->password
+            );
+            $trx = array(
+                'invoice' => $mpesa_code,
+                'recharged_on' => $recharged_on,
+                'recharged_time' => $recharged_time,
+                'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
+                'type' => $plan_type,
+                'plan_name' => $plan_name,
+                'price' => $amount_paid,
+                'username' => $uname,
+                'expiration' => $expiry_date,
+                'time' => $expiry_time
+            );
+
+            Message::sendInvoice($cust, $trx);
+        }
     } catch (Exception $e) {
         file_put_contents('secondupdate.log', "Error inserting new recharge record: " . $e->getMessage() . "\n", FILE_APPEND);
     }
