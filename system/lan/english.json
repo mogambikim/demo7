@@ -729,5 +729,10 @@
     "username": "username",
     "Data_Usage": "Data Usage",
     "Last_Seen": "Last Seen",
-    "Currently_Online": "Currently Online"
+    "Currently_Online": "Currently Online",
+    "Hotspot_Online_Users": "Hotspot Online Users",
+    "Static_Online_Users": "Static Online Users",
+    "Total_Online_Users": "Total Online Users",
+    "PPPoE_Online_Users": "PPPoE Online Users",
+    "Static_Plans": "Static Plans"
 }

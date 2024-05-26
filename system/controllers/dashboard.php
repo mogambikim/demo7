@@ -73,6 +73,31 @@ if ($config['hide_uet'] != 'yes') {
     $ui->assign('paginator', $paginator);
     $ui->assign('expire', $expire);
 }
+// Count of Hotspot Online Users
+$hotspotUsers = ORM::for_table('tbl_user_recharges')
+    ->where('type', 'Hotspot')
+    ->where('state', 'online')
+    ->count();
+$ui->assign('hotspotUsers', $hotspotUsers);
+
+// Count of PPPoE Online Users
+$pppoeUsers = ORM::for_table('tbl_user_recharges')
+    ->where('type', 'PPPOE')
+    ->where('state', 'online')
+    ->count();
+$ui->assign('pppoeUsers', $pppoeUsers);
+
+// Count of Static Online Users
+$staticUsers = ORM::for_table('tbl_user_recharges')
+    ->where('type', 'Static')
+    ->where('state', 'online')
+    ->count();
+$ui->assign('staticUsers', $staticUsers);
+
+// Total Online Users
+$totalOnlineUsers = $hotspotUsers + $pppoeUsers + $staticUsers;
+$ui->assign('totalOnlineUsers', $totalOnlineUsers);
+
 
 //activity log
 $dlog = ORM::for_table('tbl_logs')->limit(5)->order_by_desc('id')->find_many();

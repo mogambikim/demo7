@@ -10,8 +10,7 @@
             <div class="icon">
                 <i class="ion ion-bag"></i>
             </div>
-           <a href="{$_url}reports/by-date" class="small-box-footer">{Lang::T('View Reports')} <i
-                    class="fa fa-arrow-circle-right"></i></a>
+            <a href="{$_url}reports/by-date" class="small-box-footer">{Lang::T('View Reports')} <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <div class="col-lg-3 col-xs-6">
@@ -19,44 +18,89 @@
             <div class="inner">
                 <h4><sup>{$_c['currency_code']}</sup>
                     {number_format($imonth,0,$_c['dec_point'],$_c['thousands_sep'])}</h4>
-<p>{Lang::T('Income This Month')}</p>
+                <p>{Lang::T('Income This Month')}</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i class="fa fa-arrow-circle-right"></i></a>
         </div>
-        <div class="icon">
-            <i class="ion ion-stats-bars"></i>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-yellow">
+            <div class="inner">
+                <h4>{$u_act}/{$u_all}</h4>
+                <p>{Lang::T('Users Active')}</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-person"></i>
+            </div>
+            <a href="index.php?_route=prepaid/list" class="small-box-footer">{Lang::T('View All')} <i class="fa fa-arrow-circle-right"></i></a>
         </div>
-       <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i
-                class="fa fa-arrow-circle-right"></i></a>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-red">
+            <div class="inner">
+                <h4>{$c_all}</h4>
+                <p>{Lang::T('Total Users')}</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-users"></i>
+            </div>
+            <a href="{$_url}customers/list" class="small-box-footer">{Lang::T('View All')} <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-light-blue">
+            <div class="inner">
+                <h4>{$hotspotUsers}</h4>
+                <p>{Lang::T('Hotspot Online Users')}</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-wifi"></i>
+            </div>
+            <a href="index.php?_route=prepaid/list" class="small-box-footer">{Lang::T('View All')} <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-purple">
+            <div class="inner">
+                <h4>{$pppoeUsers}</h4>
+                <p>{Lang::T('PPPoE Online Users')}</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-network"></i>
+            </div>
+            <a href="index.php?_route=prepaid/list" class="small-box-footer">{Lang::T('View All')} <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-teal">
+            <div class="inner">
+                <h4>{$staticUsers}</h4>
+                <p>{Lang::T('Static Online Users')}</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-android-wifi"></i>
+            </div>
+            <a href="index.php?_route=prepaid/list" class="small-box-footer">{Lang::T('View All')} <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-orange">
+            <div class="inner">
+                <h4>{$totalOnlineUsers}</h4>
+                <p>{Lang::T('Total Online Users')}</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-ios-people"></i>
+            </div>
+            <a href="index.php?_route=prepaid/list" class="small-box-footer">{Lang::T('View All')} <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
     </div>
 </div>
-<div class="col-lg-3 col-xs-6">
-    <div class="small-box bg-yellow">
-        <div class="inner">
-            <h4>{$u_act}/{$u_all}</h4>
 
-           <p>{Lang::T('Users Active')}</p>
-        </div>
-        <div class="icon">
-            <i class="ion ion-person"></i>
-        </div>
-        <a href="{$_url}prepaid/list" class="small-box-footer">{Lang::T('View All')} <i
-                class="fa fa-arrow-circle-right"></i></a>
-    </div>
-</div>
-<div class="col-lg-3 col-xs-6">
-    <div class="small-box bg-red">
-        <div class="inner">
-            <h4>{$c_all}</h4>
 
-            <p>{Lang::T('Total Users')}</p>
-        </div>
-        <div class="icon">
-            <i class="fa fa-users"></i>
-        </div>
-       <a href="{$_url}customers/list" class="small-box-footer">{Lang::T('View All')} <i
-                class="fa fa-arrow-circle-right"></i></a>
-    </div>
-</div>
-</div>
 <div class="row">
     <div class="col-md-7">
    <!-- solid sales graph -->
