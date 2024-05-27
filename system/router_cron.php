@@ -748,6 +748,14 @@ foreach ($routers as $router) {
         $customers = ORM::for_table('tbl_customers')->where('router_id', $router['id'])->find_many();
 
         foreach ($customers as $customer) {
+            // Check if the user's status is 'off' and update state to 'Offline' if it is
+            $userRecharge = ORM::for_table('tbl_user_recharges')->where('username', $customer['username'])->find_one();
+            if ($userRecharge && $userRecharge->status == 'off') {
+                $userRecharge->state = 'Offline';
+                $userRecharge->save();
+                continue; // Skip further checks for this user
+            }
+
             $isOnline = false;
 
             // Check if the user is online in hotspot users
@@ -783,7 +791,6 @@ foreach ($routers as $router) {
             $state = $isOnline ? 'Online' : 'Offline';
 
             // Update user's state and last seen in tbl_user_recharges
-            $userRecharge = ORM::for_table('tbl_user_recharges')->where('username', $customer['username'])->find_one();
             if ($userRecharge) {
                 if ($userRecharge->state == 'Online' && $state == 'Offline') {
                     $userRecharge->last_seen = date('Y-m-d H:i:s');
@@ -796,5 +803,6 @@ foreach ($routers as $router) {
     } catch (Exception $e) {
         // Handle exceptions
         echo "Error with router ID " . $router['id'] . ": " . $e->getMessage() . "\n";
+        logToFile("Error with router ID " . $router['id'] . ": " . $e->getMessage());
     }
 }
