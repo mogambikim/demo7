@@ -30,7 +30,7 @@
         <div class="small-box bg-yellow">
             <div class="inner">
                 <h4>{$u_act}/{$u_exp}</h4>
-                <p>{Lang::T('Users Active vs Expired Users')}</p>
+                <p>{Lang::T('Active/Expired')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-person"></i>
