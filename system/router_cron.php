@@ -10,6 +10,35 @@ if (php_sapi_name() !== 'cli') {
     echo "<pre>";
 }
 
+$logFile = __DIR__ . '/../removehotspot.log';
+
+// Function to write log messages to a file with a limit of 1000 lines
+function logMessage($message) {
+    global $logFile;
+    $maxLines = 5000;
+    
+    // Read existing log file
+    $logs = file_exists($logFile) ? file($logFile, FILE_IGNORE_NEW_LINES) : [];
+    
+    // Add new log message
+    $logs[] = $message;
+    
+    // Keep only the last 1000 lines
+    if (count($logs) > $maxLines) {
+        $logs = array_slice($logs, -$maxLines);
+    }
+    
+    // Write back to the log file
+    file_put_contents($logFile, implode("\n", $logs) . "\n");
+}
+
+logMessage("PHP Time\t" . date('Y-m-d H:i:s'));
+$res = ORM::raw_execute('SELECT NOW() AS WAKTU;');
+$statement = ORM::get_last_statement();
+while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+    logMessage("MYSQL Time\t" . $row['WAKTU']);
+}
+
 echo "PHP Time\t" . date('Y-m-d H:i:s') . "\n";
 $res = ORM::raw_execute('SELECT NOW() AS WAKTU;');
 $statement = ORM::get_last_statement();
@@ -197,7 +226,7 @@ function updateDataUsageInDatabase($customerId, $uploadUsage, $downloadUsage) {
             updateDailyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
 
             // Update weekly data usage
-            updateWeeklyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
+            //updateWeeklyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
 
             // Update monthly data usage
             updateMonthlyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
@@ -222,7 +251,7 @@ function updateDataUsageInDatabase($customerId, $uploadUsage, $downloadUsage) {
             updateDailyDataUsage($customerId, $uploadUsage, $downloadUsage);
 
             // Update weekly data usage
-            updateWeeklyDataUsage($customerId, $uploadUsage, $downloadUsage);
+           // updateWeeklyDataUsage($customerId, $uploadUsage, $downloadUsage);
 
             // Update monthly data usage
             updateMonthlyDataUsage($customerId, $uploadUsage, $downloadUsage);
@@ -803,6 +832,79 @@ foreach ($routers as $router) {
     } catch (Exception $e) {
         // Handle exceptions
         echo "Error with router ID " . $router['id'] . ": " . $e->getMessage() . "\n";
-        logToFile("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+    }
+}
+
+// Fetch all routers
+$routers = ORM::for_table('tbl_routers')->find_many();
+
+foreach ($routers as $router) {
+    try {
+        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
+
+        // Fetch active users for hotspot
+        $hotspotUsers = $client->sendSync(new RouterOS\Request('/ip/hotspot/active/print'))->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+        // Log the active Hotspot users
+        logMessage("Active Hotspot Users for Router ID " . $router['id'] . ":");
+        foreach ($hotspotUsers as $user) {
+            logMessage("User: " . $user->getProperty('user'));
+        }
+
+        // Remove inactive Hotspot users
+        removeInactiveHotspotUsers($client);
+
+    } catch (Exception $e) {
+        // Handle exceptions
+        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+    }
+}
+
+// Define the function to remove inactive Hotspot users and from the users list
+function removeInactiveHotspotUsers($client) {
+    // Fetch all Hotspot users
+    $usersRequest = new RouterOS\Request('/ip/hotspot/user/print');
+    $users = $client->sendSync($usersRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+    foreach ($users as $user) {
+        $username = $user->getProperty('name');
+        logMessage("Checking user: $username"); // Log user being checked
+
+        // Check if the user is in tbl_user_recharges with status 'off' and type 'Hotspot'
+        $userRecharge = ORM::for_table('tbl_user_recharges')
+            ->where('username', $username)
+            ->where('status', 'off')
+            ->where('type', 'Hotspot')
+            ->find_one();
+
+        if ($userRecharge) {
+            logMessage("User $username is inactive in the database. Removing from Hotspot users list and active users...");
+            try {
+                // Remove the user from Hotspot users list
+                $removeUserRequest = new RouterOS\Request('/ip/hotspot/user/remove');
+                $removeUserRequest->setArgument('.id', $user->getProperty('.id'));
+                $client->sendSync($removeUserRequest);
+                logMessage("Removed user $username from Hotspot users list");
+
+                // Remove the user from Hotspot active users
+                $activeUsersRequest = new RouterOS\Request('/ip/hotspot/active/print');
+                $activeUsers = $client->sendSync($activeUsersRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+                foreach ($activeUsers as $activeUser) {
+                    if ($activeUser->getProperty('user') == $username) {
+                        $removeActiveUserRequest = new RouterOS\Request('/ip/hotspot/active/remove');
+                        $removeActiveUserRequest->setArgument('.id', $activeUser->getProperty('.id'));
+                        $client->sendSync($removeActiveUserRequest);
+                        logMessage("Removed inactive Hotspot user: $username from active users");
+                        break;
+                    }
+                }
+            } catch (Exception $e) {
+                logMessage("Error removing Hotspot user $username: " . $e->getMessage());
+            }
+        } else {
+            logMessage("User $username is not inactive or not of type Hotspot in the database.");
+        }
     }
 }

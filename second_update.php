@@ -10,12 +10,29 @@ ORM::configure('password', $db_password);
 ORM::configure('return_result_sets', true);
 ORM::configure('logging', true);
 
+// Function to manage log file lines
+function logToFile($filePath, $message, $maxLines = 5000) {
+    // Read existing file content
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES);
+
+    // Add new log entry
+    $lines[] = $message;
+
+    // Trim to the maximum number of lines
+    if (count($lines) > $maxLines) {
+        $lines = array_slice($lines, count($lines) - $maxLines);
+    }
+
+    // Write the trimmed log back to the file
+    file_put_contents($filePath, implode(PHP_EOL, $lines) . PHP_EOL);
+}
+
 $captureLogs = file_get_contents("php://input");
 $analizzare = json_decode($captureLogs);
 
 $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
-file_put_contents('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs . "\n", FILE_APPEND);
+logToFile('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
 sleep(12);
 
@@ -29,7 +46,7 @@ $mpesa_code = ($analizzare->Body->stkCallback->CallbackMetadata->Item['1']->Valu
 $sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item['3']->Value);  // Adjusted index to 3 for phone number
 
 // Log the extracted callback data
-file_put_contents('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone\n", FILE_APPEND);
+logToFile('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone");
 
 if ($response_code == "0") {
     $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')

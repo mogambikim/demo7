@@ -76,8 +76,22 @@ function MpesaPaybill_create_transaction($trx, $user )
 
 }
 
+// Function to manage log file lines
+function logToFile($filePath, $message, $maxLines = 5000) {
+    // Read existing file content
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES);
 
+    // Add new log entry
+    $lines[] = $message;
 
+    // Trim to the maximum number of lines
+    if (count($lines) > $maxLines) {
+        $lines = array_slice($lines, count($lines) - $maxLines);
+    }
+
+    // Write the trimmed log back to the file
+    file_put_contents($filePath, implode(PHP_EOL, $lines) . PHP_EOL);
+}
 function MpesaPaybill_payment_notification()
 {
     $captureLogs = file_get_contents("php://input");

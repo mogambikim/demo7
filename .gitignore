@@ -29,3 +29,5 @@ system/uploads/system/**
 !system/uploads/system/index.html
 /vendor/
 logs.txt
+system/removehotspot.log
+*.log
