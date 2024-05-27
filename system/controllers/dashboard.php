@@ -32,17 +32,24 @@ if ($imonth == '') {
 }
 $ui->assign('imonth', $imonth);
 
+// Count of Active Users
 $u_act = ORM::for_table('tbl_user_recharges')->where('status', 'on')->count();
 if (empty($u_act)) {
     $u_act = '0';
 }
 $ui->assign('u_act', $u_act);
 
-$u_all = ORM::for_table('tbl_user_recharges')->count();
-if (empty($u_all)) {
-    $u_all = '0';
+// Count of Expired Users
+$u_exp = ORM::for_table('tbl_user_recharges')->where('status', 'off')->count();
+if (empty($u_exp)) {
+    $u_exp = '0';
 }
+$ui->assign('u_exp', $u_exp);
+
+// Total Users (Active + Expired)
+$u_all = $u_act + $u_exp;
 $ui->assign('u_all', $u_all);
+
 
 
 $c_all = ORM::for_table('tbl_customers')->count();

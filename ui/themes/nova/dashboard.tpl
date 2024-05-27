@@ -26,11 +26,11 @@
             <a href="{$_url}reports/by-period" class="small-box-footer">{Lang::T('View Reports')} <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
-    <div class="col-lg-3 col-xs-6">
+  <div class="col-lg-3 col-xs-6">
         <div class="small-box bg-yellow">
             <div class="inner">
-                <h4>{$u_act}/{$u_all}</h4>
-                <p>{Lang::T('Users Active')}</p>
+                <h4>{$u_act}/{$u_exp}</h4>
+                <p>{Lang::T('Users Active vs Expired Users')}</p>
             </div>
             <div class="icon">
                 <i class="ion ion-person"></i>

@@ -734,5 +734,7 @@
     "Static_Online_Users": "Static Online Users",
     "Total_Online_Users": "Total Online Users",
     "PPPoE_Online_Users": "PPPoE Online Users",
-    "Static_Plans": "Static Plans"
+    "Static_Plans": "Static Plans",
+    "Users_Active_Expired_Users": "Users Active\/Expired Users",
+    "Users_Active_vs_Expired_Users": "Users Active vs Expired Users"
 }
