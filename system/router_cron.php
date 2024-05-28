@@ -226,7 +226,7 @@ function updateDataUsageInDatabase($customerId, $uploadUsage, $downloadUsage) {
             updateDailyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
 
             // Update weekly data usage
-            //updateWeeklyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
+            updateWeeklyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
 
             // Update monthly data usage
             updateMonthlyDataUsage($customerId, $oldUpload + $uploadDiff, $oldDownload + $downloadDiff);
@@ -251,7 +251,7 @@ function updateDataUsageInDatabase($customerId, $uploadUsage, $downloadUsage) {
             updateDailyDataUsage($customerId, $uploadUsage, $downloadUsage);
 
             // Update weekly data usage
-           // updateWeeklyDataUsage($customerId, $uploadUsage, $downloadUsage);
+           updateWeeklyDataUsage($customerId, $uploadUsage, $downloadUsage);
 
             // Update monthly data usage
             updateMonthlyDataUsage($customerId, $uploadUsage, $downloadUsage);
