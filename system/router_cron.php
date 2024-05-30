@@ -984,46 +984,11 @@ function removeInactivePPPoEUsers($client) {
     }
 }
 
-// Fetch all routers
-$routers = ORM::for_table('tbl_routers')->find_many();
-
-foreach ($routers as $router) {
-    try {
-        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
-
-        // Remove inactive Static users
-        removeInactiveStaticUsers($client);
-
-    } catch (Exception $e) {
-        // Handle exceptions
-        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
-    }
-}
-
-// Define the function to remove inactive static users
-function removeInactiveStaticUsers($client) {
-    $users = ORM::for_table('tbl_customers')
-                ->where('status', 'inactive')
-                ->where('type', 'Static')
-                ->find_many();
-
-    foreach ($users as $user) {
-        $username = $user->username;
-        logMessage("Removing static user: $username");
-
-        try {
-            removeStaticUser($client, $username);
-            logMessage("Removed static user: $username");
-        } catch (Exception $e) {
-            logMessage("Error removing static user $username: " . $e->getMessage());
-        }
-    }
-}
-
 // Function to remove a static user
 function removeStaticUser($client, $username) {
     global $_app_stage;
     if ($_app_stage == 'demo') {
+        logMessage("Demo mode - skipping removal for user: $username");
         return null;
     }
 
@@ -1032,11 +997,13 @@ function removeStaticUser($client, $username) {
 
     if (!$customer) {
         // Handle the case where the customer was not found in the database
+        logMessage("Customer $username not found in the database.");
         return;
     }
 
     // Get the IP address from the customer data
     $ipAddress = $customer->ip_address;
+    logMessage("Customer $username found with IP address: $ipAddress");
 
     try {
         // Find the address list entry
@@ -1053,12 +1020,13 @@ function removeStaticUser($client, $username) {
                     $removeAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/remove');
                     $removeAddressListRequest->setArgument('.id', $addressListId);
                     $client->sendSync($removeAddressListRequest);
+                    logMessage("Removed address list entry for IP: $ipAddress");
                 }
             }
         }
 
         $findQueueRequest = new RouterOS\Request('/queue/simple/print');
-        $findQueueRequest->setQuery(Query::where('target', $ipAddress .'/32'));
+        $findQueueRequest->setQuery(Query::where('target', $ipAddress . '/32'));
         $queueResponses = $client->sendSync($findQueueRequest);
 
         foreach ($queueResponses as $queueResponse) {
@@ -1066,19 +1034,79 @@ function removeStaticUser($client, $username) {
                 $queueId = $queueResponse->getProperty('.id');
                 // Verify if the queue target exactly matches the IP address
                 $target = $queueResponse->getProperty('target');
-                if ($target === $ipAddress .'/32') {
+                if ($target === $ipAddress . '/32') {
                     // Remove the queue only if it matches the IP address
                     $removeQueueRequest = new RouterOS\Request('/queue/simple/remove');
                     $removeQueueRequest->setArgument('.id', $queueId);
                     $client->sendSync($removeQueueRequest);
+                    logMessage("Removed queue for IP: $ipAddress");
                 }
             }
         }
 
     } catch (Exception $e) {
-        // Handle the error
         logMessage("Error removing static user $username: " . $e->getMessage());
     }
 }
 
+// Define the function to remove inactive static users
+function removeInactiveStaticUsers($client) {
+    // Fetch all queue entries
+    $queueRequest = new RouterOS\Request('/queue/simple/print');
+    $queues = $client->sendSync($queueRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
 
+    if (empty($queues)) {
+        logMessage("No queue entries found.");
+        return;
+    }
+
+    foreach ($queues as $queue) {
+        $queueName = $queue->getProperty('name');
+
+        if (strpos($queueName, 'Queue-') === 0) {
+            $username = substr($queueName, 6); // Extract the username part
+            logMessage("Checking static user: $username in queue $queueName");
+
+            // Check if the user is in tbl_user_recharges with status 'off' and type 'Static'
+            $userRecharge = ORM::for_table('tbl_user_recharges')
+                ->where('username', $username)
+                ->where('status', 'off')
+                ->where('type', 'Static')
+                ->find_one();
+
+            if ($userRecharge) {
+                logMessage("User $username is inactive in the database. Removing from queues and address list...");
+                try {
+                    // Remove the user from the queue
+                    $removeQueueRequest = new RouterOS\Request('/queue/simple/remove');
+                    $removeQueueRequest->setArgument('.id', $queue->getProperty('.id'));
+                    $client->sendSync($removeQueueRequest);
+                    logMessage("Removed queue $queueName for user $username");
+
+                    // Remove the user from the address list
+                    removeStaticUser($client, $username);
+                } catch (Exception $e) {
+                    logMessage("Error removing static user $username: " . $e->getMessage());
+                }
+            } else {
+                logMessage("User $username is not inactive or not of type Static in the database.");
+            }
+        }
+    }
+}
+
+// Example usage to trigger the function
+// This part will be executed when the script runs
+try {
+    // Fetch all routers and process each one
+    $routers = ORM::for_table('tbl_routers')->find_many();
+
+    foreach ($routers as $router) {
+        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
+        logMessage("Starting processing for Router ID " . $router['id']);
+        removeInactiveStaticUsers($client);
+        logMessage("Finished processing for Router ID " . $router['id']);
+    }
+} catch (Exception $e) {
+    logMessage("General error: " . $e->getMessage());
+}
