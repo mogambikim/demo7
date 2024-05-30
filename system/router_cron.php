@@ -1,6 +1,8 @@
 <?php
 
 use PEAR2\Net\RouterOS;
+use PEAR2\Net\RouterOS\Query;
+use PEAR2\Net\RouterOS\Request;
 
 include "../init.php";
 
@@ -908,3 +910,175 @@ function removeInactiveHotspotUsers($client) {
         }
     }
 }
+
+// Fetch all routers
+$routers = ORM::for_table('tbl_routers')->find_many();
+
+foreach ($routers as $router) {
+    try {
+        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
+
+        // Fetch active users for PPPoE
+        $pppoeUsers = $client->sendSync(new RouterOS\Request('/ppp/active/print'))->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+        // Log the active PPPoE users
+        logMessage("Active PPPoE Users for Router ID " . $router['id'] . ":");
+        foreach ($pppoeUsers as $user) {
+            logMessage("User: " . $user->getProperty('name'));
+        }
+
+        // Remove inactive PPPoE users
+        removeInactivePPPoEUsers($client);
+
+    } catch (Exception $e) {
+        // Handle exceptions
+        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+    }
+}
+
+// Define the function to remove inactive PPPoE users and from the users list
+function removeInactivePPPoEUsers($client) {
+    // Fetch all PPPoE users
+    $usersRequest = new RouterOS\Request('/ppp/secret/print');
+    $users = $client->sendSync($usersRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+    foreach ($users as $user) {
+        $username = $user->getProperty('name');
+        logMessage("Checking user: $username"); // Log user being checked
+
+        // Check if the user is in tbl_user_recharges with status 'off' and type 'PPPoE'
+        $userRecharge = ORM::for_table('tbl_user_recharges')
+            ->where('username', $username)
+            ->where('status', 'off')
+            ->where('type', 'PPPoE')
+            ->find_one();
+
+        if ($userRecharge) {
+            logMessage("User $username is inactive in the database. Removing from PPPoE users list and active users...");
+            try {
+                // Remove the user from PPPoE users list
+                $removeUserRequest = new RouterOS\Request('/ppp/secret/remove');
+                $removeUserRequest->setArgument('.id', $user->getProperty('.id'));
+                $client->sendSync($removeUserRequest);
+                logMessage("Removed user $username from PPPoE users list");
+
+                // Remove the user from PPPoE active users
+                $activeUsersRequest = new RouterOS\Request('/ppp/active/print');
+                $activeUsers = $client->sendSync($activeUsersRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+                foreach ($activeUsers as $activeUser) {
+                    if ($activeUser->getProperty('name') == $username) {
+                        $removeActiveUserRequest = new RouterOS\Request('/ppp/active/remove');
+                        $removeActiveUserRequest->setArgument('.id', $activeUser->getProperty('.id'));
+                        $client->sendSync($removeActiveUserRequest);
+                        logMessage("Removed inactive PPPoE user: $username from active users");
+                        break;
+                    }
+                }
+            } catch (Exception $e) {
+                logMessage("Error removing PPPoE user $username: " . $e->getMessage());
+            }
+        } else {
+            logMessage("User $username is not inactive or not of type PPPoE in the database.");
+        }
+    }
+}
+
+// Fetch all routers
+$routers = ORM::for_table('tbl_routers')->find_many();
+
+foreach ($routers as $router) {
+    try {
+        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
+
+        // Remove inactive Static users
+        removeInactiveStaticUsers($client);
+
+    } catch (Exception $e) {
+        // Handle exceptions
+        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+    }
+}
+
+// Define the function to remove inactive static users
+function removeInactiveStaticUsers($client) {
+    $users = ORM::for_table('tbl_customers')
+                ->where('status', 'inactive')
+                ->where('type', 'Static')
+                ->find_many();
+
+    foreach ($users as $user) {
+        $username = $user->username;
+        logMessage("Removing static user: $username");
+
+        try {
+            removeStaticUser($client, $username);
+            logMessage("Removed static user: $username");
+        } catch (Exception $e) {
+            logMessage("Error removing static user $username: " . $e->getMessage());
+        }
+    }
+}
+
+// Function to remove a static user
+function removeStaticUser($client, $username) {
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+
+    // Retrieve the customer data from the database
+    $customer = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
+
+    if (!$customer) {
+        // Handle the case where the customer was not found in the database
+        return;
+    }
+
+    // Get the IP address from the customer data
+    $ipAddress = $customer->ip_address;
+
+    try {
+        // Find the address list entry
+        $findAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/print');
+        $findAddressListRequest->setQuery(Query::where('list', 'allowed')->andWhere('address', $ipAddress));
+        $addressListResponses = $client->sendSync($findAddressListRequest);
+        foreach ($addressListResponses as $addressListResponse) {
+            if ($addressListResponse->getType() === RouterOS\Response::TYPE_DATA) {
+                $addressListId = $addressListResponse->getProperty('.id');
+                // Verify if the address exactly matches the IP address from customer data
+                $address = $addressListResponse->getProperty('address');
+                if ($address === $ipAddress) {
+                    // Remove the address list entry only if it matches the IP address
+                    $removeAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/remove');
+                    $removeAddressListRequest->setArgument('.id', $addressListId);
+                    $client->sendSync($removeAddressListRequest);
+                }
+            }
+        }
+
+        $findQueueRequest = new RouterOS\Request('/queue/simple/print');
+        $findQueueRequest->setQuery(Query::where('target', $ipAddress .'/32'));
+        $queueResponses = $client->sendSync($findQueueRequest);
+
+        foreach ($queueResponses as $queueResponse) {
+            if ($queueResponse->getType() === RouterOS\Response::TYPE_DATA) {
+                $queueId = $queueResponse->getProperty('.id');
+                // Verify if the queue target exactly matches the IP address
+                $target = $queueResponse->getProperty('target');
+                if ($target === $ipAddress .'/32') {
+                    // Remove the queue only if it matches the IP address
+                    $removeQueueRequest = new RouterOS\Request('/queue/simple/remove');
+                    $removeQueueRequest->setArgument('.id', $queueId);
+                    $client->sendSync($removeQueueRequest);
+                }
+            }
+        }
+
+    } catch (Exception $e) {
+        // Handle the error
+        logMessage("Error removing static user $username: " . $e->getMessage());
+    }
+}
+
+

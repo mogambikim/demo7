@@ -186,9 +186,6 @@ function CreateHostspotUser()
 // Parse JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Log the received data to the error log
-error_log('Received data: ' . json_encode($input));
-
 // Extract data from JSON input
 $phone = isset($input['phone_number']) ? $input['phone_number'] : '';
 $planId = isset($input['plan_id']) ? $input['plan_id'] : '';
@@ -197,18 +194,11 @@ $routerId = isset($input['router_id']) ? $input['router_id'] : '';
 // Retrieve the MAC address from the login page
 $macAddress = isset($input['mac_address']) ? $input['mac_address'] : '';
 
-// Log the MAC address to the error log
-error_log('MAC Address: ' . $macAddress);
 
 // Create the username using the MAC address
 $username = $phone . '-' . $macAddress;
 
 // Log the extracted data to the error log
-error_log('Extracted data:');
-error_log('Phone: ' . $phone);
-error_log('Plan ID: ' . $planId);
-error_log('Router ID: ' . $routerId);
-error_log('Username: ' . $username);
 
 // Your POST request processing code here...
 header('Content-Type: application/json'); // Ensure JSON content type header

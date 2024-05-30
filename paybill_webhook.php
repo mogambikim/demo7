@@ -1,6 +1,5 @@
 <?php
 
-
 require_once 'config.php';
 require_once 'system/orm.php';
 require_once 'system/autoload/PEAR2/Autoload.php';
@@ -19,10 +18,19 @@ $transID = $analizzare->TransID;
 $amount = $analizzare->TransAmount;
 $billRefNumber = $analizzare->BillRefNumber;
 
+function logMessage($message) {
+    $logFile = 'paybill_logs.txt';
+    file_put_contents($logFile, date('Y-m-d H:i:s') . " - " . $message . PHP_EOL, FILE_APPEND);
+}
+
+logMessage("Received request: " . json_encode($analizzare));
+
 if ($transID !== null && $amount !== null && $billRefNumber !== null) {
     $userData = ORM::for_table('tbl_customers')
         ->where('username', $billRefNumber)
         ->find_one();
+
+    logMessage("User data retrieved for username: $billRefNumber");
 
     if ($userData) {
         $username = $userData->username;
@@ -41,6 +49,8 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
             ->find_one();
         $planId = $planData ? $planData->plan_id : 1;
         $planName = $planData ? $planData->namebp : 'test';
+
+        logMessage("Router data and plan data retrieved for user: $username");
 
         $paymentGatewayRecord = ORM::for_table('tbl_payment_gateway')->create();
 
@@ -64,6 +74,7 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
         $paymentGatewayRecord->status = '2';
 
         $paymentGatewayRecord->save();
+        logMessage("Payment gateway record created for transaction ID: $transID");
 
         $transaction = ORM::for_table('tbl_transactions')->create();
         $transaction->invoice = $transID;
@@ -78,6 +89,7 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
         $transaction->routers = $routerName;
         $transaction->Type = 'Balance';
         $transaction->save();
+        logMessage("Transaction record created for username: $username, transaction ID: $transID");
 
         $latestRecharge = ORM::for_table('tbl_user_recharges')
             ->where('customer_id', $userId)
@@ -91,18 +103,24 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
 
         $userData->balance += $amount;
         $userData->save();
+        logMessage("User balance updated for username: $username");
 
         if ($userData->balance >= $planPrice && $latestRecharge && $latestRecharge->status == 'off') {
             $deleted_count = ORM::for_table('tbl_user_recharges')
                 ->where('username', $username)
                 ->delete_many();
+            logMessage("Deleted $deleted_count recharges for username: $username");
 
             $userData->balance -= $planPrice;
             $userData->save();
+            logMessage("User balance after recharge for username: $username");
 
             $rechargeResult = Package::rechargeUser($userId, $routerName, $planId, 'Mpesa Paybill Manual', 'Mpesa');
+            logMessage("User recharged: $username, result: " . json_encode($rechargeResult));
         }
     } else {
+        logMessage("User not found for bill reference number: $billRefNumber");
+
         $transaction = ORM::for_table('tbl_transactions')->create();
         $transaction->invoice = $transID;
         $transaction->username = 'unknown ' . $billRefNumber;
@@ -113,8 +131,11 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
         $transaction->expiration = date("Y-m-d H:i:s");
         $transaction->time = date("Y-m-d H:i:s");
         $transaction->method = 'Mpesa Paybill Manual';
-        $transaction->routers = 'uknown';
+        $transaction->routers = 'unknown';
         $transaction->Type = 'Balance';
         $transaction->save();
+        logMessage("Transaction record created for unknown user with bill reference number: $billRefNumber, transaction ID: $transID");
     }
+} else {
+    logMessage("Invalid request received: missing transaction ID, amount, or bill reference number");
 }

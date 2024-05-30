@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4014011';
-$consumerkey    = "kLBG0Asse7CBmDpRNWaEq3YAKwiOKXdZZ92o8JcBYs89UJVo";
-$consumersecret = "pIFCqAbmwmnM3iUGXSwcOoJsRAbLmhPax0Mmy7Z23a7vFvD14E5ANGvsUpEBAiir";
-$validationurl = "https://bestnet.freeispradius.com/validation_url.php";
+$shortcode = '4136961';
+$consumerkey    = "pPUcAHgonOljJBAykzc2k3VFQIZo4v6VwMxGNRGexjYF7sam";
+$consumersecret = "Uo7r5EDoRs5Qsr1NnJMEyseTH3khlfgetHlGZotAaBkQJAwUpMqeOlSfNPE5zzHx";
+$validationurl = "https://sourcelink.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://bestnet.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://sourcelink.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
