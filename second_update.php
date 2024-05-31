@@ -32,7 +32,7 @@ $analizzare = json_decode($captureLogs);
 file_put_contents('back.log', $captureLogs, FILE_APPEND);
 
 // Send the callback data to second_update.php using cURL asynchronously
-$url = APP_URL . '/second_update.php';
+$url = APP_URL . '/double_payments.php';
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
@@ -60,18 +60,6 @@ $sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item['3']->Va
 logToFile('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone");
 
 if ($response_code == "0") {
-    // Send the captured logs to double_payments.php for checking
-    $url = APP_URL . 'double_payments.php';
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
-    curl_exec($ch);
-    curl_close($ch);
-
-
-
     $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
         ->where('checkout', $checkout_req_id)
         ->order_by_desc('id')
