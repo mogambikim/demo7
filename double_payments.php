@@ -27,25 +27,30 @@ $receivedTimestamp = $now->format('Y-m-d H:i:s');
 logToFile('doublepayments.log', "Received callback data in double_payments.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
 // Sleep for 35 seconds
+logToFile('doublepayments.log', "Sleeping for 35 seconds before checking for duplicates.");
 sleep(35);
 
+// Extract MpesaReceiptNumber
 $mpesa_code = ($analizzare->Body->stkCallback->CallbackMetadata->Item['1']->Value);
+logToFile('doublepayments.log', "Extracted MpesaReceiptNumber: $mpesa_code");
 
 // Check if a transaction with the same invoice already exists
+logToFile('doublepayments.log', "Checking for existing transactions with invoice: $mpesa_code");
 $existingTransactions = ORM::for_table('tbl_transactions')
     ->where('invoice', $mpesa_code)
     ->order_by_desc('id')
     ->find_many();
 
+logToFile('doublepayments.log', "Found " . count($existingTransactions) . " transactions with the same invoice.");
+
 if (count($existingTransactions) > 1) {
+    logToFile('doublepayments.log', "More than one transaction found, deleting duplicates.");
     $keepTransaction = array_pop($existingTransactions); // Keep the oldest transaction
     foreach ($existingTransactions as $transaction) {
         $transaction->delete();
         logToFile('doublepayments.log', "Deleted duplicate transaction with invoice: $mpesa_code\n");
     }
-}
-
-if (count($existingTransactions) == 0) {
-    logToFile('doublepayments.log', "No duplicate transactions found for invoice: $mpesa_code\n");
+} else {
+    logToFile('doublepayments.log', "No duplicates found or only one transaction found for invoice: $mpesa_code\n");
 }
 ?>
