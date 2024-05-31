@@ -29,12 +29,23 @@ function logToFile($filePath, $message, $maxLines = 5000) {
 
 $captureLogs = file_get_contents("php://input");
 $analizzare = json_decode($captureLogs);
+file_put_contents('back.log', $captureLogs, FILE_APPEND);
+
+// Send the callback data to second_update.php using cURL asynchronously
+$url = APP_URL . 'second_update.php';
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+curl_exec($ch);
+curl_close($ch);
 
 $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
 logToFile('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
-sleep(12);
+sleep(4);
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
 $resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
@@ -49,6 +60,18 @@ $sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item['3']->Va
 logToFile('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone");
 
 if ($response_code == "0") {
+    // Send the captured logs to double_payments.php for checking
+    $url = APP_URL . 'double_payments.php';
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $captureLogs);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+    curl_exec($ch);
+    curl_close($ch);
+
+
+
     $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
         ->where('checkout', $checkout_req_id)
         ->order_by_desc('id')
@@ -177,8 +200,8 @@ if ($response_code == "0") {
             ->find_many();
 
         if (count($existingTransactions) > 1) {
-            // Delete older transactions and keep the latest one
-            $keepTransaction = array_shift($existingTransactions); // Keep the latest transaction
+            // Delete newer transactions and keep the latest one
+            $keepTransaction = array_pop($existingTransactions); // Keep the oldest transaction
             foreach ($existingTransactions as $transaction) {
                 $transaction->delete();
                 file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code\n", FILE_APPEND);
@@ -204,6 +227,21 @@ if ($response_code == "0") {
             file_put_contents('secondupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
         } else {
             file_put_contents('secondupdate.log', "Transaction record already exists for invoice: $mpesa_code\n", FILE_APPEND);
+        }
+
+        // Secondary check for duplicate transactions
+        $secondaryCheckTransactions = ORM::for_table('tbl_transactions')
+            ->where('invoice', $mpesa_code)
+            ->order_by_desc('id')
+            ->find_many();
+
+        if (count($secondaryCheckTransactions) > 1) {
+            // Delete newer transactions and keep the latest one
+            $keepTransaction = array_pop($secondaryCheckTransactions); // Keep the oldest transaction
+            foreach ($secondaryCheckTransactions as $transaction) {
+                $transaction->delete();
+                file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
+            }
         }
 
         // Fetch the customer details
