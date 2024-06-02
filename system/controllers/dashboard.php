@@ -19,14 +19,20 @@ $month_n = date('n');
 
 $iday = ORM::for_table('tbl_transactions')
     ->where('recharged_on', $mdate)
-    ->where_not_equal('method', 'Customer - Balance')
+    ->where_not_equal('method', 'Kopokopo Manual')
+    ->where_not_equal('method', 'Mpesa Paybill Manual')
     ->sum('price');
 if ($iday == '') {
     $iday = '0.00';
 }
 $ui->assign('iday', $iday);
 
-$imonth = ORM::for_table('tbl_transactions')->where_not_equal('method', 'Customer - Balance')->where_gte('recharged_on', $first_day_month)->where_lte('recharged_on', $mdate)->sum('price');
+$imonth = ORM::for_table('tbl_transactions')
+->where_not_equal('method', 'Mpesa Paybill Manual')
+->where_not_equal('method', 'Kopokopo Manual')
+->where_gte('recharged_on', $first_day_month)
+->where_lte('recharged_on', $mdate)
+->sum('price');
 if ($imonth == '') {
     $imonth = '0.00';
 }
