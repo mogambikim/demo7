@@ -31,7 +31,7 @@
                 <div class="box-header with-border" style="display: flex; justify-content: space-between; align-items: center;">
                     <h3 class="box-title"><i class="fa fa-cog"></i> {Lang::T('General Settings')}</h3>
                     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-left: auto;">
-                        {Lang::T('Need Help? Watch Guide Here')}
+                        {Lang::T('Need Help?')}
                     </button>
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
