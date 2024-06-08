@@ -6,7 +6,7 @@
                 <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
                     <span>{Lang::T('Add Service Plan')}</span>
                     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-left: auto;">
-                        {Lang::T('Need Help?')}
+                        {Lang::T('Need Help? Watch Guide Here')}
                     </button>
                 </div>
 						<div class="panel-body">
