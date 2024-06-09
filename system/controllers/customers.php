@@ -234,15 +234,21 @@ function smarty_modifier_convert_bytes($bytes) {
                         ->group_by('tbl_customers.id');
                 
                     if ($search != '') {
-                        $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
-                                                  array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                        $queryBuilder->where_raw("tbl_customers.username LIKE ? OR tbl_customers.fullname LIKE ? OR tbl_customers.phonenumber LIKE ? OR tbl_customers.email LIKE ? OR tbl_customers.ip_address LIKE ?", 
+                                                 array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
                     }
                 
-                    $paginator = Paginator::build($queryBuilder);
+                    $paginator = Paginator::build($queryBuilder, [
+                        'username' => '%' . $search . '%',
+                        'fullname' => '%' . $search . '%',
+                        'phonenumber' => '%' . $search . '%',
+                        'email' => '%' . $search . '%',
+                        'ip_address' => '%' . $search . '%'
+                    ], $search);
                 
                     $d = $queryBuilder->offset($paginator['startpoint'])
                         ->limit($paginator['limit'])
-                        ->order_by_desc('tbl_customers.id')
+                        ->order_by_asc('tbl_customers.username')
                         ->find_many();
                 
                     $ui->assign('search', htmlspecialchars($search));
@@ -250,6 +256,7 @@ function smarty_modifier_convert_bytes($bytes) {
                     $ui->assign('paginator', $paginator);
                     $ui->display('customers_active_users.tpl');
                     break;
+                
                 
                 
 
@@ -266,15 +273,21 @@ function smarty_modifier_convert_bytes($bytes) {
                             ->group_by('tbl_customers.id');
                     
                         if ($search != '') {
-                            $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
-                                                      array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                            $queryBuilder->where_raw("tbl_customers.username LIKE ? OR tbl_customers.fullname LIKE ? OR tbl_customers.phonenumber LIKE ? OR tbl_customers.email LIKE ? OR tbl_customers.ip_address LIKE ?", 
+                                                     array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
                         }
                     
-                        $paginator = Paginator::build($queryBuilder);
+                        $paginator = Paginator::build($queryBuilder, [
+                            'username' => '%' . $search . '%',
+                            'fullname' => '%' . $search . '%',
+                            'phonenumber' => '%' . $search . '%',
+                            'email' => '%' . $search . '%',
+                            'ip_address' => '%' . $search . '%'
+                        ], $search);
                     
                         $d = $queryBuilder->offset($paginator['startpoint'])
                             ->limit($paginator['limit'])
-                            ->order_by_desc('tbl_customers.id')
+                            ->order_by_asc('tbl_customers.username')
                             ->find_many();
                     
                         $ui->assign('search', htmlspecialchars($search));
