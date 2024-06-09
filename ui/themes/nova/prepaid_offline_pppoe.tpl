@@ -4,7 +4,7 @@
     <div class="col-sm-12">
         <div class="panel panel-hovered mb20 panel-primary">
             <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>{Lang::T('Prepaid Users')}</span>
+                <span>{Lang::T('Offline Users')}</span>
                 {if in_array($_admin['user_type'],['SuperAdmin','Admin'])}
                     <div class="btn-group">
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-right: 10px;">
@@ -21,24 +21,24 @@
             </div>
 
             <ul class="nav nav-tabs nav-justified">
-                <li class="{if $filter == 'list'}active{/if}">
-                    <a href="{$_url}prepaid/list" class="bg-primary">
-                        <i class="fa fa-users"></i> {Lang::T('All Users')}
+                <li class="{if $filter == 'offline_users'}active{/if}">
+                    <a href="{$_url}prepaid/offline_users" class="bg-primary">
+                        <i class="fa fa-users"></i> {Lang::T('All Offline')}
                     </a>
                 </li>
-                <li class="{if $filter == 'hotspot'}active{/if}">
-                    <a href="{$_url}prepaid/list_hotspot" class="bg-warning">
-                        <i class="fa fa-wifi"></i> {Lang::T('Hotspot Users')}
+                <li class="{if $filter == 'offline_hotspot'}active{/if}">
+                    <a href="{$_url}prepaid/offline_hotspot" class="bg-warning">
+                        <i class="fa fa-wifi"></i> {Lang::T('Hotspot')}
                     </a>
                 </li>
-                <li class="{if $filter == 'static'}active{/if}">
-                    <a href="{$_url}prepaid/list_static" class="bg-info">
-                        <i class="fa fa-desktop"></i> {Lang::T('Static Users')}
+                <li class="{if $filter == 'offline_static'}active{/if}">
+                    <a href="{$_url}prepaid/offline_static" class="bg-info">
+                        <i class="fa fa-desktop"></i> {Lang::T('Static')}
                     </a>
                 </li>
-                <li class="{if $filter == 'pppoe'}active{/if}">
-                    <a href="{$_url}prepaid/list_pppoe" class="bg-purple">
-                        <i class="fa fa-exchange"></i> {Lang::T('PPPoE Users')}
+                <li class="{if $filter == 'offline_pppoe'}active{/if}">
+                    <a href="{$_url}prepaid/offline_pppoe" class="bg-purple">
+                        <i class="fa fa-exchange"></i> {Lang::T('PPPoE')}
                     </a>
                 </li>
             </ul>
@@ -46,7 +46,7 @@
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
                     <div class="col-md-8">
-                        <form id="site-search" method="post" action="{$_url}prepaid/list/">
+                        <form id="site-search" method="post" action="{$_url}prepaid/offline_users">
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <span class="fa fa-search"></span>

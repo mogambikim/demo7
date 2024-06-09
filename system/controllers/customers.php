@@ -175,62 +175,233 @@ function smarty_modifier_convert_bytes($bytes) {
                 echo '"' . implode('","', $row) . "\"\n";
             }
             break;
-    case 'list':
-        $search = _post('search');
-        $filter = _get('filter', 'all');
-        run_hook('list_customers');
+            case 'list':
+                $search = _post('search');
+                run_hook('list_customers');
+            
+                if ($search != '') {
+                    $queryBuilder = ORM::for_table('tbl_customers')
+                        ->select('tbl_customers.*')
+                        ->select('tbl_routers.name', 'router_name')
+                        ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                        ->where_raw("tbl_customers.username LIKE ? OR tbl_customers.fullname LIKE ? OR tbl_customers.phonenumber LIKE ? OR tbl_customers.email LIKE ? OR tbl_customers.ip_address LIKE ? OR tbl_customers.service_type LIKE ?", array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+            
+                    $paginator = Paginator::build($queryBuilder, [
+                        'username' => '%' . $search . '%',
+                        'fullname' => '%' . $search . '%',
+                        'phonenumber' => '%' . $search . '%',
+                        'email' => '%' . $search . '%',
+                        'ip_address' => '%' . $search . '%',
+                        'service_type' => '%' . $search . '%'
+                    ], $search);
+            
+                    $d = $queryBuilder->offset($paginator['startpoint'])
+                        ->limit($paginator['limit'])
+                        ->order_by_asc('tbl_customers.username')
+                        ->find_many();
+                } else {
+                    $queryBuilder = ORM::for_table('tbl_customers')
+                        ->select('tbl_customers.*')
+                        ->select('tbl_routers.name', 'router_name')
+                        ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'));
+            
+                    $paginator = Paginator::build($queryBuilder);
+            
+                    $d = $queryBuilder->offset($paginator['startpoint'])
+                        ->limit($paginator['limit'])
+                        ->order_by_desc('tbl_customers.id')
+                        ->find_many();
+                }
+            
+                $ui->assign('search', htmlspecialchars($search));
+                $ui->assign('d', $d);
+                $ui->assign('paginator', $paginator);
+                $ui->display('customers.tpl');
+                break;
+            
+            
 
-        if ($search != '') {
-            $paginator = Paginator::build(ORM::for_table('tbl_customers'), [
-                'username' => '%' . $search . '%',
-                'fullname' => '%' . $search . '%',
-                'phonenumber' => '%' . $search . '%',
-                'email' => '%' . $search . '%',
-                'ip_address' => '%' . $search . '%',
-                'service_type' => '%' . $search . '%'
-            ], $search);
-            $d = ORM::for_table('tbl_customers')
-                ->where_raw("`username` LIKE '%$search%' OR `fullname` LIKE '%$search%' OR `phonenumber` LIKE '%$search%' OR `email` LIKE '%$search%' OR `ip_address` LIKE '%$search%'")
-                ->offset($paginator['startpoint'])
-                ->limit($paginator['limit'])
-                ->order_by_asc('username')
-                ->find_many();
-        } else {
-            $queryBuilder = ORM::for_table('tbl_customers');
+                case 'active_users':
+                    $search = _post('search');
+                    run_hook('list_customers');
+                
+                    $queryBuilder = ORM::for_table('tbl_customers')
+                        ->select('tbl_customers.*')
+                        ->select('tbl_routers.name', 'router_name')
+                        ->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
+                        ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                        ->where('tbl_user_recharges.status', 'on')
+                        ->group_by('tbl_customers.id');
+                
+                    if ($search != '') {
+                        $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
+                                                  array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                    }
+                
+                    $paginator = Paginator::build($queryBuilder);
+                
+                    $d = $queryBuilder->offset($paginator['startpoint'])
+                        ->limit($paginator['limit'])
+                        ->order_by_desc('tbl_customers.id')
+                        ->find_many();
+                
+                    $ui->assign('search', htmlspecialchars($search));
+                    $ui->assign('d', $d);
+                    $ui->assign('paginator', $paginator);
+                    $ui->display('customers_active_users.tpl');
+                    break;
+                
+                
 
-            if ($filter == 'active') {
-                $queryBuilder->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
-                    ->where_gt('tbl_user_recharges.expiration', date('Y-m-d H:i:s'))
-                    ->group_by('tbl_customers.id');
-            } elseif ($filter == 'expired') {
-                $queryBuilder->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
-                    ->where_lte('tbl_user_recharges.expiration', date('Y-m-d H:i:s'))
-                    ->group_by('tbl_customers.id');
-            } elseif ($filter == 'hotspot') {
-                $queryBuilder->where('service_type', 'Hotspot');
-            } elseif ($filter == 'static') {
-                $queryBuilder->where('service_type', 'Static');
-            } elseif ($filter == 'pppoe') {
-                $queryBuilder->where('service_type', 'PPPoE');
-            } elseif ($filter == 'new') {
-                $queryBuilder->where_null('service_type');
-            }
+                    case 'expired_users':
+                        $search = _post('search');
+                        run_hook('list_customers');
+                    
+                        $queryBuilder = ORM::for_table('tbl_customers')
+                            ->select('tbl_customers.*')
+                            ->select('tbl_routers.name', 'router_name')
+                            ->join('tbl_user_recharges', 'tbl_customers.id = tbl_user_recharges.customer_id')
+                            ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                            ->where('tbl_user_recharges.status', 'off')
+                            ->group_by('tbl_customers.id');
+                    
+                        if ($search != '') {
+                            $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
+                                                      array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                        }
+                    
+                        $paginator = Paginator::build($queryBuilder);
+                    
+                        $d = $queryBuilder->offset($paginator['startpoint'])
+                            ->limit($paginator['limit'])
+                            ->order_by_desc('tbl_customers.id')
+                            ->find_many();
+                    
+                        $ui->assign('search', htmlspecialchars($search));
+                        $ui->assign('d', $d);
+                        $ui->assign('paginator', $paginator);
+                        $ui->display('customers_expired_users.tpl');
+                        break;
+                    
+                    
+                
+                        
+                        case 'hotspot_users':
+                            $search = _post('search');
+                            run_hook('list_customers');
+                        
+                            $queryBuilder = ORM::for_table('tbl_customers')
+                                ->select('tbl_customers.*')
+                                ->select('tbl_routers.name', 'router_name')
+                                ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                                ->where('tbl_customers.service_type', 'Hotspot');
+                        
+                            if ($search != '') {
+                                $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
+                                                          array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                            }
+                        
+                            $paginator = Paginator::build($queryBuilder);
+                        
+                            $d = $queryBuilder->offset($paginator['startpoint'])
+                                ->limit($paginator['limit'])
+                                ->order_by_desc('tbl_customers.id')
+                                ->find_many();
+                        
+                            $ui->assign('search', htmlspecialchars($search));
+                            $ui->assign('d', $d);
+                            $ui->assign('paginator', $paginator);
+                            $ui->display('customers_hotspot_users.tpl');
+                            break;
+                        
+                            case 'pppoe_users':
+                                $search = _post('search');
+                                run_hook('list_customers');
+                            
+                                $queryBuilder = ORM::for_table('tbl_customers')
+                                    ->select('tbl_customers.*')
+                                    ->select('tbl_routers.name', 'router_name')
+                                    ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                                    ->where('tbl_customers.service_type', 'PPPoE');
+                            
+                                if ($search != '') {
+                                    $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
+                                                              array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                                }
+                            
+                                $paginator = Paginator::build($queryBuilder);
+                            
+                                $d = $queryBuilder->offset($paginator['startpoint'])
+                                    ->limit($paginator['limit'])
+                                    ->order_by_desc('tbl_customers.id')
+                                    ->find_many();
+                            
+                                $ui->assign('search', htmlspecialchars($search));
+                                $ui->assign('d', $d);
+                                $ui->assign('paginator', $paginator);
+                                $ui->display('customers_pppoe_users.tpl');
+                                break;
 
+                                case 'static_users':
+                                    $search = _post('search');
+                                    run_hook('list_customers');
+                                
+                                    $queryBuilder = ORM::for_table('tbl_customers')
+                                        ->select('tbl_customers.*')
+                                        ->select('tbl_routers.name', 'router_name')
+                                        ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                                        ->where('tbl_customers.service_type', 'Static');
+                                
+                                    if ($search != '') {
+                                        $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
+                                                                  array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                                    }
+                                
+                                    $paginator = Paginator::build($queryBuilder);
+                                
+                                    $d = $queryBuilder->offset($paginator['startpoint'])
+                                        ->limit($paginator['limit'])
+                                        ->order_by_desc('tbl_customers.id')
+                                        ->find_many();
+                                
+                                    $ui->assign('search', htmlspecialchars($search));
+                                    $ui->assign('d', $d);
+                                    $ui->assign('paginator', $paginator);
+                                    $ui->display('customers_static_users.tpl');
+                                    break;
+                                
 
-            $paginator = Paginator::build($queryBuilder);
-
-            $d = $queryBuilder->offset($paginator['startpoint'])
-                ->limit($paginator['limit'])
-                ->order_by_desc('id')
-                ->find_many();
-        }
-
-        $ui->assign('filter', $filter);
-        $ui->assign('search', htmlspecialchars($search));
-        $ui->assign('d', $d);
-        $ui->assign('paginator', $paginator);
-        $ui->display('customers.tpl');
-        break;
+                            
+                                    case 'new_users':
+                                        $search = _post('search');
+                                        run_hook('list_customers');
+                                    
+                                        $queryBuilder = ORM::for_table('tbl_customers')
+                                            ->select('tbl_customers.*')
+                                            ->select('tbl_routers.name', 'router_name')
+                                            ->left_outer_join('tbl_routers', array('tbl_customers.router_id', '=', 'tbl_routers.id'))
+                                            ->where_raw('MONTH(tbl_customers.created_at) = MONTH(CURRENT_DATE())')
+                                            ->where_raw('YEAR(tbl_customers.created_at) = YEAR(CURRENT_DATE())');
+                                    
+                                        if ($search != '') {
+                                            $queryBuilder->where_raw("`tbl_customers`.`username` LIKE ? OR `tbl_customers`.`fullname` LIKE ? OR `tbl_customers`.`phonenumber` LIKE ? OR `tbl_customers`.`email` LIKE ? OR `tbl_customers`.`ip_address` LIKE ?", 
+                                                                      array('%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%', '%' . $search . '%'));
+                                        }
+                                    
+                                        $paginator = Paginator::build($queryBuilder);
+                                    
+                                        $d = $queryBuilder->offset($paginator['startpoint'])
+                                            ->limit($paginator['limit'])
+                                            ->order_by_desc('tbl_customers.id')
+                                            ->find_many();
+                                    
+                                        $ui->assign('search', htmlspecialchars($search));
+                                        $ui->assign('d', $d);
+                                        $ui->assign('paginator', $paginator);
+                                        $ui->display('customers_new_users.tpl');
+                                        break;
+                                    
+            
         case 'edit-balance':
             $customer_id = $routes['2'];
             $customer = ORM::for_table('tbl_customers')->find_one($customer_id);

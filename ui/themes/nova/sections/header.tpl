@@ -595,16 +595,22 @@
                     </a>
                     <ul class="treeview-menu">
                         <li {if $_routes[1] eq 'list'}class="active" {/if}>
-                            <a href="{$_url}prepaid/list">{Lang::T('Active Users')}</a>
+                            <a href="{$_url}prepaid/list">{Lang::T('Prepaid Users')}</a>
                         </li>
-                        {if $_c['disable_voucher'] != 'yes'}
-                            <li {if $_routes[1] eq 'voucher'}class="active" {/if}>
-                                <a href="{$_url}prepaid/voucher">{Lang::T('Vouchers')}</a>
-                            </li>
-                            <li {if $_routes[1] eq 'refill'}class="active" {/if}>
-                                <a href="{$_url}prepaid/refill">{Lang::T('Redeem Voucher')}</a>
-                            </li>
-                        {/if}
+                        <li {if $_routes[1] eq 'list'}class="active" {/if}>
+                            <a href="{$_url}prepaid/active_packages">{Lang::T('Active Users')}</a>
+                        </li>
+                                                <li {if $_routes[1] eq 'list'}class="active" {/if}>
+                            <a href="{$_url}prepaid/expired_packages">{Lang::T('Expired Users')}</a>
+
+                        </li>
+                                                <li {if $_routes[1] eq 'list'}class="active" {/if}>
+                            <a href="{$_url}prepaid/online_users">{Lang::T('Online Users')}</a>
+                        </li>
+
+                                                                        <li {if $_routes[1] eq 'list'}class="active" {/if}>
+                            <a href="{$_url}prepaid/offline_users">{Lang::T('Offline Users')}</a>
+                        </li>
                         <li {if $_routes[1] eq 'recharge'}class="active" {/if}>
                             <a href="{$_url}prepaid/recharge">{Lang::T('Activate User')}</a>
                         </li>

@@ -4,7 +4,7 @@
     <div class="col-sm-12">
         <div class="panel panel-hovered mb20 panel-primary">
             <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>{Lang::T('All Users')}</span>
+                <span>{Lang::T('New Users')}</span>
                 {if in_array($_admin['user_type'],['SuperAdmin','Admin'])}
                     <div class="btn-group">
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-right: 10px;">
@@ -57,7 +57,7 @@
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
                     <div class="col-md-8">
-                        <form id="site-search" method="post" action="{$_url}customers/list">
+                        <form id="site-search" method="post" action="{$_url}customers/static_users">
                             <div class="input-group">
                                 <input type="text" name="search" value="{$search}" class="form-control" placeholder="{Lang::T('Search')}...">
                                 <div class="input-group-btn">

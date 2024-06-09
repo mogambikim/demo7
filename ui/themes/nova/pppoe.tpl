@@ -3,13 +3,18 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-hovered mb20 panel-primary">
-            <div class="panel-heading">
-                <div class="btn-group pull-right">
-                    <a class="btn btn-primary btn-xs" title="save" href="{$_url}services/sync/pppoe"
-                        onclick="return confirm('This will sync/send PPPOE plan to Mikrotik?')"><span
-                            class="glyphicon glyphicon-refresh" aria-hidden="true"></span> sync</a>
-                </div>{Lang::T('PPPOE Plans')}
-            </div>
+<div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
+    <span>{Lang::T('PPPOE Plans')}</span>
+    <div class="btn-group">
+        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-right: 10px;">
+            {Lang::T('Need Help?')}
+        </button>
+        <a class="btn btn-primary btn-xs" title="save" href="{$_url}services/sync/pppoe" onclick="return confirm('This will sync/send PPPOE plan to Mikrotik?')">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> sync
+        </a>
+    </div>
+</div>
+
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
                     <div class="col-md-8">
@@ -76,6 +81,27 @@
                     </table>
                 </div>
                 {$paginator['contents']}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tutorialModal" tabindex="-1" role="dialog" aria-labelledby="tutorialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tutorialModalLabel">Tutorial Video</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/bEp9iOWZqOo?si=l1a8n_O3N5Qc3NJk" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

@@ -89,6 +89,404 @@ switch ($action) {
         $ui->display('prepaid.tpl');
         break;
 
+        case 'list_hotspot':
+            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+            $ui->assign('_title', Lang::T('Hotspot Users'));
+            $search = _post('search');
+            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                ->where('type', 'Hotspot');
+        
+            if ($search != '') {
+                $queryBuilder->where_like('username', '%' . $search . '%');
+            }
+        
+            $paginator = Paginator::build($queryBuilder);
+            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+        
+            $ui->assign('d', $d);
+            $ui->assign('search', $search);
+            $ui->assign('paginator', $paginator);
+            $ui->display('prepaid_list_hotspot.tpl');
+            break;
+        
+        case 'list_static':
+            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+            $ui->assign('_title', Lang::T('Static Users'));
+            $search = _post('search');
+            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                ->where('type', 'Static');
+        
+            if ($search != '') {
+                $queryBuilder->where_like('username', '%' . $search . '%');
+            }
+        
+            $paginator = Paginator::build($queryBuilder);
+            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+        
+            $ui->assign('d', $d);
+            $ui->assign('search', $search);
+            $ui->assign('paginator', $paginator);
+            $ui->display('prepaid_list_static.tpl');
+            break;
+        
+        case 'list_pppoe':
+            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+            $ui->assign('_title', Lang::T('PPPoE Users'));
+            $search = _post('search');
+            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                ->where('type', 'PPPoE');
+        
+            if ($search != '') {
+                $queryBuilder->where_like('username', '%' . $search . '%');
+            }
+        
+            $paginator = Paginator::build($queryBuilder);
+            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+        
+            $ui->assign('d', $d);
+            $ui->assign('search', $search);
+            $ui->assign('paginator', $paginator);
+            $ui->display('prepaid_list_pppoe.tpl');
+            break;
+        
+
+            case 'active_packages':
+                $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                $ui->assign('_title', Lang::T('Active Packages'));
+                $search = _post('search');
+                $queryBuilder = ORM::for_table('tbl_user_recharges')
+                    ->where('status', 'on');
+                
+                if ($search != '') {
+                    $queryBuilder->where_like('username', '%' . $search . '%');
+                }
+                
+                $paginator = Paginator::build($queryBuilder);
+                $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                
+                $ui->assign('d', $d);
+                $ui->assign('search', $search);
+                $ui->assign('paginator', $paginator);
+                $ui->display('prepaid_active.tpl');
+                break;
+            
+            case 'active_hotspot':
+                $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                $ui->assign('_title', Lang::T('Active Hotspot Packages'));
+                $search = _post('search');
+                $queryBuilder = ORM::for_table('tbl_user_recharges')
+                    ->where('status', 'on')
+                    ->where('type', 'Hotspot');
+                
+                if ($search != '') {
+                    $queryBuilder->where_like('username', '%' . $search . '%');
+                }
+                
+                $paginator = Paginator::build($queryBuilder);
+                $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                
+                $ui->assign('d', $d);
+                $ui->assign('search', $search);
+                $ui->assign('paginator', $paginator);
+                $ui->display('prepaid_active_hotspot.tpl');
+                break;
+            
+            case 'active_static':
+                $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                $ui->assign('_title', Lang::T('Active Static Packages'));
+                $search = _post('search');
+                $queryBuilder = ORM::for_table('tbl_user_recharges')
+                    ->where('status', 'on')
+                    ->where('type', 'Static');
+                
+                if ($search != '') {
+                    $queryBuilder->where_like('username', '%' . $search . '%');
+                }
+                
+                $paginator = Paginator::build($queryBuilder);
+                $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                
+                $ui->assign('d', $d);
+                $ui->assign('search', $search);
+                $ui->assign('paginator', $paginator);
+                $ui->display('prepaid_active_static.tpl');
+                break;
+            
+            case 'active_pppoe':
+                $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                $ui->assign('_title', Lang::T('Active PPPoE Packages'));
+                $search = _post('search');
+                $queryBuilder = ORM::for_table('tbl_user_recharges')
+                    ->where('status', 'on')
+                    ->where('type', 'PPPoE');
+                
+                if ($search != '') {
+                    $queryBuilder->where_like('username', '%' . $search . '%');
+                }
+                
+                $paginator = Paginator::build($queryBuilder);
+                $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                
+                $ui->assign('d', $d);
+                $ui->assign('search', $search);
+                $ui->assign('paginator', $paginator);
+                $ui->display('prepaid_active_pppoe.tpl');
+                break;
+            
+        
+                case 'expired_packages':
+                    $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                    $ui->assign('_title', Lang::T('Expired Packages'));
+                    $search = _post('search');
+                    $queryBuilder = ORM::for_table('tbl_user_recharges')
+                        ->where('status', 'off');
+                    
+                    if ($search != '') {
+                        $queryBuilder->where_like('username', '%' . $search . '%');
+                    }
+                    
+                    $paginator = Paginator::build($queryBuilder);
+                    $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                    
+                    $ui->assign('d', $d);
+                    $ui->assign('search', $search);
+                    $ui->assign('paginator', $paginator);
+                    $ui->display('prepaid_expired.tpl');
+                    break;
+                
+                case 'expired_hotspot':
+                    $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                    $ui->assign('_title', Lang::T('Expired Hotspot Packages'));
+                    $search = _post('search');
+                    $queryBuilder = ORM::for_table('tbl_user_recharges')
+                        ->where('status', 'off')
+                        ->where('type', 'Hotspot');
+                    
+                    if ($search != '') {
+                        $queryBuilder->where_like('username', '%' . $search . '%');
+                    }
+                    
+                    $paginator = Paginator::build($queryBuilder);
+                    $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                    
+                    $ui->assign('d', $d);
+                    $ui->assign('search', $search);
+                    $ui->assign('paginator', $paginator);
+                    $ui->display('prepaid_expired_hotspot.tpl');
+                    break;
+                
+                case 'expired_static':
+                    $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                    $ui->assign('_title', Lang::T('Expired Static Packages'));
+                    $search = _post('search');
+                    $queryBuilder = ORM::for_table('tbl_user_recharges')
+                        ->where('status', 'off')
+                        ->where('type', 'Static');
+                    
+                    if ($search != '') {
+                        $queryBuilder->where_like('username', '%' . $search . '%');
+                    }
+                    
+                    $paginator = Paginator::build($queryBuilder);
+                    $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                    
+                    $ui->assign('d', $d);
+                    $ui->assign('search', $search);
+                    $ui->assign('paginator', $paginator);
+                    $ui->display('prepaid_expired_static.tpl');
+                    break;
+                
+                case 'expired_pppoe':
+                    $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                    $ui->assign('_title', Lang::T('Expired PPPoE Packages'));
+                    $search = _post('search');
+                    $queryBuilder = ORM::for_table('tbl_user_recharges')
+                        ->where('status', 'off')
+                        ->where('type', 'PPPoE');
+                    
+                    if ($search != '') {
+                        $queryBuilder->where_like('username', '%' . $search . '%');
+                    }
+                    
+                    $paginator = Paginator::build($queryBuilder);
+                    $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                    
+                    $ui->assign('d', $d);
+                    $ui->assign('search', $search);
+                    $ui->assign('paginator', $paginator);
+                    $ui->display('prepaid_expired_pppoe.tpl');
+                    break;
+                
+        
+                    case 'online_users':
+                        $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                        $ui->assign('_title', Lang::T('Online Users'));
+                        $search = _post('search');
+                        $queryBuilder = ORM::for_table('tbl_user_recharges')
+                            ->where('state', 'Online');
+                        
+                        if ($search != '') {
+                            $queryBuilder->where_like('username', '%' . $search . '%');
+                        }
+                        
+                        $paginator = Paginator::build($queryBuilder);
+                        $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                        
+                        $ui->assign('d', $d);
+                        $ui->assign('search', $search);
+                        $ui->assign('paginator', $paginator);
+                        $ui->display('prepaid_online.tpl');
+                        break;
+                    
+                    case 'online_hotspot':
+                        $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                        $ui->assign('_title', Lang::T('Online Hotspot Users'));
+                        $search = _post('search');
+                        $queryBuilder = ORM::for_table('tbl_user_recharges')
+                            ->where('state', 'Online')
+                            ->where('type', 'Hotspot');
+                        
+                        if ($search != '') {
+                            $queryBuilder->where_like('username', '%' . $search . '%');
+                        }
+                        
+                        $paginator = Paginator::build($queryBuilder);
+                        $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                        
+                        $ui->assign('d', $d);
+                        $ui->assign('search', $search);
+                        $ui->assign('paginator', $paginator);
+                        $ui->display('prepaid_online_hotspot.tpl');
+                        break;
+                    
+                    case 'online_static':
+                        $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                        $ui->assign('_title', Lang::T('Online Static Users'));
+                        $search = _post('search');
+                        $queryBuilder = ORM::for_table('tbl_user_recharges')
+                            ->where('state', 'Online')
+                            ->where('type', 'Static');
+                        
+                        if ($search != '') {
+                            $queryBuilder->where_like('username', '%' . $search . '%');
+                        }
+                        
+                        $paginator = Paginator::build($queryBuilder);
+                        $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                        
+                        $ui->assign('d', $d);
+                        $ui->assign('search', $search);
+                        $ui->assign('paginator', $paginator);
+                        $ui->display('prepaid_online_static.tpl');
+                        break;
+                    
+                    case 'online_pppoe':
+                        $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                        $ui->assign('_title', Lang::T('Online PPPoE Users'));
+                        $search = _post('search');
+                        $queryBuilder = ORM::for_table('tbl_user_recharges')
+                            ->where('state', 'Online')
+                            ->where('type', 'PPPoE');
+                        
+                        if ($search != '') {
+                            $queryBuilder->where_like('username', '%' . $search . '%');
+                        }
+                        
+                        $paginator = Paginator::build($queryBuilder);
+                        $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                        
+                        $ui->assign('d', $d);
+                        $ui->assign('search', $search);
+                        $ui->assign('paginator', $paginator);
+                        $ui->display('prepaid_online_pppoe.tpl');
+                        break;
+                    
+
+                        case 'offline_users':
+                            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                            $ui->assign('_title', Lang::T('Offline Users'));
+                            $search = _post('search');
+                            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                                ->where('state', 'Offline');
+                            
+                            if ($search != '') {
+                                $queryBuilder->where_like('username', '%' . $search . '%');
+                            }
+                            
+                            $paginator = Paginator::build($queryBuilder);
+                            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                            
+                            $ui->assign('d', $d);
+                            $ui->assign('search', $search);
+                            $ui->assign('paginator', $paginator);
+                            $ui->display('prepaid_offline.tpl');
+                            break;
+                        
+                        case 'offline_hotspot':
+                            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                            $ui->assign('_title', Lang::T('Offline Hotspot Users'));
+                            $search = _post('search');
+                            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                                ->where('state', 'Offline')
+                                ->where('type', 'Hotspot');
+                            
+                            if ($search != '') {
+                                $queryBuilder->where_like('username', '%' . $search . '%');
+                            }
+                            
+                            $paginator = Paginator::build($queryBuilder);
+                            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                            
+                            $ui->assign('d', $d);
+                            $ui->assign('search', $search);
+                            $ui->assign('paginator', $paginator);
+                            $ui->display('prepaid_offline_hotspot.tpl');
+                            break;
+                        
+                        case 'offline_static':
+                            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                            $ui->assign('_title', Lang::T('Offline Static Users'));
+                            $search = _post('search');
+                            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                                ->where('state', 'Offline')
+                                ->where('type', 'Static');
+                            
+                            if ($search != '') {
+                                $queryBuilder->where_like('username', '%' . $search . '%');
+                            }
+                            
+                            $paginator = Paginator::build($queryBuilder);
+                            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                            
+                            $ui->assign('d', $d);
+                            $ui->assign('search', $search);
+                            $ui->assign('paginator', $paginator);
+                            $ui->display('prepaid_offline_static.tpl');
+                            break;
+                        
+                        case 'offline_pppoe':
+                            $ui->assign('xfooter', '<script type="text/javascript" src="ui/lib/c/prepaid.js"></script>');
+                            $ui->assign('_title', Lang::T('Offline PPPoE Users'));
+                            $search = _post('search');
+                            $queryBuilder = ORM::for_table('tbl_user_recharges')
+                                ->where('state', 'Offline')
+                                ->where('type', 'PPPoE');
+                            
+                            if ($search != '') {
+                                $queryBuilder->where_like('username', '%' . $search . '%');
+                            }
+                            
+                            $paginator = Paginator::build($queryBuilder);
+                            $d = $queryBuilder->offset($paginator['startpoint'])->limit($paginator['limit'])->order_by_desc('id')->find_array();
+                            
+                            $ui->assign('d', $d);
+                            $ui->assign('search', $search);
+                            $ui->assign('paginator', $paginator);
+                            $ui->display('prepaid_offline_pppoe.tpl');
+                            break;
+                        
+            
+
         case 'recharge':
             _log("Executing recharge case", 'info');
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {

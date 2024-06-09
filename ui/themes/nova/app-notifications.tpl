@@ -4,13 +4,18 @@
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <div class="panel panel-primary panel-hovered panel-stacked mb30">
-                <div class="panel-heading">
-                    <div class="btn-group pull-right">
-                        <button class="btn btn-primary btn-xs" title="save" type="submit"><span
-                                class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
-                    </div>
-                    {Lang::T('User Notification')}
-                </div>
+<div class="panel-heading">
+    <div class="btn-group pull-right">
+        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-right: 5px;">
+            {Lang::T('Need Help?')}
+        </button>
+        <button class="btn btn-primary btn-xs" title="save" type="submit">
+            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+        </button>
+    </div>
+    {Lang::T('User Notification')}
+</div>
+
                 <div class="panel-body">
                     <div class="form-group">
                         <label class="col-md-2 control-label">{Lang::T('Expired Notification Message')}</label>
@@ -213,4 +218,25 @@
         </div>
     </div>
 </form>
+
+<div class="modal fade" id="tutorialModal" tabindex="-1" role="dialog" aria-labelledby="tutorialModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tutorialModalLabel">Tutorial Video</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/_Aiel13F7CM?si=SDZMUrQeDO5BbMJy" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {include file="sections/footer.tpl"}
