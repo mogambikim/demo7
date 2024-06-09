@@ -31,7 +31,7 @@ $captureLogs = file_get_contents("php://input");
 $analizzare = json_decode($captureLogs);
 file_put_contents('back.log', $captureLogs, FILE_APPEND);
 
-// Send the callback data to second_update.php using cURL asynchronously
+// Send the callback data to double_payments.php using cURL asynchronously
 $url = APP_URL . '/double_payments.php';
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_POST, true);
@@ -52,9 +52,9 @@ $resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
 $merchant_req_id = ($analizzare->Body->stkCallback->MerchantRequestID);
 $checkout_req_id = ($analizzare->Body->stkCallback->CheckoutRequestID);
 
-$amount_paid = ($analizzare->Body->stkCallback->CallbackMetadata->Item['0']->Value);
-$mpesa_code = ($analizzare->Body->stkCallback->CallbackMetadata->Item['1']->Value);
-$sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item['3']->Value);  // Adjusted index to 3 for phone number
+$amount_paid = ($analizzare->Body->stkCallback->CallbackMetadata->Item[0]->Value);
+$mpesa_code = ($analizzare->Body->stkCallback->CallbackMetadata->Item[1]->Value);
+$sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item[3]->Value);  // Adjusted index to 3 for phone number
 
 // Log the extracted callback data
 logToFile('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone");
@@ -188,12 +188,27 @@ if ($response_code == "0") {
             ->find_many();
 
         if (count($existingTransactions) > 1) {
-            // Delete newer transactions and keep the latest one
-            $keepTransaction = array_pop($existingTransactions); // Keep the oldest transaction
-            foreach ($existingTransactions as $transaction) {
-                $transaction->delete();
-                file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code\n", FILE_APPEND);
+            // Convert to array for using array_pop
+            $existingTransactionsArray = $existingTransactions->as_array();
+            $keepTransaction = array_pop($existingTransactionsArray); // Keep the most recent transaction
+            logToFile('secondupdate.log', "Keeping transaction with ID: " . $keepTransaction['id']);
+
+            foreach ($existingTransactionsArray as $transaction) {
+                logToFile('secondupdate.log', "Attempting to delete transaction with ID: " . $transaction['id']);
+                try {
+                    $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
+                    if ($transactionToDelete) {
+                        $transactionToDelete->delete();
+                        logToFile('secondupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code and ID: " . $transaction['id']);
+                    } else {
+                        logToFile('secondupdate.log', "Failed to find transaction with ID: " . $transaction['id']);
+                    }
+                } catch (Exception $e) {
+                    logToFile('error.log', "Exception during deletion of transaction ID: " . $transaction['id'] . " - " . $e->getMessage());
+                }
             }
+        } else {
+            logToFile('secondupdate.log', "No duplicates found or only one transaction found for invoice: $mpesa_code");
         }
 
         if (count($existingTransactions) == 0) {
@@ -224,11 +239,16 @@ if ($response_code == "0") {
             ->find_many();
 
         if (count($secondaryCheckTransactions) > 1) {
-            // Delete newer transactions and keep the latest one
-            $keepTransaction = array_pop($secondaryCheckTransactions); // Keep the oldest transaction
-            foreach ($secondaryCheckTransactions as $transaction) {
-                $transaction->delete();
-                file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
+            $secondaryCheckTransactionsArray = $secondaryCheckTransactions->as_array(); // Convert to array
+            $keepTransaction = array_pop($secondaryCheckTransactionsArray); // Keep the most recent transaction
+            foreach ($secondaryCheckTransactionsArray as $transaction) {
+                $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
+                if ($transactionToDelete) {
+                    $transactionToDelete->delete();
+                    file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
+                } else {
+                    file_put_contents('secondupdate.log', "Failed to find transaction with ID: " . $transaction['id'] . "\n", FILE_APPEND);
+                }
             }
         }
 
