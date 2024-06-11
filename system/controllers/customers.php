@@ -793,95 +793,100 @@ function smarty_modifier_convert_bytes($bytes) {
         }
         break;
 
-    case 'add-post':
-        $username = _post('username');
-        $fullname = _post('fullname');
-        $password = _post('password');
-        $pppoe_password = _post('pppoe_password');
-        $email = _post('email');
-        $address = _post('address');
-        $phonenumber = _post('phonenumber');
-        $service_type = _post('service_type');
-        $coordinates = _post('coordinates');
-                //post Customers Attributes
-                $custom_field_names = (array) $_POST['custom_field_name'];
-                $custom_field_values = (array) $_POST['custom_field_value'];
-        $ip_address = _post('ip_address');
-        $router_id = _post('router_id');
-    if ($router_id == '') {
-        $router_id = NULL; // Set router_id to NULL if no selection was made
-    }
-        run_hook('add_customer'); #HOOK
-        $msg = '';
-        if (Validator::Length($username, 35, 2) == false) {
-            $msg .= 'Username should be between 3 to 55 characters' . '<br>';
-        }
-        if (Validator::Length($fullname, 36, 2) == false) {
-            $msg .= 'Full Name should be between 3 to 25 characters' . '<br>';
-        }
-        if (!Validator::Length($password, 36, 2)) {
-            $msg .= 'Password should be between 3 to 35 characters' . '<br>';
-        }
-
-        $d = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
-        if ($d) {
-            $msg .= Lang::T('Account already exist') . '<br>';
-        }
-
-        if ($msg == '') {
-            $d = ORM::for_table('tbl_customers')->create();
-            $d->username = Lang::phoneFormat($username);
-            $d->password = $password;
-            $d->pppoe_password = $pppoe_password;
-            $d->email = $email;
-            $d->fullname = $fullname;
-            $d->address = $address;
-            $d->created_by = $admin['id'];
-            $d->phonenumber = Lang::phoneFormat($phonenumber);
-            $d->service_type = $service_type;
-            $d->coordinates = $coordinates;
-            $d->ip_address = $ip_address;
-            $d->router_id = $router_id;
-            $d->save();
+        case 'add-post':
+            $username = _post('username');
+            $fullname = _post('fullname');
+            $password = _post('password');
+            $pppoe_password = _post('pppoe_password');
+            $email = _post('email');
+            $address = _post('address');
+            $phonenumber = _post('phonenumber');
+            $service_type = _post('service_type');
+            $coordinates = _post('coordinates');
+            $custom_field_names = (array) $_POST['custom_field_name'];
+            $custom_field_values = (array) $_POST['custom_field_value'];
+            $ip_address = _post('ip_address');
+            $router_id = _post('router_id');
             
-            // Retrieve the customer ID of the newly created customer
-            $customerId = $d->id();
-           // Save Customers Attributes details
-            if (!empty($custom_field_names) && !empty($custom_field_values)) {
-                $totalFields = min(count($custom_field_names), count($custom_field_values));
-                for ($i = 0; $i < $totalFields; $i++) {
-                    $name = $custom_field_names[$i];
-                    $value = $custom_field_values[$i];
-
-                    if (!empty($name)) {
-                        $customField = ORM::for_table('tbl_customers_fields')->create();
-                        $customField->customer_id = $customerId;
-                        $customField->field_name = $name;
-                        $customField->field_value = $value;
-                        $customField->save();
+            if ($router_id == '') {
+                $msg = 'A router must be chosen.' . '<br>';
+                r2(U . 'customers/add', 'e', $msg);
+                break;
+            }
+            
+            run_hook('add_customer'); #HOOK
+            
+            $msg = '';
+            if (Validator::Length($username, 35, 2) == false) {
+                $msg .= 'Username should be between 3 to 55 characters' . '<br>';
+            }
+            if (Validator::Length($fullname, 36, 2) == false) {
+                $msg .= 'Full Name should be between 3 to 25 characters' . '<br>';
+            }
+            if (!Validator::Length($password, 36, 2)) {
+                $msg .= 'Password should be between 3 to 35 characters' . '<br>';
+            }
+        
+            $d = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
+            if ($d) {
+                $msg .= Lang::T('Account already exist') . '<br>';
+            }
+        
+            if ($msg == '') {
+                $d = ORM::for_table('tbl_customers')->create();
+                $d->username = Lang::phoneFormat($username);
+                $d->password = $password;
+                $d->pppoe_password = $pppoe_password;
+                $d->email = $email;
+                $d->fullname = $fullname;
+                $d->address = $address;
+                $d->created_by = $admin['id'];
+                $d->phonenumber = Lang::phoneFormat($phonenumber);
+                $d->service_type = $service_type;
+                $d->coordinates = $coordinates;
+                $d->ip_address = $ip_address;
+                $d->router_id = $router_id;
+                $d->save();
+                
+                // Retrieve the customer ID of the newly created customer
+                $customerId = $d->id();
+                // Save Customers Attributes details
+                if (!empty($custom_field_names) && !empty($custom_field_values)) {
+                    $totalFields = min(count($custom_field_names), count($custom_field_values));
+                    for ($i = 0; $i < $totalFields; $i++) {
+                        $name = $custom_field_names[$i];
+                        $value = $custom_field_values[$i];
+        
+                        if (!empty($name)) {
+                            $customField = ORM::for_table('tbl_customers_fields')->create();
+                            $customField->customer_id = $customerId;
+                            $customField->field_name = $name;
+                            $customField->field_value = $value;
+                            $customField->save();
+                        }
                     }
                 }
+        
+                // After saving the new customer
+                // Load the notifications.json file
+                $notifications = json_decode(file_get_contents($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'notifications.json'), true);
+                
+                if (isset($notifications['account_created_sms'])) {
+                    // Prepare the message text
+                    $message = $notifications['account_created_sms'];
+                    $message = str_replace('[[name]]', $d->fullname, $message);
+                    $message = str_replace('[[user_name]]', $d->username, $message);
+                    $message = str_replace('[[user_password]]', $d->password, $message);
+                    // Send the SMS
+                    Message::sendAccountCreateNotification($d->phonenumber, $d->fullname, $d->username, $d->password, $message, $config['user_notification_expired']);
+                }
+                
+                r2(U . 'customers/list', 's', Lang::T('Account Created Successfully'));
+            } else {
+                r2(U . 'customers/add', 'e', $msg);
             }
-
-            // After saving the new customer
-            // Load the notifications.json file
-            $notifications = json_decode(file_get_contents($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'notifications.json'), true);
-            
-            if (isset($notifications['account_created_sms'])) {
-                // Prepare the message text
-                $message = $notifications['account_created_sms'];
-                $message = str_replace('[[name]]', $d->fullname, $message);
-                $message = str_replace('[[user_name]]', $d->username, $message);
-                $message = str_replace('[[user_password]]', $d->password, $message);
-                // Send the SMS
-                Message::sendAccountCreateNotification($d->phonenumber, $d->fullname, $d->username, $d->password, $message, $config['user_notification_expired']);
-            }
-            
-            r2(U . 'customers/list', 's', Lang::T('Account Created Successfully'));
-        } else {
-            r2(U . 'customers/add', 'e', $msg);
-        }
-        break;
+            break;
+        
 
     case 'edit-post':
         $username = Lang::phoneFormat(_post('username'));

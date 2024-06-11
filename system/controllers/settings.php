@@ -19,12 +19,16 @@ switch ($action) {
         }
 
         if (!empty(_get('testWa'))) {
-            $result = Message::sendWhatsapp(_get('testWa'), 'FreeIspRadius Test Whatsapp');
+            $result = Message::sendWhatsapp(_get('testWa'), 'PHPNuxBill Test Whatsapp');
             r2(U . "settings/app", 's', 'Test Whatsapp has been send<br>Result: ' . $result);
         }
         if (!empty(_get('testSms'))) {
             $result = Message::sendSMS(_get('testSms'), 'FreeIspRadius Test SMS');
             r2(U . "settings/app", 's', 'Test SMS has been send<br>Result: ' . $result);
+        }
+        if (!empty(_get('testEmail'))) {
+            Message::sendEmail(_get('testEmail'), 'FreeIspRadius Test Mail', 'FreeIspRadius Test Email Body');
+            r2(U . "settings/app", 's', 'Test Email has been send');
         }
         if (!empty(_get('testTg'))) {
             $result = Message::sendTelegram('FreeIspRadius Test Telegram');

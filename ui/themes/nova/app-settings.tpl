@@ -339,57 +339,139 @@
                     <small id="emailHelp" class="form-text text-muted">You can use WhatsApp in here too. <a
                             href="https://sms.freeispradius.com" target="_blank">Free Server</a></small>
                 </div>
-                <div class="panel-heading">
+
+
+
+                               <div class="panel-heading">
                     <div class="btn-group pull-right">
+                        <a class="btn btn-success btn-xs" style="color: black;" href="javascript:testEmail()">Test
+                            Email</a>
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
                                 class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
                     </div>
-                    {Lang::T('User Notification')}
+                    {Lang::T('Email Notification')}
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{Lang::T('Expired Notification')}</label>
-                        <div class="col-md-6">
-                            <select name="user_notification_expired" id="user_notification_expired"
-                                class="form-control">
-                                <option value="none">None</option>
-                                <option value="wa" {if $_c['user_notification_expired'] == 'wa'}selected="selected"
-                                    {/if}>Whatsapp</option>
-                                <option value="sms" {if $_c['user_notification_expired'] == 'sms'}selected="selected"
-                                    {/if}>SMS</option>
-                            </select>
+                        <label class="col-md-2 control-label">SMTP Host : port</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="smtp_host" name="smtp_host"
+                                value="{$_c['smtp_host']}" placeholder="smtp.host.tld">
                         </div>
-                        <p class="help-block col-md-4">{Lang::T('User will get notification when package expired')}</p>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" id="smtp_port" name="smtp_port"
+                                value="{$_c['smtp_port']}" placeholder="465 587 port">
+                        </div>
+                        <p class="help-block col-md-4">Empty this to use internal mail() PHP</p>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{Lang::T('Payment Notification')}</label>
+                        <label class="col-md-2 control-label">SMTP username</label>
                         <div class="col-md-6">
-                            <select name="user_notification_payment" id="user_notification_payment"
-                                class="form-control">
-                                <option value="none">None</option>
-                                <option value="wa" {if $_c['user_notification_payment'] == 'wa'}selected="selected"
-                                    {/if}>Whatsapp</option>
-                                <option value="sms" {if $_c['user_notification_payment'] == 'sms'}selected="selected"
-                                    {/if}>SMS</option>
-                            </select>
+                            <input type="text" class="form-control" id="smtp_user" name="smtp_user"
+                                value="{$_c['smtp_user']}" placeholder="user@host.tld">
                         </div>
-                        <p class="help-block col-md-4">
-                            {Lang::T('User will get invoice notification when buy package or package refilled')}</p>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-2 control-label">{Lang::T('Reminder Notification')}</label>
+                        <label class="col-md-2 control-label">SMTP Password</label>
                         <div class="col-md-6">
-                            <select name="user_notification_reminder" id="user_notification_reminder"
-                                class="form-control">
-                                <option value="none">None</option>
-                                <option value="wa" {if $_c['user_notification_reminder'] == 'wa'}selected="selected"
-                                    {/if}>Whatsapp</option>
-                                <option value="sms" {if $_c['user_notification_reminder'] == 'sms'}selected="selected"
-                                    {/if}>SMS</option>
+                            <input type="password" class="form-control" id="smtp_pass" name="smtp_pass"
+                                value="{$_c['smtp_pass']}" onmouseleave="this.type = 'password'"
+                                onmouseenter="this.type = 'text'">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">SMTP Security</label>
+                        <div class="col-md-6">
+                            <select name="smtp_ssltls" id="smtp_ssltls" class="form-control">
+                                <option value="" {if $_c['smtp_ssltls']=='' }selected="selected" {/if}>Not Secure
+                                </option>
+                                <option value="ssl" {if $_c['smtp_ssltls']=='ssl' }selected="selected" {/if}>SSL
+                                </option>
+                                <option value="tls" {if $_c['smtp_ssltls']=='tls' }selected="selected" {/if}>TLS
+                                </option>
                             </select>
                         </div>
+                        <p class="help-block col-md-4">UPPERCASE lowercase RaNdoM</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Mail From</label>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="mail_from" name="mail_from"
+                                value="{$_c['mail_from']}" placeholder="noreply@host.tld">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Mail Reply To</label>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="mail_reply_to" name="mail_reply_to"
+                                value="{$_c['mail_reply_to']}" placeholder="support@host.tld">
+                        </div>
+                        <p class="help-block col-md-4">Customer will reply email to this address, empty if you want to
+                            use From Address</p>
                     </div>
                 </div>
+
+
+
+<div class="panel-heading">
+    <div class="btn-group pull-right">
+        <button class="btn btn-primary btn-xs" title="save" type="submit">
+            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+        </button>
+    </div>
+    {Lang::T('User Notification')}
+</div>
+<div class="panel-body">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{Lang::T('Expired Notification')}</label>
+        <div class="col-md-6">
+            <select name="user_notification_expired" id="user_notification_expired" class="form-control">
+                <option value="none" {if $_c['user_notification_expired'] == 'none'}selected="selected"{/if}>None</option>
+                <option value="wa" {if $_c['user_notification_expired'] == 'wa'}selected="selected"{/if}>WhatsApp</option>
+                <option value="sms" {if $_c['user_notification_expired'] == 'sms'}selected="selected"{/if}>SMS</option>
+                <option value="email" {if $_c['user_notification_expired'] == 'email'}selected="selected"{/if}>Email</option>
+                <option value="both" {if $_c['user_notification_expired'] == 'both'}selected="selected"{/if}>WhatsApp and SMS</option>
+                <option value="sms_email" {if $_c['user_notification_expired'] == 'sms_email'}selected="selected"{/if}>SMS and Email</option>
+                <option value="email_wa" {if $_c['user_notification_expired'] == 'email_wa'}selected="selected"{/if}>Email and WhatsApp</option>
+                <option value="all" {if $_c['user_notification_expired'] == 'all'}selected="selected"{/if}>All</option>
+            </select>
+        </div>
+        <p class="help-block col-md-4">{Lang::T('User will get notification when package expired')}</p>
+    </div>
+    <div class="form-group">
+        <label class="col-md-2 control-label">{Lang::T('Payment Notification')}</label>
+        <div class="col-md-6">
+            <select name="user_notification_payment" id="user_notification_payment" class="form-control">
+                <option value="none" {if $_c['user_notification_payment'] == 'none'}selected="selected"{/if}>None</option>
+                <option value="wa" {if $_c['user_notification_payment'] == 'wa'}selected="selected"{/if}>WhatsApp</option>
+                <option value="sms" {if $_c['user_notification_payment'] == 'sms'}selected="selected"{/if}>SMS</option>
+                <option value="email" {if $_c['user_notification_payment'] == 'email'}selected="selected"{/if}>Email</option>
+                <option value="both" {if $_c['user_notification_payment'] == 'both'}selected="selected"{/if}>WhatsApp and SMS</option>
+                <option value="sms_email" {if $_c['user_notification_payment'] == 'sms_email'}selected="selected"{/if}>SMS and Email</option>
+                <option value="email_wa" {if $_c['user_notification_payment'] == 'email_wa'}selected="selected"{/if}>Email and WhatsApp</option>
+                <option value="all" {if $_c['user_notification_payment'] == 'all'}selected="selected"{/if}>All</option>
+            </select>
+        </div>
+        <p class="help-block col-md-4">{Lang::T('User will get invoice notification when buying a package or refilling a package')}</p>
+    </div>
+    <div class="form-group">
+        <label class="col-md-2 control-label">{Lang::T('Reminder Notification')}</label>
+        <div class="col-md-6">
+            <select name="user_notification_reminder" id="user_notification_reminder" class="form-control">
+                <option value="none" {if $_c['user_notification_reminder'] == 'none'}selected="selected"{/if}>None</option>
+                <option value="wa" {if $_c['user_notification_reminder'] == 'wa'}selected="selected"{/if}>WhatsApp</option>
+                <option value="sms" {if $_c['user_notification_reminder'] == 'sms'}selected="selected"{/if}>SMS</option>
+                <option value="email" {if $_c['user_notification_reminder'] == 'email'}selected="selected"{/if}>Email</option>
+                <option value="both" {if $_c['user_notification_reminder'] == 'both'}selected="selected"{/if}>WhatsApp and SMS</option>
+                <option value="sms_email" {if $_c['user_notification_reminder'] == 'sms_email'}selected="selected"{/if}>SMS and Email</option>
+                <option value="email_wa" {if $_c['user_notification_reminder'] == 'email_wa'}selected="selected"{/if}>Email and WhatsApp</option>
+                <option value="all" {if $_c['user_notification_reminder'] == 'all'}selected="selected"{/if}>All</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+
                 <div class="panel-heading">
                     <div class="btn-group pull-right">
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
@@ -531,6 +613,13 @@ add dst-host=*.{$_domain}</pre>
     }
     function testTg() {
         window.location.href = '{$_url}settings/app&testTg=test';
+    }
+
+        function testEmail() {
+        var target = prompt("Email\nSave First before Test", "");
+        if (target != null) {
+            window.location.href = '{$_url}settings/app&testEmail=' + target;
+        }
     }
 </script>
 

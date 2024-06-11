@@ -7,7 +7,7 @@
                 <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
                     <span>{Lang::T('Add New Contact')}</span>
                     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-left: auto;">
-                        {Lang::T('Need Help?')}
+                        {Lang::T('Need Help? Watch Guide Here')}
                     </button>
                 </div>
                 <div class="panel-body">
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
             <div class="modal-body">
                 <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/e00RsnZZ5wE?si=SMGZr8eDKZgHojCG" allowfullscreen></iframe>
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/M91aZf1wrEw?si=f3cxhNtD6wDbMBwz" allowfullscreen></iframe>
                 </div>
             </div>
             <div class="modal-footer">

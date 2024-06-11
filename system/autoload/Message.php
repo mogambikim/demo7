@@ -3,6 +3,12 @@
  *  PHP Mikrotik Billing (https://github.com/hotspo/)
  *  by https://t.me/ibnux
  **/
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+require $root_path . 'system/autoload/mail/Exception.php';
+require $root_path . 'system/autoload/mail/PHPMailer.php';
+require $root_path . 'system/autoload/mail/SMTP.php';
 
 class Message
 {
@@ -69,8 +75,10 @@ class Message
     public static function sendEmail($to, $subject, $body)
     {
         global $config;
+        if(empty($body)){
+            return "";
+        }
         run_hook('send_email'); #HOOK
-
         if (empty($config['smtp_host'])) {
             $attr = "";
             if (!empty($config['mail_from'])) {
@@ -83,7 +91,7 @@ class Message
         } else {
             $mail = new PHPMailer();
             $mail->isSMTP();
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $mail->SMTPDebug = SMTP::DEBUG_OFF; // Disable debug output
             $mail->Host       = $config['smtp_host'];
             $mail->SMTPAuth   = true;
             $mail->Username   = $config['smtp_user'];
@@ -101,7 +109,6 @@ class Message
             $mail->Subject = $subject;
             $mail->Body    = $body;
             $mail->send();
-            die();
         }
     }
 
@@ -115,36 +122,46 @@ class Message
         if ($u) {
             $msg = str_replace('[[expired_date]]', Lang::dateAndTimeFormat($u['expiration'], $u['time']), $msg);
         }
-
+    
         if (
             !empty($customer['phonenumber']) && strlen($customer['phonenumber']) > 5
-            && !empty($message) && in_array($via, ['sms', 'wa'])
+            && !empty($message) && in_array($via, ['sms', 'wa', 'email', 'both', 'sms_email', 'email_wa', 'all'])
         ) {
-            if ($via == 'sms') {
+            if ($via == 'sms' || $via == 'both' || $via == 'sms_email' || $via == 'all') {
                 Message::sendSMS($customer['phonenumber'], $msg);
-            } else if ($via == 'wa') {
+            }
+            if ($via == 'wa' || $via == 'both' || $via == 'email_wa' || $via == 'all') {
                 Message::sendWhatsapp($customer['phonenumber'], $msg);
             }
+            if ($via == 'email' || $via == 'sms_email' || $via == 'email_wa' || $via == 'all') {
+                $subject = "Package Notification";
+                Message::sendEmail($customer['email'], $subject, $msg);
+            }
         }
-
+    
         return "$via: $msg";
     }
 
     public static function sendBalanceNotification($phone, $name, $balance, $balance_now, $message, $customer, $via)
     {
         $msg = str_replace('[[username]]', $customer['username'], $message);
-        $msg = str_replace('[[name]]', $name, $message);
+        $msg = str_replace('[[name]]', $name, $msg);
         $msg = str_replace('[[current_balance]]', Lang::moneyFormat($balance_now), $msg);
         $msg = str_replace('[[balance]]', Lang::moneyFormat($balance), $msg);
-
+    
         if (
             !empty($phone) && strlen($phone) > 5
-            && !empty($message) && in_array($via, ['sms', 'wa'])
+            && !empty($message) && in_array($via, ['sms', 'wa', 'email', 'both', 'sms_email', 'email_wa', 'all'])
         ) {
-            if ($via == 'sms') {
+            if ($via == 'sms' || $via == 'both' || $via == 'sms_email' || $via == 'all') {
                 Message::sendSMS($phone, $msg);
-            } else if ($via == 'wa') {
+            }
+            if ($via == 'wa' || $via == 'both' || $via == 'email_wa' || $via == 'all') {
                 Message::sendWhatsapp($phone, $msg);
+            }
+            if ($via == 'email' || $via == 'sms_email' || $via == 'email_wa' || $via == 'all') {
+                $subject = "Balance Notification";
+                Message::sendEmail($customer['email'], $subject, $msg);
             }
         }
         return "$via: $msg";
@@ -176,13 +193,18 @@ class Message
         $textInvoice = str_replace('[[password]]', $cust['password'], $textInvoice);
         $textInvoice = str_replace('[[expired_date]]', Lang::dateAndTimeFormat($trx['expiration'], $trx['time']), $textInvoice);
         $textInvoice = str_replace('[[footer]]', $config['note'], $textInvoice);
-
+    
         $phoneNumber = $cust['phonenumber'];
-
-        if ($config['user_notification_payment'] == 'sms') {
+    
+        if ($config['user_notification_payment'] == 'sms' || $config['user_notification_payment'] == 'both' || $config['user_notification_payment'] == 'sms_email' || $config['user_notification_payment'] == 'all') {
             Message::sendSMS($phoneNumber, $textInvoice);
-        } else if ($config['user_notification_payment'] == 'wa') {
+        }
+        if ($config['user_notification_payment'] == 'wa' || $config['user_notification_payment'] == 'both' || $config['user_notification_payment'] == 'email_wa' || $config['user_notification_payment'] == 'all') {
             Message::sendWhatsapp($phoneNumber, $textInvoice);
+        }
+        if ($config['user_notification_payment'] == 'email' || $config['user_notification_payment'] == 'sms_email' || $config['user_notification_payment'] == 'email_wa' || $config['user_notification_payment'] == 'all') {
+            $subject = "Invoice Paid Notification";
+            Message::sendEmail($cust['email'], $subject, $textInvoice);
         }
     }
 
@@ -191,15 +213,20 @@ class Message
         $msg = str_replace('[[name]]', $name, $message);
         $msg = str_replace('[[user_name]]', $username, $msg);
         $msg = str_replace('[[user_password]]', $password, $msg);
-
+    
         if (
             !empty($phone) && strlen($phone) > 5
-            && !empty($message) && in_array($via, ['sms', 'wa'])
+            && !empty($message) && in_array($via, ['sms', 'wa', 'email', 'both', 'sms_email', 'email_wa', 'all'])
         ) {
-            if ($via == 'sms') {
+            if ($via == 'sms' || $via == 'both' || $via == 'sms_email' || $via == 'all') {
                 Message::sendSMS($phone, $msg);
-            } else if ($via == 'wa') {
+            }
+            if ($via == 'wa' || $via == 'both' || $via == 'email_wa' || $via == 'all') {
                 Message::sendWhatsapp($phone, $msg);
+            }
+            if ($via == 'email' || $via == 'sms_email' || $via == 'email_wa' || $via == 'all') {
+                $subject = "Account Created Notification";
+                Message::sendEmail($phone, $subject, $msg);
             }
         }
         return "$via: $msg";
@@ -210,12 +237,17 @@ class Message
         if (!empty($message)) {
             $msg = str_replace('[[amount]]', $amount, $message);
             $msg = str_replace('[[phone]]', $phone, $msg);
-
+    
             if (!empty($phone) && strlen($phone) > 5) {
-                if ($via == 'sms') {
+                if ($via == 'sms' || $via == 'both' || $via == 'sms_email' || $via == 'all') {
                     Message::sendSMS($phone, $msg);
-                } else if ($via == 'wa') {
+                }
+                if ($via == 'wa' || $via == 'both' || $via == 'email_wa' || $via == 'all') {
                     Message::sendWhatsapp($phone, $msg);
+                }
+                if ($via == 'email' || $via == 'sms_email' || $via == 'email_wa' || $via == 'all') {
+                    $subject = "Unknown Payment Notification";
+                    Message::sendEmail($phone, $subject, $msg);
                 }
             }
         }
