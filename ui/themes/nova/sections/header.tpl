@@ -614,6 +614,9 @@
                         <li {if $_routes[1] eq 'recharge'}class="active" {/if}>
                             <a href="{$_url}prepaid/recharge">{Lang::T('Activate User')}</a>
                         </li>
+
+                                                            <li {if $_routes[1] eq 'voucher' }class="active" {/if}><a
+                                            href="{$_url}prepaid/voucher">{Lang::T('Vouchers')}</a></li>
                         {$_MENU_PREPAID}
                     </ul>
                 </li>

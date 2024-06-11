@@ -730,280 +730,308 @@ switch ($action) {
         }
         break;
 
-    case 'voucher':
-        $ui->assign('_title', Lang::T('Prepaid Vouchers'));
-        $limit = 10;
-        $page = _get('p', 0);
-        $pageNow = $page * $limit;
-        $search = _req('search');
-        if ($search != '') {
+        case 'voucher':
+            $ui->assign('_title', Lang::T('Vouchers'));
+            $search = _req('search');
+            if ($search != '') {
+                if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                    $query = ORM::for_table('tbl_plans')->where('enabled', '1')
+                        ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                        ->where_like('tbl_voucher.code', '%' . $search . '%');
+                    $d = Paginator::findMany($query, ["search" => $search]);
+                } else if ($admin['user_type'] == 'Agent') {
+                    $sales = [];
+                    $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+                    foreach ($sls as $s) {
+                        $sales[] = $s['id'];
+                    }
+                    $sales[] = $admin['id'];
+                    $query = ORM::for_table('tbl_plans')
+                        ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                        ->where_in('generated_by', $sales)
+                        ->where_like('tbl_voucher.code', '%' . $search . '%');
+                    $d = Paginator::findMany($query, ["search" => $search]);
+                }
+            } else {
+                if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                    $query = ORM::for_table('tbl_plans')->where('enabled', '1')
+                        ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'));
+                    $d = Paginator::findMany($query);
+                } else if ($admin['user_type'] == 'Agent') {
+                    $sales = [];
+                    $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+                    foreach ($sls as $s) {
+                        $sales[] = $s['id'];
+                    }
+                    $sales[] = $admin['id'];
+                    $query = ORM::for_table('tbl_plans')
+                        ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                        ->where_in('generated_by', $sales);
+                    $d = Paginator::findMany($query);
+                }
+            }
+            // extract admin
+            $admins = [];
+            foreach ($d as $k) {
+                if (!empty($k['generated_by'])) {
+                    $admins[] = $k['generated_by'];
+                }
+            }
+            if (count($admins) > 0) {
+                $adms = ORM::for_table('tbl_users')->where_in('id', $admins)->find_many();
+                unset($admins);
+                foreach ($adms as $adm) {
+                    $tipe = $adm['user_type'];
+                    if ($tipe == 'Sales') {
+                        $tipe = ' [S]';
+                    } else if ($tipe == 'Agent') {
+                        $tipe = ' [A]';
+                    } else {
+                        $tipe == '';
+                    }
+                    $admins[$adm['id']] = $adm['fullname'] . $tipe;
+                }
+            }
+            $ui->assign('admins', $admins);
+            $ui->assign('d', $d);
+            $ui->assign('search', $search);
+            $ui->assign('page', $page);
+            run_hook('view_list_voucher'); #HOOK
+            $ui->display('voucher.tpl');
+            break;
+    
+        case 'add-voucher':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+            $ui->assign('_title', Lang::T('Add Vouchers'));
+            $c = ORM::for_table('tbl_customers')->find_many();
+            $ui->assign('c', $c);
+            $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
+            $ui->assign('p', $p);
+            $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
+            $ui->assign('r', $r);
+            run_hook('view_add_voucher'); #HOOK
+            $ui->display('voucher-add.tpl');
+            break;
+    
+        case 'remove-voucher':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+            $d = ORM::for_table('tbl_voucher')->where_equal('status', '1')->findMany();
+            if ($d) {
+                $jml = 0;
+                foreach ($d as $v) {
+                    if (!ORM::for_table('tbl_user_recharges')->where_equal("method", 'Voucher - ' . $v['code'])->findOne()) {
+                        $v->delete();
+                        $jml++;
+                    }
+                }
+                r2(U . 'prepaid/voucher', 's', "$jml " . Lang::T('Data Deleted Successfully'));
+            }
+        case 'print-voucher':
+            $from_id = _post('from_id');
+            $planid = _post('planid');
+            $pagebreak = _post('pagebreak');
+            $limit = _post('limit');
+            $vpl = _post('vpl');
+            if (empty($vpl)) {
+                $vpl = 3;
+            }
+            if ($pagebreak < 1) $pagebreak = 12;
+    
+            if ($limit < 1) $limit = $pagebreak * 2;
+            if (empty($from_id)) {
+                $from_id = 0;
+            }
+    
+            if ($from_id > 0 && $planid > 0) {
+                $v = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->where('tbl_plans.id', $planid)
+                    ->where_gt('tbl_voucher.id', $from_id)
+                    ->limit($limit);
+                $vc = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->where('tbl_plans.id', $planid)
+                    ->where_gt('tbl_voucher.id', $from_id);
+            } else if ($from_id == 0 && $planid > 0) {
+                $v = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->where('tbl_plans.id', $planid)
+                    ->limit($limit);
+                $vc = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->where('tbl_plans.id', $planid);
+            } else if ($from_id > 0 && $planid == 0) {
+                $v = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->where_gt('tbl_voucher.id', $from_id)
+                    ->limit($limit);
+                $vc = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->where_gt('tbl_voucher.id', $from_id);
+            } else {
+                $v = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0')
+                    ->limit($limit);
+                $vc = ORM::for_table('tbl_plans')
+                    ->left_outer_join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
+                    ->where('tbl_voucher.status', '0');
+            }
             if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-                $d = ORM::for_table('tbl_plans')->where('enabled', '1')
-                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                    ->where_like('tbl_voucher.code', '%' . $search . '%')
-                    ->offset($pageNow)
-                    ->limit($limit)
-                    ->findArray();
-            } else if ($admin['user_type'] == 'Agent') {
+                $v = $v->find_many();
+                $vc = $vc->count();
+            } else {
                 $sales = [];
                 $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
                 foreach ($sls as $s) {
                     $sales[] = $s['id'];
                 }
                 $sales[] = $admin['id'];
-                $d = ORM::for_table('tbl_plans')
-                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                    ->where_in('generated_by', $sales)
-                    ->where_like('tbl_voucher.code', '%' . $search . '%')
-                    ->offset($pageNow)
-                    ->limit($limit)
-                    ->findArray();
+                $v = $v->where_in('generated_by', $sales)->find_many();
+                $vc = $vc->where_in('generated_by', $sales)->count();
             }
-        } else {
-            if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-                $d = ORM::for_table('tbl_plans')->where('enabled', '1')
-                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                    ->offset($pageNow)
-                    ->limit($limit)
-                    ->findArray();
-            } else if ($admin['user_type'] == 'Agent') {
-                $sales = [];
-                $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
-                foreach ($sls as $s) {
-                    $sales[] = $s['id'];
+            $template = file_get_contents("pages/Voucher.html");
+            $template = str_replace('[[company_name]]', $config['CompanyName'], $template);
+    
+            $ui->assign('_title', Lang::T('Hotspot Voucher'));
+            $ui->assign('from_id', $from_id);
+            $ui->assign('vpl', $vpl);
+            $ui->assign('pagebreak', $pagebreak);
+    
+            $plans = ORM::for_table('tbl_plans')->find_many();
+            $ui->assign('plans', $plans);
+            $ui->assign('limit', $limit);
+            $ui->assign('planid', $planid);
+    
+            $voucher = [];
+            $n = 1;
+            foreach ($v as $vs) {
+                $temp = $template;
+                $temp = str_replace('[[qrcode]]', '<img src="qrcode/?data=' . $vs['code'] . '">', $temp);
+                $temp = str_replace('[[price]]', Lang::moneyFormat($vs['price']), $temp);
+                $temp = str_replace('[[voucher_code]]', $vs['code'], $temp);
+                $temp = str_replace('[[plan]]', $vs['name_plan'], $temp);
+                $temp = str_replace('[[counter]]', $n, $temp);
+                $voucher[] = $temp;
+                $n++;
+            }
+    
+            $ui->assign('voucher', $voucher);
+            $ui->assign('vc', $vc);
+    
+            //for counting pagebreak
+            $ui->assign('jml', 0);
+            run_hook('view_print_voucher'); #HOOK
+            $ui->display('print-voucher.tpl');
+            break;
+        case 'voucher-post':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+            $type = _post('type');
+            $plan = _post('plan');
+            $voucher_format = _post('voucher_format');
+            $prefix = _post('prefix');
+            $server = _post('server');
+            $numbervoucher = _post('numbervoucher');
+            $lengthcode = _post('lengthcode');
+    
+            $msg = '';
+            if ($type == '' or $plan == '' or $server == '' or $numbervoucher == '' or $lengthcode == '') {
+                $msg .= Lang::T('All field is required') . '<br>';
+            }
+            if (Validator::UnsignedNumber($numbervoucher) == false) {
+                $msg .= 'The Number of Vouchers must be a number' . '<br>';
+            }
+            if (Validator::UnsignedNumber($lengthcode) == false) {
+                $msg .= 'The Length Code must be a number' . '<br>';
+            }
+            if ($msg == '') {
+                if (!empty($prefix)) {
+                    $d = ORM::for_table('tbl_appconfig')->where('setting', 'voucher_prefix')->find_one();
+                    if ($d) {
+                        $d->value = $prefix;
+                        $d->save();
+                    } else {
+                        $d = ORM::for_table('tbl_appconfig')->create();
+                        $d->setting = 'voucher_prefix';
+                        $d->value = $prefix;
+                        $d->save();
+                    }
                 }
-                $sales[] = $admin['id'];
-                $d = ORM::for_table('tbl_plans')
-                    ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                    ->where_in('generated_by', $sales)
-                    ->offset($pageNow)
-                    ->limit($limit)
-                    ->findArray();
-            }
-        }
-
-        $ui->assign('d', $d);
-        $ui->assign('search', $search);
-        $ui->assign('page', $page);
-        run_hook('view_list_voucher'); #HOOK
-        $ui->display('voucher.tpl');
-        break;
-
-    case 'add-voucher':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
-            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-        }
-        $ui->assign('_title', Lang::T('Add Vouchers'));
-        $c = ORM::for_table('tbl_customers')->find_many();
-        $ui->assign('c', $c);
-        $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
-        $ui->assign('p', $p);
-        $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
-        $ui->assign('r', $r);
-        run_hook('view_add_voucher'); #HOOK
-        $ui->display('voucher-add.tpl');
-        break;
-
-    case 'remove-voucher':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-        }
-        $d = ORM::for_table('tbl_voucher')->where_equal('status', '1')->findMany();
-        if ($d) {
-            $jml = 0;
-            foreach ($d as $v) {
-                if (!ORM::for_table('tbl_user_recharges')->where_equal("method", 'Voucher - ' . $v['code'])->findOne()) {
-                    $v->delete();
-                    $jml++;
+                run_hook('create_voucher'); #HOOK
+                $vouchers = [];
+                if($voucher_format == 'numbers'){
+                    if (strlen($lengthcode)<6) {
+                        $msg .= 'The Length Code must be a more than 6 for numbers' . '<br>';
+                    }
+                    $vouchers = generateUniqueNumericVouchers($numbervoucher, $lengthcode);
                 }
-            }
-            r2(U . 'prepaid/voucher', 's', "$jml ".Lang::T('Data Deleted Successfully'));
-        }
-    case 'print-voucher':
-        $from_id = _post('from_id');
-        $planid = _post('planid');
-        $pagebreak = _post('pagebreak');
-        $limit = _post('limit');
-        $vpl = _post('vpl');
-        if (empty($vpl)) {
-            $vpl = 3;
-        }
-        if ($pagebreak < 1) $pagebreak = 12;
-
-        if ($limit < 1) $limit = $pagebreak * 2;
-        if (empty($from_id)) {
-            $from_id = 0;
-        }
-
-        if ($from_id > 0 && $planid > 0) {
-            $v = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->where('tbl_plans.id', $planid)
-                ->where_gt('tbl_voucher.id', $from_id)
-                ->limit($limit);
-            $vc = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->where('tbl_plans.id', $planid)
-                ->where_gt('tbl_voucher.id', $from_id);
-        } else if ($from_id == 0 && $planid > 0) {
-            $v = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->where('tbl_plans.id', $planid)
-                ->limit($limit);
-            $vc = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->where('tbl_plans.id', $planid)
-                ->count();
-        } else if ($from_id > 0 && $planid == 0) {
-            $v = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->where_gt('tbl_voucher.id', $from_id)
-                ->limit($limit);
-            $vc = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->where_gt('tbl_voucher.id', $from_id);
-        } else {
-            $v = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0')
-                ->limit($limit);
-            $vc = ORM::for_table('tbl_plans')
-                ->join('tbl_voucher', array('tbl_plans.id', '=', 'tbl_voucher.id_plan'))
-                ->where('tbl_voucher.status', '0');
-        }
-        if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-            $v = $v->find_many();
-            $vc = $vc->count();
-        } else {
-            $sales = [];
-            $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
-            foreach ($sls as $s) {
-                $sales[] = $s['id'];
-            }
-            $sales[] = $admin['id'];
-            $v = $v->where_in('generated_by', $sales)->find_many();
-            $vc = $vc->where_in('generated_by', $sales)->count();
-        }
-        $template = file_get_contents("pages/Voucher.html");
-        $template = str_replace('[[company_name]]', $config['CompanyName'], $template);
-
-        $ui->assign('_title', Lang::T('Hotspot Voucher'));
-        $ui->assign('from_id', $from_id);
-        $ui->assign('vpl', $vpl);
-        $ui->assign('pagebreak', $pagebreak);
-
-        $plans = ORM::for_table('tbl_plans')->find_many();
-        $ui->assign('plans', $plans);
-        $ui->assign('limit', $limit);
-        $ui->assign('planid', $planid);
-
-        $voucher = [];
-        $n = 1;
-        foreach ($v as $vs) {
-            $temp = $template;
-            $temp = str_replace('[[qrcode]]', '<img src="qrcode/?data=' . $vs['code'] . '">', $temp);
-            $temp = str_replace('[[price]]', Lang::moneyFormat($vs['price']), $temp);
-            $temp = str_replace('[[voucher_code]]', $vs['code'], $temp);
-            $temp = str_replace('[[plan]]', $vs['name_plan'], $temp);
-            $temp = str_replace('[[counter]]', $n, $temp);
-            $voucher[] = $temp;
-            $n++;
-        }
-
-        $ui->assign('voucher', $voucher);
-        $ui->assign('vc', $vc);
-
-        //for counting pagebreak
-        $ui->assign('jml', 0);
-        run_hook('view_print_voucher'); #HOOK
-        $ui->display('print-voucher.tpl');
-        break;
-    case 'voucher-post':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
-            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-        }        
-        $type = _post('type');
-        $plan = _post('plan');
-        $voucher_format = _post('voucher_format');
-        $prefix = _post('prefix');
-        $server = _post('server');
-        $numbervoucher = _post('numbervoucher');
-        $lengthcode = _post('lengthcode');
-
-        $msg = '';
-        if ($type == '' or $plan == '' or $server == '' or $numbervoucher == '' or $lengthcode == '') {
-            $msg .= Lang::T('All field is required') . '<br>';
-        }
-        if (Validator::UnsignedNumber($numbervoucher) == false) {
-            $msg .= 'The Number of Vouchers must be a number' . '<br>';
-        }
-        if (Validator::UnsignedNumber($lengthcode) == false) {
-            $msg .= 'The Length Code must be a number' . '<br>';
-        }
-        if ($msg == '') {
-            if(!empty($prefix)){
-                $d = ORM::for_table('tbl_appconfig')->where('setting', 'voucher_prefix')->find_one();
-                if ($d) {
-                    $d->value = $prefix;
-                    $d->save();
-                } else {
-                    $d = ORM::for_table('tbl_appconfig')->create();
-                    $d->setting = 'voucher_prefix';
-                    $d->value = $prefix;
+                else {
+                    for ($i = 0; $i < $numbervoucher; $i++) {
+                        $code = strtoupper(substr(md5(time() . rand(10000, 99999)), 0, $lengthcode));
+                        if ($voucher_format == 'low') {
+                            $code = strtolower($code);
+                        } else if ($voucher_format == 'rand') {
+                            $code = Lang::randomUpLowCase($code);
+                        }
+                        $vouchers[] = $code;
+    
+                    }
+                }
+    
+                foreach($vouchers as $code){
+                    $d = ORM::for_table('tbl_voucher')->create();
+                    $d->type = $type;
+                    $d->routers = $server;
+                    $d->id_plan = $plan;
+                    $d->code = $prefix . $code;
+                    $d->user = '0';
+                    $d->status = '0';
+                    $d->generated_by = $admin['id'];
                     $d->save();
                 }
-            }
-            run_hook('create_voucher'); #HOOK
-            for ($i = 0; $i < $numbervoucher; $i++) {
-                $code = strtoupper(substr(md5(time() . rand(10000, 99999)), 0, $lengthcode));
-                if ($voucher_format == 'low') {
-                    $code = strtolower($code);
-                } else if ($voucher_format == 'rand') {
-                    $code = Lang::randomUpLowCase($code);
+                if ($numbervoucher == 1) {
+                    r2(U . 'prepaid/voucher-view/' . $d->id(), 's', Lang::T('Create Vouchers Successfully'));
                 }
-                $d = ORM::for_table('tbl_voucher')->create();
-                $d->type = $type;
-                $d->routers = $server;
-                $d->id_plan = $plan;
-                $d->code = $prefix . $code;
-                $d->user = '0';
-                $d->status = '0';
-                $d->generated_by = $admin['id'];
-                $d->save();
+    
+                r2(U . 'prepaid/voucher', 's', Lang::T('Create Vouchers Successfully'));
+            } else {
+                r2(U . 'prepaid/add-voucher/' . $id, 'e', $msg);
             }
-
-            r2(U . 'prepaid/voucher', 's', Lang::T('Create Vouchers Successfully'));
-        } else {
-            r2(U . 'prepaid/add-voucher/' . $id, 'e', $msg);
-        }
-        break;
+            break;
+    
         case 'voucher-view':
             $id = $routes[2];
             if (in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
                 $voucher = ORM::for_table('tbl_voucher')->find_one($id);
-            }else{
+            } else {
                 $sales = [];
-            $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
-            foreach ($sls as $s) {
-                $sales[] = $s['id'];
+                $sls = ORM::for_table('tbl_users')->select('id')->where('root', $admin['id'])->findArray();
+                foreach ($sls as $s) {
+                    $sales[] = $s['id'];
+                }
+                $sales[] = $admin['id'];
+                $voucher = ORM::for_table('tbl_voucher')
+                    ->find_one($id);
+                if (!in_array($voucher['generated_by'], $sales)) {
+                    r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
+                }
             }
-            $sales[] = $admin['id'];
-            $voucher = ORM::for_table('tbl_voucher')
-                ->find_one($id);
-            if (!in_array($voucher['generated_by'], $sales)) {
+            if (!$voucher) {
                 r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
             }
-        }
-        if (!$voucher) {
-            r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
-            }
-            $plan = ORM::for_table('tbl_plans')->find_one($d['id_plan']);
+            $plan = ORM::for_table('tbl_plans')->find_one($voucher['id_plan']);
             if ($voucher && $plan) {
                 $content = Lang::pad($config['CompanyName'], ' ', 2) . "\n";
                 $content .= Lang::pad($config['address'], ' ', 2) . "\n";
@@ -1034,24 +1062,22 @@ switch ($action) {
                 $ui->assign('_title', Lang::T('View'));
                 $ui->assign('whatsapp', urlencode("```$content```"));
                 $ui->display('voucher-view.tpl');
-            }else{
+            } else {
                 r2(U . 'prepaid/voucher/', 'e', Lang::T('Voucher Not Found'));
             }
             break;
-
-    case 'voucher-delete':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-        }
-        $id  = $routes['2'];
-        run_hook('delete_voucher'); #HOOK
-        $d = ORM::for_table('tbl_voucher')->find_one($id);
-        if ($d) {
-            $d->delete();
-            r2(U . 'prepaid/voucher', 's', Lang::T('Data Deleted Successfully'));
-        }
-        break;
-
+        case 'voucher-delete':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+            $id  = $routes['2'];
+            run_hook('delete_voucher'); #HOOK
+            $d = ORM::for_table('tbl_voucher')->find_one($id);
+            if ($d) {
+                $d->delete();
+                r2(U . 'prepaid/voucher', 's', Lang::T('Data Deleted Successfully'));
+            }
+            break;
     case 'refill':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
             _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
