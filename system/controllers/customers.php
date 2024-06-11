@@ -788,7 +788,7 @@ function smarty_modifier_convert_bytes($bytes) {
                 } catch (Throwable $e) {
                 }
             }
-
+            _log('[' . $admin['username'] . ']: Customer ' . $deletedUsername . ' deleted successfully', $admin['user_type'], $admin['id']);
             r2(U . 'customers/list', 's', Lang::T('User deleted Successfully'));
         }
         break;
@@ -847,6 +847,8 @@ function smarty_modifier_convert_bytes($bytes) {
                 $d->ip_address = $ip_address;
                 $d->router_id = $router_id;
                 $d->save();
+
+                _log('[' . $admin['username'] . ']: Customer ' . $d->username . ' created successfully', $admin['user_type'], $admin['id']);
                 
                 // Retrieve the customer ID of the newly created customer
                 $customerId = $d->id();
@@ -964,6 +966,7 @@ function smarty_modifier_convert_bytes($bytes) {
             $d->ip_address = $ip_address;
             $d->router_id = $router_id; // Update router_id in the customer record
             $d->save();
+            _log('[' . $admin['username'] . ']: Customer ' . $d->username . ' edited successfully', $admin['user_type'], $admin['id']);
 
              // Update Customers Attributes values in tbl_customers_fields table
              foreach ($customFields as $customField) {

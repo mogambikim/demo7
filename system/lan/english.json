@@ -768,5 +768,7 @@
     "Online_Hotspot_Users": "Online Hotspot Users",
     "Online_PPPoE_Users": "Online PPPoE Users",
     "Email_Notification": "Email Notification",
-    "User_will_get_invoice_notification_when_buying_a_package_or_refilling_a_package": "User will get invoice notification when buying a package or refilling a package"
+    "User_will_get_invoice_notification_when_buying_a_package_or_refilling_a_package": "User will get invoice notification when buying a package or refilling a package",
+    "Edit_Hotspot_Plan": "Edit Hotspot Plan",
+    "Search_tutorials": "Search tutorials"
 }

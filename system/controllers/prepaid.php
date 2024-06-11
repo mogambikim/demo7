@@ -493,7 +493,7 @@ switch ($action) {
                 _log("User " . strval($admin['username']) . " does not have permission to access the recharge page", 'error');
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             } else {
-                _log("User " . strval($admin['username']) . " has permission to access the recharge page", 'info');
+
                 $ui->assign('xfooter', $select2_customer);
                 $p = ORM::for_table('tbl_plans')->where('enabled', '1')->find_many();
                 $ui->assign('p', $p);
@@ -503,18 +503,15 @@ switch ($action) {
                     $ui->assign('cust', ORM::for_table('tbl_customers')->find_one($routes['2']));
                 }
                 run_hook('view_recharge'); #HOOK
-                _log("Displaying recharge.tpl template", 'info');
                 $ui->display('recharge.tpl');
             }
             break;
         
         case 'recharge-user':
-            _log("Executing recharge-user case", 'info');
+
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
-                _log("User " . strval($admin['username']) . " does not have permission to access the recharge user page", 'error');
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             } else {
-                _log("User " . strval($admin['username']) . " has permission to access the recharge user page", 'info');
                 $id = $routes['2'];
                 $ui->assign('id', $id);
                 $c = ORM::for_table('tbl_customers')->find_many();
@@ -524,7 +521,6 @@ switch ($action) {
                 $r = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();
                 $ui->assign('r', $r);
                 run_hook('view_recharge_customer'); #HOOK
-                _log("Displaying recharge-user.tpl template", 'info');
                 $ui->display('recharge-user.tpl');
             }
             break;

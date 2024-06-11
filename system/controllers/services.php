@@ -317,6 +317,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             }
 
             $d->delete();
+            _log('[' . $admin['username'] . ']: Hotspot Plan ' . $planName . ' deleted successfully', $admin['user_type'], $admin['id']);
 
             r2(U . 'services/hotspot', 's', Lang::T('Data Deleted Successfully'));
         }
@@ -433,6 +434,8 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             $d->allow_purchase = $allow_purchase;
             $d->save();
             $plan_id = $d->id();
+
+            _log('[' . $admin['username'] . ']: Hotspot Plan ' . $d->name_plan . ' created successfully', $admin['user_type'], $admin['id']);
 
             if ($d['is_radius']) {
                 Radius::planUpSert($plan_id, $radiusRate);
@@ -575,6 +578,8 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             $d->allow_purchase = $allow_purchase;
             $d->save();
 
+            _log('[' . $admin['username'] . ']: Hotspot Plan ' . $d->name_plan . ' edited successfully', $admin['user_type'], $admin['id']);
+
             r2(U . 'services/hotspot', 's', Lang::T('Data Updated Successfully'));
         } else {
             r2(U . 'services/edit/' . $id, 'e', $msg);
@@ -657,6 +662,8 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
                 }
             }
             $d->delete();
+
+            _log('[' . $admin['username'] . ']: PPPoE Plan ' . $planName . ' deleted successfully', $admin['user_type'], $admin['id']);
 
             r2(U . 'services/pppoe', 's', Lang::T('Data Deleted Successfully'));
         }
@@ -778,6 +785,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             $d->allow_purchase = $allow_purchase;
             $d->save();
             $plan_id = $d->id();
+            _log('[' . $admin['username'] . ']: PPPoE Plan ' . $d->name_plan . ' created successfully', $admin['user_type'], $admin['id']);
 
             if ($d['is_radius']) {
                 Radius::planUpSert($plan_id, $radiusRate, $pool);
@@ -909,6 +917,7 @@ if (!empty($b['burst_time_for_upload']) && !empty($b['burst_time_for_download'])
             $d->allow_purchase = $allow_purchase;
             $d->save();
 //check here needs more
+_log('[' . $admin['username'] . ']: PPPoE Plan ' . $d->name_plan . ' Edited successfully', $admin['user_type'], $admin['id']);
             r2(U . 'services/pppoe', 's', Lang::T('Data Updated Successfully'));
         } else {
             r2(U . 'services/pppoe-edit/' . $id, 'e', $msg);
@@ -1010,6 +1019,8 @@ case 'static':
                 }
             }
             $d->delete();
+
+            _log('[' . $admin['username'] . ']: Static Plan ' . $planName . ' deleted successfully', $admin['user_type'], $admin['id']);
 
 
                 r2(U . 'services/static', 's', Lang::T('Data Deleted Successfully'));
@@ -1135,6 +1146,8 @@ case 'static':
                     $d->save();
                     $plan_id = $d->id();
 
+                    _log('[' . $admin['username'] . ']: Static Plan ' . $d->name_plan . ' created successfully', $admin['user_type'], $admin['id']);
+
                     if ($d['is_radius']) {
                         Radius::planUpSert($plan_id, $radiusRate, $pool);
                     } else {
@@ -1230,6 +1243,7 @@ case 'static':
             $d->enabled = $enabled;
             $d->allow_purchase = $allow_purchase;
             $d->save();
+            _log('[' . $admin['username'] . ']: Static Plan ' . $d->name_plan . ' edited successfully', $admin['user_type'], $admin['id']);
 //check here needs more
             r2(U . 'services/static', 's', Lang::T('Data Updated Successfully'));
         } else {

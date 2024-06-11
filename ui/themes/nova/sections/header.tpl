@@ -615,8 +615,13 @@
                             <a href="{$_url}prepaid/recharge">{Lang::T('Activate User')}</a>
                         </li>
 
-                                                            <li {if $_routes[1] eq 'voucher' }class="active" {/if}><a
-                                            href="{$_url}prepaid/voucher">{Lang::T('Vouchers')}</a></li>
+<li {if $_routes[1] eq 'voucher' }class="active" {/if}>
+    <a href="{$_url}prepaid/voucher">
+        {Lang::T('Vouchers')}
+        <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    </a>
+</li>
+
                         {$_MENU_PREPAID}
                     </ul>
                 </li>
@@ -802,15 +807,22 @@
 
 
             <li class="{if $_system_menu eq 'message'}active{/if} treeview">
-                <a href="#">
-                    <i class="ion ion-android-chat"></i> <span>{Lang::T('Extras')}</span>
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
+<a href="#">
+    <i class="ion ion-android-chat"></i> 
+    <span>{Lang::T('Extras')}</span>
+    <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    <span class="pull-right-container">
+        <i class="fa fa-angle-left pull-right"></i>
+    </span>
+</a>
+
                 <ul class="treeview-menu">
-                    <li {if $_routes[1] eq 'send'}class="active" {/if}>
-                        <a href="{$_url}message/send">{Lang::T('Tutorials')}</a>
+<li {if $_routes[1] eq 'tutorials'}class="active" {/if}>
+    <a href="{$_url}tutorials/list">
+        {Lang::T('Tutorials')}
+        <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    </a>
+</li>
                     </li>
                     <li {if $_routes[1] eq 'send_bulk'}class="active" {/if}>
                         <a href="{$_url}message/send_bulk">{Lang::T('Human Resource')}</a>

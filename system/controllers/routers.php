@@ -230,6 +230,8 @@ switch ($action) {
             $d->description = $description;
             $d->enabled = $enabled;
             $d->save();
+
+            _log('[' . $admin['username'] . ']: Router ' . $d->name . ' edited successfully', $admin['user_type'], $admin['id']);
             if ($name != $oldname) {
                 $p = ORM::for_table('tbl_plans')->where('routers', $oldname)->find_result_set();
                 $p->set('routers', $name);
