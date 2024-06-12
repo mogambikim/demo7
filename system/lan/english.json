@@ -770,5 +770,22 @@
     "Email_Notification": "Email Notification",
     "User_will_get_invoice_notification_when_buying_a_package_or_refilling_a_package": "User will get invoice notification when buying a package or refilling a package",
     "Edit_Hotspot_Plan": "Edit Hotspot Plan",
-    "Search_tutorials": "Search tutorials"
+    "Search_tutorials": "Search tutorials",
+    "Schedule_Messages": "Schedule Messages",
+    "Schedule_Time": "Schedule Time",
+    "Schedule_Message": "Schedule Message",
+    "Schedule_SMS": "Schedule SMS",
+    "Router_Backup": "Router Backup",
+    "Select_Router": "Select Router",
+    "Backup_Router": "Backup Router",
+    "Router_Backups": "Router Backups",
+    "User_Disabled_Successfully": "User Disabled Successfully",
+    "User_Enabled_Successfully": "User Enabled Successfully",
+    "Wireless_Settings": "Wireless Settings",
+    "Current_SSID": "Current SSID",
+    "New_SSID": "New SSID",
+    "Wireless_settings_updated_successfully": "Wireless settings updated successfully",
+    "Error__": "Error: ",
+    "SSID_and_Password_are_required": "SSID and Password are required",
+    "Select_a_Router": "Select a Router"
 }

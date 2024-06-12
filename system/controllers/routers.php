@@ -177,7 +177,127 @@ switch ($action) {
         }
         break;
 
+        case 'backup':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+    
+            // Retrieve the router list for the backup option
+            $routers = ORM::for_table('tbl_routers')->find_many();
+            $ui->assign('routers', $routers);
+    
+            // Display the backup template
+            $ui->display('router_backup.tpl');
+            break;
+    
+        case 'backup-post':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+    
+            $router_id = _post('router_id');
+            $router = ORM::for_table('tbl_routers')->find_one($router_id);
+    
+            if ($router) {
+                try {
+                    $result = Mikrotik::backupRouter($router['ip_address'], $router['username'], $router['password']);
+                    if ($result) {
+                        r2(U . 'routers/backup', 's', Lang::T('Router backup completed successfully.'));
+                    } else {
+                        r2(U . 'routers/backup', 'e', Lang::T('Failed to backup router.'));
+                    }
+                } catch (Exception $e) {
+                    r2(U . 'routers/backup', 'e', Lang::T('Error: ') . $e->getMessage());
+                }
+            } else {
+                r2(U . 'routers/backup', 'e', Lang::T('Router not found.'));
+            }
+            break;
 
+            case 'wireless':
+                $routers = ORM::for_table('tbl_routers')->find_many();
+                $ui->assign('routers', $routers);
+                $ui->assign('current_ssid', '');
+                $ui->assign('selected_router', null);
+            
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    if (_post('action') == 'select_router') {
+                        $id = _post('router_id');
+                        $router = ORM::for_table('tbl_routers')->find_one($id);
+            
+                        if ($router) {
+                            try {
+                                $client = Mikrotik::getClient($router['ip_address'], $router['username'], $router['password']);
+                                $ssidRequest = new RouterOS\Request('/interface/wireless/print');
+                                $ssidResponse = $client->sendSync($ssidRequest);
+                                $ssid = $ssidResponse->getProperty('ssid');
+            
+                                $ui->assign('current_ssid', $ssid);
+                                $ui->assign('selected_router', $router);
+                            } catch (Exception $e) {
+                                r2(U . 'routers/wireless', 'e', Lang::T('Error: ') . $e->getMessage());
+                            }
+                        }
+                    } else {
+                        $id = _post('router_id');
+                        $ssid = _post('ssid');
+                        $password = _post('password');
+            
+                        if ($ssid == '') {
+                            r2(U . "routers/wireless/$id", 'e', Lang::T('SSID is required'));
+                        }
+            
+                        $router = ORM::for_table('tbl_routers')->find_one($id);
+                        if (!$router) {
+                            r2(U . 'routers/list', 'e', Lang::T('Router Not Found'));
+                        }
+            
+                        try {
+                            $client = Mikrotik::getClient($router['ip_address'], $router['username'], $router['password']);
+                            $ssidRequest = new RouterOS\Request('/interface/wireless/set');
+                            $ssidRequest->setArgument('numbers', '0'); // Assuming '0' is the wireless interface index
+                            $ssidRequest->setArgument('ssid', $ssid);
+                            $client->sendSync($ssidRequest);
+            
+                            if ($password != '') {
+                                $passwordRequest = new RouterOS\Request('/interface/wireless/security-profiles/set');
+                                $passwordRequest->setArgument('numbers', 'default'); // Assuming 'default' is the security profile name
+                                $passwordRequest->setArgument('wpa-pre-shared-key', $password);
+                                $passwordRequest->setArgument('wpa2-pre-shared-key', $password);
+                                $client->sendSync($passwordRequest);
+                            }
+            
+                            r2(U . "routers/wireless/$id", 's', Lang::T('Wireless settings updated successfully'));
+                        } catch (Exception $e) {
+                            r2(U . "routers/wireless/$id", 'e', Lang::T('Error: ') . $e->getMessage());
+                        }
+                    }
+                } else {
+                    $id = $routes['2'];
+                    if ($id) {
+                        $router = ORM::for_table('tbl_routers')->find_one($id);
+                        if ($router) {
+                            try {
+                                $client = Mikrotik::getClient($router['ip_address'], $router['username'], $router['password']);
+                                $ssidRequest = new RouterOS\Request('/interface/wireless/print');
+                                $ssidResponse = $client->sendSync($ssidRequest);
+                                $ssid = $ssidResponse->getProperty('ssid');
+            
+                                $ui->assign('current_ssid', $ssid);
+                                $ui->assign('selected_router', $router);
+                            } catch (Exception $e) {
+                                r2(U . 'routers/wireless', 'e', Lang::T('Error: ') . $e->getMessage());
+                            }
+                        }
+                    }
+                }
+            
+                $ui->display('routers-wireless.tpl');
+                break;
+            
+            
+
+            
     case 'edit-post':
         $name = _post('name');
         $ip_address = _post('ip_address');

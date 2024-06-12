@@ -235,6 +235,62 @@ EOT;
         $ui->display('message-bulk.tpl');
         break;
 
+        case 'schedule':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+    
+            // Retrieve customers
+            $ui->assign('customers', ORM::for_table('tbl_customers')->find_many());
+    
+            // Assign the scheduling form script
+            $ui->assign('xfooter', $select2_customer);
+            $ui->display('schedule.tpl');
+            break;
+    
+            case 'schedule-post':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                }
+            
+                // Get form data
+                $group = $_POST['group'];
+                $message = $_POST['message'];
+                $via = $_POST['via'];
+                $schedule_time = $_POST['schedule_time'];
+                $batch = $_POST['batch'];
+                $delay = $_POST['delay'];
+            
+                // Debugging: Log the received form data
+                error_log("Form Data: Group = $group, Message = $message, Via = $via, Schedule Time = $schedule_time, Batch = $batch, Delay = $delay");
+            
+                // Check if fields are empty
+                if ($group == '' || $message == '' || $via == '' || $schedule_time == '') {
+                    r2(U . 'message/schedule', 'e', Lang::T('All fields are required'));
+                } else {
+                    // Save the schedule in the database
+                    $schedule = ORM::for_table('tbl_scheduled_messages')->create();
+                    $schedule->group = $group;
+                    $schedule->message = $message;
+                    $schedule->via = $via;
+                    $schedule->schedule_time = $schedule_time;
+                    $schedule->batch = $batch;
+                    $schedule->delay = $delay;
+                    $schedule->status = 'pending';
+                    $schedule->save();
+            
+                    // Debugging: Check if the schedule was saved
+                    if ($schedule->id()) {
+                        error_log("Schedule Saved: ID = " . $schedule->id());
+                    } else {
+                        error_log("Failed to save schedule.");
+                    }
+            
+                    r2(U . 'message/schedule', 's', Lang::T('Message Scheduled Successfully'));
+                }
+                break;
+            
+
         case 'specific':
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");

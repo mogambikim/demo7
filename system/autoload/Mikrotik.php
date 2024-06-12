@@ -927,4 +927,210 @@ public static function addStaticUser($client, $plan, $customer)
         return $response;
     }
 
+
+    public static function backupRouter($ip_address, $username, $password) {
+        try {
+            $client = new RouterOS\Client($ip_address, $username, $password);
+            $backup = new RouterOS\Request('/system/backup/save');
+            $backup->setArgument('name', 'backup_' . date('Ymd_His'));
+            $client->sendSync($backup);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    public static function disablePpoeUser($client, $username)
+{
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+    // Find the user by username
+    $printRequest = new RouterOS\Request('/ppp/secret/print');
+    $printRequest->setQuery(RouterOS\Query::where('name', $username));
+    $user = $client->sendSync($printRequest)->getProperty('.id');
+    
+    // If user is found, disable them
+    if ($user) {
+        $disableRequest = new RouterOS\Request('/ppp/secret/set');
+        $disableRequest->setArgument('.id', $user);
+        $disableRequest->setArgument('disabled', 'yes');
+        $client->sendSync($disableRequest);
+    }
+}
+
+public static function disableHotspotUser($client, $username)
+{
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+    $printRequest = new RouterOS\Request(
+        '/ip/hotspot/user/print',
+        RouterOS\Query::where('name', $username)
+    );
+    $userID = $client->sendSync($printRequest)->getProperty('.id');
+    if ($userID) {
+        $disableRequest = new RouterOS\Request('/ip/hotspot/user/set');
+        $disableRequest->setArgument('.id', $userID);
+        $disableRequest->setArgument('disabled', 'yes');
+        $client->sendSync($disableRequest);
+    }
+}
+
+
+public static function disableStaticUser($client, $username)
+{
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+
+    // Retrieve the customer data from the database
+    $customer = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
+
+    if (!$customer) {
+        // Handle the case where the customer was not found in the database
+        return;
+    }
+
+    // Get the IP address from the customer data
+    $ipAddress = $customer->ip_address;
+
+    try {
+        // Find the address list entry and disable it
+        $findAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/print');
+        $findAddressListRequest->setQuery(Query::where('list', 'allowed')->andWhere('address', $ipAddress));
+        $addressListResponses = $client->sendSync($findAddressListRequest);
+        foreach ($addressListResponses as $addressListResponse) {
+            if ($addressListResponse->getType() === RouterOS\Response::TYPE_DATA) {
+                $addressListId = $addressListResponse->getProperty('.id');
+                $address = $addressListResponse->getProperty('address');
+                if ($address === $ipAddress) {
+                    $disableAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/set');
+                    $disableAddressListRequest->setArgument('.id', $addressListId);
+                    $disableAddressListRequest->setArgument('disabled', 'yes');
+                    $client->sendSync($disableAddressListRequest);
+                }
+            }
+        }
+
+        // Find the queue and disable it
+        $findQueueRequest = new RouterOS\Request('/queue/simple/print');
+        $findQueueRequest->setQuery(Query::where('target', $ipAddress .'/32'));
+        $queueResponses = $client->sendSync($findQueueRequest);
+
+        foreach ($queueResponses as $queueResponse) {
+            if ($queueResponse->getType() === RouterOS\Response::TYPE_DATA) {
+                $queueId = $queueResponse->getProperty('.id');
+                $target = $queueResponse->getProperty('target');
+                if ($target === $ipAddress .'/32') {
+                    $disableQueueRequest = new RouterOS\Request('/queue/simple/set');
+                    $disableQueueRequest->setArgument('.id', $queueId);
+                    $disableQueueRequest->setArgument('disabled', 'yes');
+                    $client->sendSync($disableQueueRequest);
+                }
+            }
+        }
+
+    } catch (Exception $e) {
+        // Handle the error
+        // Error handling logic here
+    }
+}
+
+public static function enableHotspotUser($client, $username)
+{
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+    $printRequest = new RouterOS\Request(
+        '/ip/hotspot/user/print',
+        RouterOS\Query::where('name', $username)
+    );
+    $userID = $client->sendSync($printRequest)->getProperty('.id');
+    if ($userID) {
+        $enableRequest = new RouterOS\Request('/ip/hotspot/user/set');
+        $enableRequest->setArgument('.id', $userID);
+        $enableRequest->setArgument('disabled', 'no');
+        $client->sendSync($enableRequest);
+    }
+}
+
+public static function enablePpoeUser($client, $username)
+{
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+    $printRequest = new RouterOS\Request('/ppp/secret/print');
+    $printRequest->setQuery(RouterOS\Query::where('name', $username));
+    $id = $client->sendSync($printRequest)->getProperty('.id');
+    if ($id) {
+        $enableRequest = new RouterOS\Request('/ppp/secret/set');
+        $enableRequest->setArgument('.id', $id);
+        $enableRequest->setArgument('disabled', 'no');
+        $client->sendSync($enableRequest);
+    }
+}
+
+public static function enableStaticUser($client, $username)
+{
+    global $_app_stage;
+    if ($_app_stage == 'demo') {
+        return null;
+    }
+
+    $customer = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
+
+    if (!$customer) {
+        return;
+    }
+
+    $ipAddress = $customer->ip_address;
+
+    try {
+        $findAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/print');
+        $findAddressListRequest->setQuery(Query::where('list', 'allowed')->andWhere('address', $ipAddress));
+        $addressListResponses = $client->sendSync($findAddressListRequest);
+        foreach ($addressListResponses as $addressListResponse) {
+            if ($addressListResponse->getType() === RouterOS\Response::TYPE_DATA) {
+                $addressListId = $addressListResponse->getProperty('.id');
+                $address = $addressListResponse->getProperty('address');
+                if ($address === $ipAddress) {
+                    $enableAddressListRequest = new RouterOS\Request('/ip/firewall/address-list/set');
+                    $enableAddressListRequest->setArgument('.id', $addressListId);
+                    $enableAddressListRequest->setArgument('disabled', 'no');
+                    $client->sendSync($enableAddressListRequest);
+                }
+            }
+        }
+
+        $findQueueRequest = new RouterOS\Request('/queue/simple/print');
+        $findQueueRequest->setQuery(Query::where('target', $ipAddress . '/32'));
+        $queueResponses = $client->sendSync($findQueueRequest);
+
+        foreach ($queueResponses as $queueResponse) {
+            if ($queueResponse->getType() === RouterOS\Response::TYPE_DATA) {
+                $queueId = $queueResponse->getProperty('.id');
+                $target = $queueResponse->getProperty('target');
+                if ($target === $ipAddress . '/32') {
+                    $enableQueueRequest = new RouterOS\Request('/queue/simple/set');
+                    $enableQueueRequest->setArgument('.id', $queueId);
+                    $enableQueueRequest->setArgument('disabled', 'no');
+                    $client->sendSync($enableQueueRequest);
+                }
+            }
+        }
+
+    } catch (Exception $e) {
+        // Handle the error
+    }
+}
+
+
+
+
 }

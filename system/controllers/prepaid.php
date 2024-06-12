@@ -677,6 +677,66 @@ switch ($action) {
         }
         break;
 
+        case 'disable':
+            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+            }
+            $id  = $routes['2'];
+            $d = ORM::for_table('tbl_user_recharges')->find_one($id);
+            if ($d) {
+                run_hook('disable_customer_active_plan'); #HOOK
+                $p = ORM::for_table('tbl_plans')->find_one($d['plan_id']);
+                if ($p['is_radius']) {
+                    Radius::customerDeactivate($d['username']);
+                } else {
+                    $mikrotik = Mikrotik::info($d['routers']);
+                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+        
+                    if ($d['type'] == 'Hotspot') {
+                        Mikrotik::disableHotspotUser($client, $d['username']);
+                    } elseif ($d['type'] == 'PPPOE') {
+                        Mikrotik::disablePpoeUser($client, $d['username']);
+                    } elseif ($d['type'] == 'Static') {
+                        Mikrotik::disableStaticUser($client, $d['username']);
+                    }
+                }
+        
+                _log('[' . $admin['username'] . ']: ' . 'Disable Plan for Customer ' . $d['username'], $admin['user_type'], $admin['id']);
+                r2(U . 'prepaid/list', 's', Lang::T('User Disabled Successfully'));
+            }
+            break;
+
+            case 'enable':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                }
+                $id = $routes['2'];
+                $d = ORM::for_table('tbl_user_recharges')->find_one($id);
+                if ($d) {
+                    run_hook('enable_customer_active_plan'); #HOOK
+                    $p = ORM::for_table('tbl_plans')->find_one($d['plan_id']);
+                    if ($p['is_radius']) {
+                        Radius::customerDeactivate($d['username']);
+                    } else {
+                        $mikrotik = Mikrotik::info($d['routers']);
+                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+            
+                        if ($d['type'] == 'Hotspot') {
+                            Mikrotik::enableHotspotUser($client, $d['username']);
+                        } elseif ($d['type'] == 'PPPOE') {
+                            Mikrotik::enablePpoeUser($client, $d['username']);
+                        } elseif ($d['type'] == 'Static') {
+                            Mikrotik::enableStaticUser($client, $d['username']);
+                        }
+                    }
+            
+                    _log('[' . $admin['username'] . ']: ' . 'Enable Plan for Customer ' . $d['username'], $admin['user_type'], $admin['id']);
+                    r2(U . 'prepaid/list', 's', Lang::T('User Enabled Successfully'));
+                }
+                break;
+                    
+        
+
     case 'edit-post':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
             _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");

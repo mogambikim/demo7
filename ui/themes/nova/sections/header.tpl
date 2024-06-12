@@ -693,7 +693,13 @@
                     </li>
                     <li {if $_routes[1] eq 'specific'}class="active" {/if}>
                         <a href="{$_url}message/specific">{Lang::T('Router Specific')}</a>
-                    </li>
+
+<li {if $_routes[1] eq 'schedule'}class="active" {/if}>
+    <a href="{$_url}message/schedule">
+        {Lang::T('Schedule SMS')}
+        <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    </a>
+</li>
                     {$_MENU_MESSAGE}
                 </ul>
             </li>
@@ -713,6 +719,19 @@
                         <li {if $_routes[0] eq 'pool' and $_routes[1] eq 'list'}class="active" {/if}>
                             <a href="{$_url}pool/list">{Lang::T('IP Pool')}</a>
                         </li>
+                        <li {if $_routes[1] eq 'routers' }class="active" {/if}>
+    <a href="{$_url}routers/backup">
+        {Lang::T('Router Backups')}
+        <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    </a>
+</li>
+
+                        <li {if $_routes[1] eq 'routers' }class="active" {/if}>
+    <a href="{$_url}routers/wireless">
+        {Lang::T('Wireless Settings')}
+        <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    </a>
+</li>
                         {$_MENU_NETWORK}
                     </ul>
                 </li>

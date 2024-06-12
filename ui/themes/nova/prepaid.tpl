@@ -83,7 +83,7 @@
                         </thead>
                         <tbody>
                             {foreach $d as $ds}
-                                <tr {if $ds['status']=='off'}class="danger" {/if}>
+                                <tr {if $ds['state'] == 'disabled'}style="background-color: yellow;"{/if}>
                                     <td><a href="{$_url}customers/viewu/{$ds['username']}">{$ds['username']}</a></td>
                                     <td>{$ds['namebp']}</td>
                                     <td>{$ds['type']}</td>
@@ -92,20 +92,24 @@
                                     <td>{$ds['method']}</td>
                                     <td>{$ds['routers']}</td>
                                     <td>
-                                        <span class="label {if $ds['state'] == 'Online'}label-success{else}label-danger{/if}">
+                                        <span class="label {if $ds['state'] == 'Online'}label-success{elseif $ds['state'] == 'disabled'}label-warning{else}label-danger{/if}">
                                             {$ds['state']}
                                         </span>
                                     </td>
                                     <td>
                                         {if $ds['state'] == 'Online'}
                                             <span class="label label-success">{Lang::T('Currently Online')}</span>
+                                        {elseif $ds['state'] == 'disabled'}
+                                            <span class="label label-warning">{Lang::T('Disabled')}</span>
                                         {else}
                                             <span class="label label-danger">{Lang::dateAndTimeFormat($ds['last_seen'], '')}</span>
                                         {/if}
                                     </td>
                                     <td>
-                                        <a href="{$_url}prepaid/edit/{$ds['id']}" class="btn btn-warning btn-xs">{Lang::T('Edit')}</a>
+                                        <a href="{$_url}prepaid/edit/{$ds['id']}" class="btn btn-success btn-xs">{Lang::T('Edit')}</a>
                                         {if in_array($_admin['user_type'],['SuperAdmin','Admin'])}
+                                            <a href="{$_url}prepaid/enable/{$ds['id']}" id="{$ds['id']}" onclick="return confirm('{Lang::T('Enable')}?')" class="btn btn-primary btn-xs">{Lang::T('Enable')}</a>
+                                            <a href="{$_url}prepaid/disable/{$ds['id']}" id="{$ds['id']}" onclick="return confirm('{Lang::T('Disable')}?')" class="btn btn-warning btn-xs">{Lang::T('Disable')}</a>
                                             <a href="{$_url}prepaid/delete/{$ds['id']}" id="{$ds['id']}" onclick="return confirm('{Lang::T('Delete')}?')" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
                                         {/if}
                                     </td>
