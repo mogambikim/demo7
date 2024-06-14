@@ -28,7 +28,7 @@ switch ($action) {
                 'video_url' => 'https://www.youtube.com/embed/_Aiel13F7CM'
             ],
             [
-                'title' => 'Naviagting Users Tab',
+                'title' => 'Navigating Users Tab',
                 'description' => 'A detailed look into Users.',
                 'video_url' => 'https://www.youtube.com/embed/Uya2UmLUipk'
             ],

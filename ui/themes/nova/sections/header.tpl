@@ -507,6 +507,28 @@
         </div>
     </form>
 </li>
+
+<li class="dropdown" style="padding-top: 10px;">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="SMS Balance" style="color: white; position: relative;">
+        <i class="fa fa-envelope" style="color: red; position: relative;">
+            <span class="label label-danger" id="sms-balance" style="position: absolute; top: -10px; right: -10px; font-size: 10px;">
+                {$_c['sms_unit']}
+            </span>
+        </i>
+    </a>
+    <ul class="dropdown-menu">
+        <li class="user-header">
+            <i class="fa fa-envelope"></i> SMS Balance
+            <p>
+                <span id="sms-balance-details">{$_c['sms_unit']} SMS remaining</span> <!-- Dynamic SMS Balance Details -->
+            </p>
+        </li>
+    </ul>
+</li>
+
+
+
+
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <img src="https://robohash.org/{$_admin['id']}?set=set3&size=100x100&bgset=bg1"

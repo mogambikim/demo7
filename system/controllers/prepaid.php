@@ -524,7 +524,6 @@ switch ($action) {
                 $ui->display('recharge-user.tpl');
             }
             break;
-        
             case 'recharge-post':
                 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
                     _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
@@ -579,6 +578,74 @@ switch ($action) {
                     r2(U . 'prepaid/recharge', 'e', $msg);
                 }
                 break;
+            
+            
+            
+            
+            
+
+                case 'extend':
+                    if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
+                        _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                    }
+                    $id  = $routes['2'];
+                    
+                    // Ensure the 'extend' column exists
+                    $columns = ORM::for_table('tbl_user_recharges')->raw_query('SHOW COLUMNS FROM tbl_user_recharges LIKE "extend"')->find_array();
+                    if (empty($columns)) {
+                        ORM::for_table('tbl_user_recharges')->raw_execute('ALTER TABLE tbl_user_recharges ADD COLUMN extend INT DEFAULT 0');
+                    }
+                
+                    $d = ORM::for_table('tbl_user_recharges')->find_one($id);
+                    if ($d) {
+                        $ui->assign('d', $d);
+                        $ui->assign('_title', 'Extend Plan');
+                        $ui->display('prepaid-extend.tpl');
+                    } else {
+                        r2(U . 'services/list', 'e', $_L['Account_Not_Found']);
+                    }
+                    break;
+                
+                    case 'extend-post':
+                        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
+                            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                        }
+                        $id = _post('id');
+                        $extension_days = _post('extension_days');
+                        
+                        // Ensure the 'extend' column exists
+                        $columns = ORM::for_table('tbl_user_recharges')->raw_query('SHOW COLUMNS FROM tbl_user_recharges LIKE "extend"')->find_array();
+                        if (empty($columns)) {
+                            ORM::for_table('tbl_user_recharges')->raw_execute('ALTER TABLE tbl_user_recharges ADD COLUMN extend INT DEFAULT 0');
+                        }
+                    
+                        $d = ORM::for_table('tbl_user_recharges')->find_one($id);
+                        if ($d) {
+                            $original_expiration = $d->expiration;
+                            $new_expiration = date('Y-m-d H:i:s', strtotime($d->expiration . " + $extension_days days"));
+                            $d->expiration = $new_expiration;
+                            
+                            // Save the extension days in the 'extend' column
+                            $d->extend = $extension_days;
+                    
+                            if ($d->status == 'off' && strtotime($new_expiration) > time()) {
+                                $d->status = 'on';
+                            }
+                    
+                            $d->save();
+                    
+                            // Call Package::changeTo to interact with the router
+                            Package::changeTo($d->username, $d->plan_id, $id);
+                    
+                            _log('[' . $admin['username'] . ']: ' . 'Extended Plan for Customer ' . $d['username'] . ' by ' . $extension_days . ' days', $admin['user_type'], $admin['id']);
+                            r2(U . 'prepaid/list', 's', Lang::T('Plan Extended Successfully'));
+                        } else {
+                            r2(U . 'prepaid/extend/' . $id, 'e', $_L['Data_Not_Found']);
+                        }
+                        break;
+                    
+                
+                
             
             case 'view':
                 $id = $routes['2'];

@@ -787,5 +787,9 @@
     "Wireless_settings_updated_successfully": "Wireless settings updated successfully",
     "Error__": "Error: ",
     "SSID_and_Password_are_required": "SSID and Password are required",
-    "Select_a_Router": "Select a Router"
+    "Select_a_Router": "Select a Router",
+    "Extend_Plan": "Extend Plan",
+    "Extension_Days": "Extension Days",
+    "Extend": "Extend",
+    "Plan_Extended_Successfully": "Plan Extended Successfully"
 }

@@ -83,7 +83,7 @@
                         </thead>
                         <tbody>
                             {foreach $d as $ds}
-                                <tr {if $ds['state'] == 'disabled'}style="background-color: yellow;"{/if}>
+                                <tr {if $ds['status']=='off'}class="danger" {/if}>
                                     <td><a href="{$_url}customers/viewu/{$ds['username']}">{$ds['username']}</a></td>
                                     <td>{$ds['namebp']}</td>
                                     <td>{$ds['type']}</td>
@@ -107,6 +107,7 @@
                                     </td>
                                     <td>
                                         <a href="{$_url}prepaid/edit/{$ds['id']}" class="btn btn-success btn-xs">{Lang::T('Edit')}</a>
+                                        <a href="{$_url}prepaid/extend/{$ds['id']}" class="btn btn-info btn-xs">{Lang::T('Extend')}</a>
                                         {if in_array($_admin['user_type'],['SuperAdmin','Admin'])}
                                             <a href="{$_url}prepaid/enable/{$ds['id']}" id="{$ds['id']}" onclick="return confirm('{Lang::T('Enable')}?')" class="btn btn-primary btn-xs">{Lang::T('Enable')}</a>
                                             <a href="{$_url}prepaid/disable/{$ds['id']}" id="{$ds['id']}" onclick="return confirm('{Lang::T('Disable')}?')" class="btn btn-warning btn-xs">{Lang::T('Disable')}</a>

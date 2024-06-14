@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  *  PHP Mikrotik Billing 
  *  by https://freeispradius.com
@@ -636,6 +637,10 @@ if (file_exists($cacheMSfile) && time() - filemtime($cacheMSfile) < 43200) {
     $monthlySales = array_values($monthlySales);
     file_put_contents($cacheMSfile, json_encode($monthlySales));
 }
+
+
+
+
 // Assign the data to the Smarty template
 $ui->assign('todayUsageData', json_encode($todayUsageData));
 $ui->assign('weeklyUsageData', json_encode($weeklyUsageData));
@@ -648,3 +653,107 @@ $ui->assign('stocks', $stocks);
 $ui->assign('plans', $plans);
 run_hook('view_dashboard'); #HOOK
 $ui->display('dashboard.tpl');
+
+// Include necessary files for the main application
+include '../../config.php';
+
+// Function to extract API token from settings URL
+function extract_api_token($url) {
+    preg_match('/api=([^|]+)\|([^&]+)/', $url, $matches);
+    if (isset($matches[1]) && isset($matches[2])) {
+        return $matches[1] . '|' . $matches[2];
+    }
+    return null;
+}
+
+// Function to get sms_url from the main database
+function get_sms_url_from_main_db($db_host, $db_user, $db_password, $db_name) {
+    // Create connection to the main database
+    $conn = new mysqli($db_host, $db_user, $db_password, $db_name);
+
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection to main database failed: " . $conn->connect_error);
+    }
+
+    // Query to get the sms_url value
+    $result = $conn->query("SELECT value FROM tbl_appconfig WHERE setting = 'sms_url' LIMIT 1");
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $sms_url = $row['value'];
+    } else {
+        die("No sms_url found in the main database.");
+    }
+
+    // Close the connection
+    $conn->close();
+
+    return $sms_url;
+}
+
+// Function to get SMS units from the SMS database
+function get_sms_units($api_token) {
+    // SMS database details
+    $sms_db_host = 'localhost';
+    $sms_db_user = 'ultimatesms';
+    $sms_db_password = 'ultimatesms';
+    $sms_db_name = 'ultimatesms';
+
+    // Create connection to the SMS database
+    $conn = new mysqli($sms_db_host, $sms_db_user, $sms_db_password, $sms_db_name);
+
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection to SMS database failed: " . $conn->connect_error);
+    }
+
+    // Prepare and execute the query
+    $stmt = $conn->prepare("SELECT sms_unit FROM cg_users WHERE api_token = ?");
+    if ($stmt === false) {
+        die("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("s", $api_token);
+    $stmt->execute();
+    $stmt->bind_result($sms_unit);
+    $stmt->fetch();
+
+    // Close the connection
+    $stmt->close();
+    $conn->close();
+
+    return $sms_unit;
+}
+
+// Get sms_url from the main database
+$sms_url = get_sms_url_from_main_db($db_host, $db_user, $db_password, $db_name);
+
+// Extract API token from the sms_url
+$api_token = extract_api_token($sms_url);
+if (!$api_token) {
+    die("Failed to extract API token from sms_url.");
+}
+
+// Get SMS units from the SMS database
+$sms_units = get_sms_units($api_token);
+
+// Update or create the sms_unit setting in the tbl_appconfig table
+$conn = new mysqli($db_host, $db_user, $db_password, $db_name);
+if ($conn->connect_error) {
+    die("Connection to main database failed: " . $conn->connect_error);
+}
+
+// Check if sms_unit setting exists
+$result = $conn->query("SELECT 1 FROM tbl_appconfig WHERE setting = 'sms_unit' LIMIT 1");
+if ($result->num_rows > 0) {
+    // Update existing sms_unit setting
+    $stmt = $conn->prepare("UPDATE tbl_appconfig SET value = ? WHERE setting = 'sms_unit'");
+} else {
+    // Insert new sms_unit setting
+    $stmt = $conn->prepare("INSERT INTO tbl_appconfig (setting, value) VALUES ('sms_unit', ?)");
+}
+$stmt->bind_param("s", $sms_units);
+$stmt->execute();
+$stmt->close();
+$conn->close();
