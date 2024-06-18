@@ -495,7 +495,7 @@ margin-bottom: 5px;
                             {foreach $topDownloaders as $downloader}
                                 <tr>
                                     <td>{$downloader.username}</td>
-                                    <td>{$downloader.download|convert_bytes}</td>
+                                    <td>{$downloader.total_download}</td>
                                 </tr>
                             {/foreach}
                         </tbody>
@@ -505,6 +505,8 @@ margin-bottom: 5px;
         </div>
     </div>
 </div>
+
+
 {if $_c['hide_al'] != 'yes'}
 <div class="row">
 <div class="col-md-12">

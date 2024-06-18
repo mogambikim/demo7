@@ -279,23 +279,46 @@ $ui->assign('todayUpload', $todayUpload);
 $ui->assign('todayDownload', $todayDownload);
 
 
-// Fetch top 5 daily downloaders
+// Fetch today's date
 $todayDate = date('Y-m-d');
 
+// SQL query to fetch top 5 daily downloaders with a dynamic date
 $topDailyDownloadersQuery = "
-    SELECT c.username, du.today_total_download AS download
+    SELECT c.username, SUM(du.download) AS total_download
     FROM tbl_daily_data_usage AS du
     JOIN tbl_customers AS c ON du.customer_id = c.id
     WHERE DATE(du.date) = ?
-    ORDER BY du.today_total_download DESC
+    GROUP BY c.username
+    ORDER BY total_download DESC
     LIMIT 5
 ";
 
+// Execute the query using ORM
 $topDailyDownloadersResult = ORM::for_table('tbl_daily_data_usage')
     ->raw_query($topDailyDownloadersQuery, [$todayDate])
     ->find_array();
 
+// Define a function to convert bytes to the nearest GB
+function convert_bytes_to_gb($bytes) {
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $unit = 0;
+
+    while ($bytes >= 1024 && $unit < 4) {
+        $bytes /= 1024;
+        $unit++;
+    }
+
+    return round($bytes, 2) . ' ' . $units[$unit];
+}
+
+// Convert the download values to GB
+foreach ($topDailyDownloadersResult as &$downloader) {
+    $downloader['total_download'] = convert_bytes_to_gb($downloader['total_download']);
+}
+
+// Assign the result to the UI
 $ui->assign('topDownloaders', $topDailyDownloadersResult);
+
 
 
 // Fetch weekly data usage for all users
