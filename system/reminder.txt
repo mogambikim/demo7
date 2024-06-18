@@ -1,2 +1,0 @@
-[2024-03-30 16:35:12] 1-day reminder sent to  (): Hello *[[name]]*,
-your internet package *[[package]]* will expire tomorrow. Use till number (enter your payment details) to make a payment. Kindly ignore if you have already paid. Regards (your company name): 
