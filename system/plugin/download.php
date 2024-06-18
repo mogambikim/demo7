@@ -113,12 +113,13 @@ $htmlContent .= "            <div class=\"flex items-center justify-between h-16
 $htmlContent .= "                <!-- Logo and title area -->\n";
 $htmlContent .= "                <div class=\"flex items-center\">\n";
 $htmlContent .= "                    <img src=\"logo.png\" alt=\"Your Company Logo\" class=\"h-8 w-8 mr-2\">\n";
-$htmlContent .= "                    <h1 class=\"text-xl font-bold\">" . htmlspecialchars($hotspotTitle) . " Hotspot Login Page</h1>\n";
+$htmlContent .= "                    <h1 class=\"text-xl font-bold\">" . htmlspecialchars($hotspotTitle) . "</h1>\n";
 $htmlContent .= "                </div>\n";
-$htmlContent .= "                <!-- Navigation Links -->\n";
+$htmlContent .= "                <!-- Navigation Links and Contact Number -->\n";
 $htmlContent .= "                <div class=\"block\">\n";
 $htmlContent .= "                    <div class=\"ml-10 flex items-baseline space-x-4\">\n";
-$htmlContent .= "                        <a href=\"#\" class=\"text-{$secondaryColor}-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium\">Already Have an Account? Login</a>\n";
+$htmlContent .= "                        <a href=\"#alreadyHavePackage\" class=\"text-{$secondaryColor}-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium\">Already Paid? Click Here.</a>\n";
+$htmlContent .= "                        <span class=\"text-{$secondaryColor}-200\">" . htmlspecialchars($phone) . "</span>\n";
 $htmlContent .= "                    </div>\n";
 $htmlContent .= "                </div>\n";
 $htmlContent .= "            </div>\n";
@@ -176,6 +177,41 @@ while ($plan = $planResult->fetch_assoc()) {
 
 $htmlContent .= "</div>\n";
 
+
+$htmlContent .= "<div id=\"alreadyHavePackage\" class=\"container mx-auto px-4\">\n";
+$htmlContent .= "    <div class=\"max-w-md mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg\">\n";
+$htmlContent .= "        <div class=\"md:flex\">\n";
+$htmlContent .= "            <div class=\"w-full p-5\">\n";
+$htmlContent .= "                <div class=\"text-center\">\n";
+$htmlContent .= "                    <h3 class=\"text-2xl text-gray-900\">Already Have an Active Package?</h3>\n";
+$htmlContent .= "                </div>\n";
+$htmlContent .= "                <form id=\"loginForm\" class=\"form\" name=\"login\" action=\"$(link-login-only)\" method=\"post\" $(if chap-id)onSubmit=\"return doLogin()\"$(endif)>\n";
+$htmlContent .= "                    <input type=\"hidden\" name=\"dst\" value=\"$(link-orig)\" />\n";
+$htmlContent .= "                    <input type=\"hidden\" name=\"popup\" value=\"true\" />\n";
+$htmlContent .= "                    <div class=\"mb-4\">\n";
+$htmlContent .= "                        <label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"username\">Username</label>\n";
+$htmlContent .= "                        <input id=\"usernameInput\" class=\"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline\" name=\"username\" type=\"text\" value=\"\" placeholder=\"Username\">\n";
+$htmlContent .= "                    </div>\n";
+$htmlContent .= "                    <div class=\"mb-6\">\n";
+$htmlContent .= "                        <label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"password\">Password</label>\n";
+$htmlContent .= "                        <input id=\"passwordInput\" class=\"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline\" name=\"password\" type=\"password\" placeholder=\"******************\">\n";
+$htmlContent .= "                    </div>\n";
+$htmlContent .= "                    <div class=\"flex items-center justify-between\">\n";
+$htmlContent .= "                        <button id=\"submitBtn\" class=\"bg-{$secondaryColor}-500 hover:bg-{$secondaryColor}-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline\" type=\"button\">\n";
+$htmlContent .= "                            Click Here To Connect\n";
+$htmlContent .= "                        </button>\n";
+$htmlContent .= "                    </div>\n";
+$htmlContent .= "                </form>\n";
+$htmlContent .= "            </div>\n";
+$htmlContent .= "        </div>\n";
+$htmlContent .= "    </div>\n";
+$htmlContent .= "</div>\n";
+
+$htmlContent .= "<div class=\"mt-10 text-center\">\n";
+$htmlContent .= "    <a href=\"" . APP_URL . "/index.php?_route=login\" class=\"bg-{$secondaryColor}-500 hover:bg-{$secondaryColor}-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline\">\n";
+$htmlContent .= "        Have a voucher code? Click here\n";
+$htmlContent .= "    </a>\n";
+$htmlContent .= "</div>\n";
 
 
 
@@ -289,35 +325,7 @@ $htmlContent .= "    </div>\n";
 $htmlContent .= "</div>\n";
 
 
-$htmlContent .= "<div class=\"container mx-auto px-4\">\n";
-$htmlContent .= "    <div class=\"max-w-md mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg\">\n";
-$htmlContent .= "        <div class=\"md:flex\">\n";
-$htmlContent .= "            <div class=\"w-full p-5\">\n";
-$htmlContent .= "                <div class=\"text-center\">\n";
-$htmlContent .= "                    <h3 class=\"text-2xl text-gray-900\">Already Have an Active Package?</h3>\n";
-$htmlContent .= "                </div>\n";
 
-$htmlContent .= "                <form id=\"loginForm\" class=\"form\" name=\"login\" action=\"$(link-login-only)\" method=\"post\" $(if chap-id)onSubmit=\"return doLogin()\"$(endif)>\n";
-$htmlContent .= "                    <input type=\"hidden\" name=\"dst\" value=\"$(link-orig)\" />\n";
-$htmlContent .= "                    <input type=\"hidden\" name=\"popup\" value=\"true\" />\n";
-$htmlContent .= "                    <div class=\"mb-4\">\n";
-$htmlContent .= "                        <label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"username\">Username</label>\n";
-$htmlContent .= "                        <input id=\"usernameInput\" class=\"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline\" name=\"username\" type=\"text\" value=\"\" placeholder=\"Username\">\n";
-$htmlContent .= "                    </div>\n";
-$htmlContent .= "                    <div class=\"mb-6\">\n";
-$htmlContent .= "                        <label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"password\">Password</label>\n";
-$htmlContent .= "                        <input id=\"passwordInput\" class=\"shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline\" name=\"password\" type=\"password\" placeholder=\"******************\">\n";
-$htmlContent .= "                    </div>\n";
-$htmlContent .= "                    <div class=\"flex items-center justify-between\">\n";
-$htmlContent .= "                        <button id=\"submitBtn\" class=\"bg-{$secondaryColor}-500 hover:bg-{$secondaryColor}-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline\" type=\"button\">\n";
-$htmlContent .= "                            Click Here To Connect\n";
-$htmlContent .= "                        </button>\n";
-$htmlContent .= "                    </div>\n";
-$htmlContent .= "                </form>\n";
-$htmlContent .= "            </div>\n";
-$htmlContent .= "        </div>\n";
-$htmlContent .= "    </div>\n";
-$htmlContent .= "</div>\n";
 
 $htmlContent .= "<script>\n";
 $htmlContent .= "document.addEventListener('DOMContentLoaded', function() {\n";

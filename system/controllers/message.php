@@ -289,6 +289,148 @@ EOT;
                     r2(U . 'message/schedule', 's', Lang::T('Message Scheduled Successfully'));
                 }
                 break;
+
+                case 'sms_groups':
+                    if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                        _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                    }
+            
+                    // Check and create `tbl_sms_groups` table if not exists
+                    $db = ORM::get_db();
+                    $result = $db->query("SHOW TABLES LIKE 'tbl_sms_groups'")->fetch();
+                    if (!$result) {
+                        $db->exec("
+                            CREATE TABLE `tbl_sms_groups` (
+                                `id` INT NOT NULL AUTO_INCREMENT,
+                                `group_name` VARCHAR(255) NOT NULL,
+                                PRIMARY KEY (`id`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                        ");
+                    }
+            
+                    // Check and create `tbl_sms_group_customers` table if not exists
+                    $result = $db->query("SHOW TABLES LIKE 'tbl_sms_group_customers'")->fetch();
+                    if (!$result) {
+                        $db->exec("
+                            CREATE TABLE `tbl_sms_group_customers` (
+                                `id` INT NOT NULL AUTO_INCREMENT,
+                                `group_id` INT NOT NULL,
+                                `customer_id` INT NOT NULL,
+                                PRIMARY KEY (`id`),
+                                FOREIGN KEY (`group_id`) REFERENCES `tbl_sms_groups`(`id`) ON DELETE CASCADE,
+                                FOREIGN KEY (`customer_id`) REFERENCES `tbl_customers`(`id`) ON DELETE CASCADE
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                        ");
+                    }
+            
+                    // Retrieve groups and customers
+                    $groups = ORM::for_table('tbl_sms_groups')->find_many();
+                    
+                    $ui->assign('groups', $groups);
+                    $ui->assign('xfooter', $select2_customer);
+                    $ui->display('message_sms_group.tpl');
+                    break;
+            
+                case 'sms_groups_post':
+                    if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                        _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                    }
+            
+                    // Check and create `tbl_sms_groups` table if not exists
+                    $db = ORM::get_db();
+                    $result = $db->query("SHOW TABLES LIKE 'tbl_sms_groups'")->fetch();
+                    if (!$result) {
+                        $db->exec("
+                            CREATE TABLE `tbl_sms_groups` (
+                                `id` INT NOT NULL AUTO_INCREMENT,
+                                `group_name` VARCHAR(255) NOT NULL,
+                                PRIMARY KEY (`id`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                        ");
+                    }
+            
+                    $group_name = $_POST['group_name'];
+            
+                    if (empty($group_name)) {
+                        r2(U . 'message/sms_groups', 'e', Lang::T('Group name is required'));
+                    } else {
+                        $group = ORM::for_table('tbl_sms_groups')->create();
+                        $group->group_name = $group_name;
+                        $group->save();
+            
+                        r2(U . 'message/sms_groups', 's', Lang::T('Group created successfully'));
+                    }
+                    break;
+            
+                    case 'send_group_message':
+                        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                            _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                        }
+                
+                        // Check and create `tbl_sms_groups` table if not exists
+                        $db = ORM::get_db();
+                        $result = $db->query("SHOW TABLES LIKE 'tbl_sms_groups'")->fetch();
+                        if (!$result) {
+                            $db->exec("
+                                CREATE TABLE `tbl_sms_groups` (
+                                    `id` INT NOT NULL AUTO_INCREMENT,
+                                    `group_name` VARCHAR(255) NOT NULL,
+                                    PRIMARY KEY (`id`)
+                                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                            ");
+                        }
+                
+                        // Check and create `tbl_sms_group_customers` table if not exists
+                        $result = $db->query("SHOW TABLES LIKE 'tbl_sms_group_customers'")->fetch();
+                        if (!$result) {
+                            $db->exec("
+                                CREATE TABLE `tbl_sms_group_customers` (
+                                    `id` INT NOT NULL AUTO_INCREMENT,
+                                    `group_id` INT NOT NULL,
+                                    `customer_id` INT NOT NULL,
+                                    PRIMARY KEY (`id`),
+                                    FOREIGN KEY (`group_id`) REFERENCES `tbl_sms_groups`(`id`) ON DELETE CASCADE,
+                                    FOREIGN KEY (`customer_id`) REFERENCES `tbl_customers`(`id`) ON DELETE CASCADE
+                                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+                            ");
+                        }
+                
+                        // Get form data
+                        $group_id = $_POST['group_id'];
+                        $message = $_POST['message'];
+                        $via = $_POST['via'];
+                
+                        // Check if fields are empty
+                        if ($group_id == '' || $message == '' || $via == '') {
+                            r2(U . 'message/sms_groups', 'e', Lang::T('All fields are required'));
+                        } else {
+                            // Get group customers from the database
+                            $groupCustomers = ORM::for_table('tbl_sms_group_customers')
+                                ->where('group_id', $group_id)
+                                ->find_many();
+                
+                            foreach ($groupCustomers as $groupCustomer) {
+                                $customer = ORM::for_table('tbl_customers')->find_one($groupCustomer->customer_id);
+                
+                                // Replace placeholders in the message with actual values
+                                $currentMessage = str_replace('[[name]]', $customer['fullname'], $message);
+                                $currentMessage = str_replace('[[user_name]]', $customer['username'], $currentMessage);
+                                $currentMessage = str_replace('[[phone]]', $customer['phonenumber'], $currentMessage);
+                                $currentMessage = str_replace('[[company_name]]', $config['CompanyName'], $currentMessage);
+                
+                                // Send the message based on the selected method
+                                if ($via == 'sms' || $via == 'both') {
+                                    Message::sendSMS($customer['phonenumber'], $currentMessage);
+                                }
+                
+                                if ($via == 'wa' || $via == 'both') {
+                                    Message::sendWhatsapp($customer['phonenumber'], $currentMessage);
+                                }
+                            }
+                
+                            r2(U . 'message/sms_groups', 's', Lang::T('Message sent successfully'));
+                        }
+                        break;
             
 
         case 'specific':

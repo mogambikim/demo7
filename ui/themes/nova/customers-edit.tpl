@@ -89,6 +89,18 @@
                             <input type="text" class="form-control" id="ip_address" name="ip_address" placeholder="Enter IP Address" value="{$d['ip_address']}">
                         </div>
                     </div>
+                                      <!-- SMS Group Selection -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">{Lang::T('SMS Group')}</label>
+                        <div class="col-md-8">
+                            <select class="form-control" id="sms_group_id" name="sms_group_id">
+                                <option value="">{Lang::T('Select SMS Group (optional)')}</option>
+                                {foreach from=$sms_groups item=group}
+                                <option value="{$group.id}">{$group.group_name}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-md-4 control-label">{Lang::T('Service Type')}</label>
                         <div class="col-md-8">
@@ -100,6 +112,8 @@
                             </select>
                         </div>
                     </div>
+
+                    
                     <div class="form-group">
                         <label class="col-md-4 control-label">Router</label>
                         <div class="col-md-8">

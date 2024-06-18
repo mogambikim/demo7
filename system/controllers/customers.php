@@ -501,14 +501,20 @@ function smarty_modifier_convert_bytes($bytes) {
             }
             break;
 
-    case 'add':
-		if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
-            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
-        }    
-        $ui->assign('xheader', $leafletpickerHeader);
+            case 'add':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                }
+                
+                $ui->assign('xheader', $leafletpickerHeader);
                 run_hook('view_add_customer'); #HOOK
+            
+                // Retrieve routers and SMS groups
                 $routers = ORM::for_table('tbl_routers')->find_many();
+                $sms_groups = ORM::for_table('tbl_sms_groups')->find_many();
                 $ui->assign('routers', $routers); // Pass routers to the template
+                $ui->assign('sms_groups', $sms_groups); // Pass SMS groups to the template
+                
                 $ui->display('customers-add.tpl');
                 break;
             
@@ -690,52 +696,37 @@ function smarty_modifier_convert_bytes($bytes) {
             }
             break;
         
-        case 'edit':
-            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
-                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-            }
-            
-            $id = $routes['2'];
-            run_hook('edit_customer'); #HOOK
-            
-            $d = ORM::for_table('tbl_customers')->find_one($id);
-            $customFields = ORM::for_table('tbl_customers_fields')
-                ->where('customer_id', $id)
-                ->find_many();
-            
-            if ($d) {
-                // Fetch the list of routers from the database
-                $routers = ORM::for_table('tbl_routers')->find_many();
-                
-                $ui->assign('d', $d);
-                $ui->assign('customFields', $customFields);
-                $ui->assign('xheader', $leafletpickerHeader);
-                
-                // Assign the list of routers to the template
-                $ui->assign('routers', $routers);
-                
-                // Check if the form is submitted
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $balance = $_POST['balance'];
-                    $customer = ORM::for_table('tbl_customers')->find_one($id);
-                    
-                    if ($customer) {
-                        $customer->set('balance', $balance);
-                        $customer->save();
-                        
-                        // Handle success case
-                        _alert(Lang::T('Balance updated successfully'), 'success', $_url . 'customers/list');
-                    } else {
-                        // Handle failure case
-                        _alert(Lang::T('Failed to update balance'), 'danger');
-                    }
+            case 'edit':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
                 }
                 
-                $ui->display('customers-edit.tpl');
-            } else {
-                r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
-            }
-            break;
+                $id = $routes['2'];
+                run_hook('edit_customer'); #HOOK
+                
+                $d = ORM::for_table('tbl_customers')->find_one($id);
+                $customFields = ORM::for_table('tbl_customers_fields')
+                    ->where('customer_id', $id)
+                    ->find_many();
+                
+                if ($d) {
+                    // Fetch the list of routers and SMS groups from the database
+                    $routers = ORM::for_table('tbl_routers')->find_many();
+                    $sms_groups = ORM::for_table('tbl_sms_groups')->find_many();
+                    
+                    $ui->assign('d', $d);
+                    $ui->assign('customFields', $customFields);
+                    $ui->assign('xheader', $leafletpickerHeader);
+                    
+                    // Assign the list of routers and SMS groups to the template
+                    $ui->assign('routers', $routers);
+                    $ui->assign('sms_groups', $sms_groups);
+                    
+                    $ui->display('customers-edit.tpl');
+                } else {
+                    r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
+                }
+                break;
     case 'delete':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
             _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
@@ -807,15 +798,16 @@ function smarty_modifier_convert_bytes($bytes) {
             $custom_field_values = (array) $_POST['custom_field_value'];
             $ip_address = _post('ip_address');
             $router_id = _post('router_id');
-            
+            $sms_group_id = _post('sms_group_id'); // Get the selected SMS group
+        
             if ($router_id == '') {
                 $msg = 'A router must be chosen.' . '<br>';
                 r2(U . 'customers/add', 'e', $msg);
                 break;
             }
-            
+        
             run_hook('add_customer'); #HOOK
-            
+        
             $msg = '';
             if (Validator::Length($username, 35, 2) == false) {
                 $msg .= 'Username should be between 3 to 55 characters' . '<br>';
@@ -847,7 +839,15 @@ function smarty_modifier_convert_bytes($bytes) {
                 $d->ip_address = $ip_address;
                 $d->router_id = $router_id;
                 $d->save();
-
+        
+                // Save the customer to the selected SMS group if chosen
+                if (!empty($sms_group_id)) {
+                    $groupCustomer = ORM::for_table('tbl_sms_group_customers')->create();
+                    $groupCustomer->group_id = $sms_group_id;
+                    $groupCustomer->customer_id = $d->id();
+                    $groupCustomer->save();
+                }
+        
                 _log('[' . $admin['username'] . ']: Customer ' . $d->username . ' created successfully', $admin['user_type'], $admin['id']);
                 
                 // Retrieve the customer ID of the newly created customer
@@ -890,169 +890,178 @@ function smarty_modifier_convert_bytes($bytes) {
             break;
         
 
-    case 'edit-post':
-        $username = Lang::phoneFormat(_post('username'));
-        $fullname = _post('fullname');
-        $password = _post('password');
-        $pppoe_password = _post('pppoe_password');
-        $email = _post('email');
-        $address = _post('address');
-        $phonenumber = Lang::phoneFormat(_post('phonenumber'));
-        $service_type = _post('service_type');
-        $coordinates = _post('coordinates');
-        $ip_address = _post('ip_address');
-        $router_id = _post('router_id');
-        if ($router_id == '') {
-            $router_id = NULL; // Set router_id to NULL if no selection was made
-        }
-        run_hook('edit_customer'); #HOOK
-        $msg = '';
-        if (Validator::Length($username, 35, 2) == false) {
-            $msg .= 'Username should be between 3 to 15 characters' . '<br>';
-        }
-        if (Validator::Length($fullname, 36, 1) == false) {
-            $msg .= 'Full Name should be between 2 to 25 characters' . '<br>';
-        }
-        if ($password != '') {
-            if (!Validator::Length($password, 36, 2)) {
-                $msg .= 'Password should be between 3 to 15 characters' . '<br>';
-            }
-        }
-
-        $id = _post('id');
-        $d = ORM::for_table('tbl_customers')->find_one($id);
-        //lets find user Customers Attributes using id
-        $customFields = ORM::for_table('tbl_customers_fields')
-         ->where('customer_id', $id)
-         ->find_many();       
-        if (!$d) {
-            $msg .= Lang::T('Data Not Found') . '<br>';
-        }
-
-        $oldusername = $d['username'];
-        $oldPppoePassword =  $d['password'];
-        $oldPassPassword =  $d['pppoe_password'];
-        $userDiff = false;
-        $pppoeDiff = false;
-        $passDiff = false;
-        if ($oldusername != $username) {
-            $c = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
-            if ($c) {
-                $msg .= Lang::T('Account already exist') . '<br>';
-            }
-            $userDiff = true;
-        }
-        if ($oldPppoePassword != $pppoe_password) {
-            $pppoeDiff = true;
-        }
-        if ($password != '' && $oldPassPassword != $password) {
-            $passDiff = true;
-        }
-
-        if ($msg == '') {
-            if ($userDiff) {
-                $d->username = $username;
-            }
-            if ($password != '') {
-                $d->password = $password;
-            }
-            $d->pppoe_password = $pppoe_password;
-            $d->fullname = $fullname;
-            $d->email = $email;
-            $d->address = $address;
-            $d->phonenumber = $phonenumber;
-            $d->service_type = $service_type;
-            $d->coordinates = $coordinates;
-            $d->ip_address = $ip_address;
-            $d->router_id = $router_id; // Update router_id in the customer record
-            $d->save();
-            _log('[' . $admin['username'] . ']: Customer ' . $d->username . ' edited successfully', $admin['user_type'], $admin['id']);
-
-             // Update Customers Attributes values in tbl_customers_fields table
-             foreach ($customFields as $customField) {
-                $fieldName = $customField['field_name'];
-                if (isset($_POST['custom_fields'][$fieldName])) {
-                    $customFieldValue = $_POST['custom_fields'][$fieldName];
-                    $customField->set('field_value', $customFieldValue);
-                    $customField->save();
+            case 'edit-post':
+                $id = _post('id');
+                $username = Lang::phoneFormat(_post('username'));
+                $fullname = _post('fullname');
+                $password = _post('password');
+                $pppoe_password = _post('pppoe_password');
+                $email = _post('email');
+                $address = _post('address');
+                $phonenumber = Lang::phoneFormat(_post('phonenumber'));
+                $service_type = _post('service_type');
+                $coordinates = _post('coordinates');
+                $ip_address = _post('ip_address');
+                $router_id = _post('router_id');
+                $sms_group_id = _post('sms_group_id'); // Get the selected SMS group
+            
+                if ($router_id == '') {
+                    $router_id = NULL; // Set router_id to NULL if no selection was made
                 }
-            }
-
-            // Add new Customers Attributess
-            if (isset($_POST['custom_field_name']) && isset($_POST['custom_field_value'])) {
-                $newCustomFieldNames = $_POST['custom_field_name'];
-                $newCustomFieldValues = $_POST['custom_field_value'];
-
-                // Check if the number of field names and values match
-                if (count($newCustomFieldNames) == count($newCustomFieldValues)) {
-                    $numNewFields = count($newCustomFieldNames);
-
-                    for ($i = 0; $i < $numNewFields; $i++) {
-                        $fieldName = $newCustomFieldNames[$i];
-                        $fieldValue = $newCustomFieldValues[$i];
-
-                        // Insert the new Customers Attributes
-                        $newCustomField = ORM::for_table('tbl_customers_fields')->create();
-                        $newCustomField->set('customer_id', $id);
-                        $newCustomField->set('field_name', $fieldName);
-                        $newCustomField->set('field_value', $fieldValue);
-                        $newCustomField->save();
+                run_hook('edit_customer'); #HOOK
+                $msg = '';
+                if (Validator::Length($username, 35, 2) == false) {
+                    $msg .= 'Username should be between 3 to 15 characters' . '<br>';
+                }
+                if (Validator::Length($fullname, 36, 1) == false) {
+                    $msg .= 'Full Name should be between 2 to 25 characters' . '<br>';
+                }
+                if ($password != '') {
+                    if (!Validator::Length($password, 36, 2)) {
+                        $msg .= 'Password should be between 3 to 15 characters' . '<br>';
                     }
                 }
-            }
-
-             // Delete Customers Attributess
-             if (isset($_POST['delete_custom_fields'])) {
-                $fieldsToDelete = $_POST['delete_custom_fields'];
-                foreach ($fieldsToDelete as $fieldName) {
-                    // Delete the Customers Attributes with the given field name
-                    ORM::for_table('tbl_customers_fields')
-                        ->where('field_name', $fieldName)
+            
+                $d = ORM::for_table('tbl_customers')->find_one($id);
+                //lets find user Customers Attributes using id
+                $customFields = ORM::for_table('tbl_customers_fields')
+                 ->where('customer_id', $id)
+                 ->find_many();       
+                if (!$d) {
+                    $msg .= Lang::T('Data Not Found') . '<br>';
+                }
+            
+                $oldusername = $d['username'];
+                $oldPppoePassword =  $d['password'];
+                $oldPassPassword =  $d['pppoe_password'];
+                $userDiff = false;
+                $pppoeDiff = false;
+                $passDiff = false;
+                if ($oldusername != $username) {
+                    $c = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
+                    if ($c) {
+                        $msg .= Lang::T('Account already exist') . '<br>';
+                    }
+                    $userDiff = true;
+                }
+                if ($oldPppoePassword != $pppoe_password) {
+                    $pppoeDiff = true;
+                }
+                if ($password != '' && $oldPassPassword != $password) {
+                    $passDiff = true;
+                }
+            
+                if ($msg == '') {
+                    if ($userDiff) {
+                        $d->username = $username;
+                    }
+                    if ($password != '') {
+                        $d->password = $password;
+                    }
+                    $d->pppoe_password = $pppoe_password;
+                    $d->fullname = $fullname;
+                    $d->email = $email;
+                    $d->address = $address;
+                    $d->phonenumber = $phonenumber;
+                    $d->service_type = $service_type;
+                    $d->coordinates = $coordinates;
+                    $d->ip_address = $ip_address;
+                    $d->router_id = $router_id; // Update router_id in the customer record
+                    $d->save();
+                    _log('[' . $admin['username'] . ']: Customer ' . $d->username . ' edited successfully', $admin['user_type'], $admin['id']);
+            
+                     // Update Customers Attributes values in tbl_customers_fields table
+                     foreach ($customFields as $customField) {
+                        $fieldName = $customField['field_name'];
+                        if (isset($_POST['custom_fields'][$fieldName])) {
+                            $customFieldValue = $_POST['custom_fields'][$fieldName];
+                            $customField->set('field_value', $customFieldValue);
+                            $customField->save();
+                        }
+                    }
+            
+                    // Add new Customers Attributess
+                    if (isset($_POST['custom_field_name']) && isset($_POST['custom_field_value'])) {
+                        $newCustomFieldNames = $_POST['custom_field_name'];
+                        $newCustomFieldValues = $_POST['custom_field_value'];
+            
+                        // Check if the number of field names and values match
+                        if (count($newCustomFieldNames) == count($newCustomFieldValues)) {
+                            $numNewFields = count($newCustomFieldNames);
+            
+                            for ($i = 0; $i < $numNewFields; $i++) {
+                                $fieldName = $newCustomFieldNames[$i];
+                                $fieldValue = $newCustomFieldValues[$i];
+            
+                                // Insert the new Customers Attributes
+                                $newCustomField = ORM::for_table('tbl_customers_fields')->create();
+                                $newCustomField->set('customer_id', $id);
+                                $newCustomField->set('field_name', $fieldName);
+                                $newCustomField->set('field_value', $fieldValue);
+                                $newCustomField->save();
+                            }
+                        }
+                    }
+            
+                     // Delete Customers Attributess
+                     if (isset($_POST['delete_custom_fields'])) {
+                        $fieldsToDelete = $_POST['delete_custom_fields'];
+                        foreach ($fieldsToDelete as $fieldName) {
+                            // Delete the Customers Attributes with the given field name
+                            ORM::for_table('tbl_customers_fields')
+                                ->where('field_name', $fieldName)
+                                ->where('customer_id', $id)
+                                ->delete_many();
+                        }
+                    }
+            
+                    // Update SMS group assignment
+                    ORM::for_table('tbl_sms_group_customers')
                         ->where('customer_id', $id)
                         ->delete_many();
-                }
-            }
-           
-
-            if ($userDiff || $pppoeDiff || $passDiff) {
-                $c = ORM::for_table('tbl_user_recharges')->where('username', ($userDiff) ? $oldusername : $username)->find_one();
-                if ($c) {
-                    $c->username = $username;
-                    $c->save();
-                    $p = ORM::for_table('tbl_plans')->find_one($c['plan_id']);
-                    if ($p['is_radius']) {
-                        if($userDiff){
-                            Radius::customerChangeUsername($oldusername, $username);
-                        }
-                              Radius::customerAddPlan($d, $p, $p['expiration'] . ' ' . $p['time']);
-                    } else {
-                        $mikrotik = Mikrotik::info($c['routers']);
-                        if ($c['type'] == 'Hotspot') {
-                            $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                            Mikrotik::setHotspotUser($client, $c['username'], $password);
-                            Mikrotik::removeHotspotActiveUser($client, $d['username']);
-                        } elseif ($c['type'] == 'PPPoE') {
-                            $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                            if (!empty($d['pppoe_password'])) {
-                                Mikrotik::setPpoeUser($client, $c['username'], $d['pppoe_password']);
+                    if (!empty($sms_group_id)) {
+                        $groupCustomer = ORM::for_table('tbl_sms_group_customers')->create();
+                        $groupCustomer->group_id = $sms_group_id;
+                        $groupCustomer->customer_id = $id;
+                        $groupCustomer->save();
+                    }
+            
+                    if ($userDiff || $pppoeDiff || $passDiff) {
+                        $c = ORM::for_table('tbl_user_recharges')->where('username', ($userDiff) ? $oldusername : $username)->find_one();
+                        if ($c) {
+                            $c->username = $username;
+                            $c->save();
+                            $p = ORM::for_table('tbl_plans')->find_one($c['plan_id']);
+                            if ($p['is_radius']) {
+                                if($userDiff){
+                                    Radius::customerChangeUsername($oldusername, $username);
+                                }
+                                      Radius::customerAddPlan($d, $p, $p['expiration'] . ' ' . $p['time']);
                             } else {
-                                Mikrotik::setPpoeUser($client, $c['username'], $password);
+                                $mikrotik = Mikrotik::info($c['routers']);
+                                if ($c['type'] == 'Hotspot') {
+                                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                                    Mikrotik::setHotspotUser($client, $c['username'], $password);
+                                    Mikrotik::removeHotspotActiveUser($client, $d['username']);
+                                } elseif ($c['type'] == 'PPPoE') {
+                                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                                    if (!empty($d['pppoe_password'])) {
+                                        Mikrotik::setPpoeUser($client, $c['username'], $d['pppoe_password']);
+                                    } else {
+                                        Mikrotik::setPpoeUser($client, $c['username'], $password);
+                                    }
+                                    Mikrotik::removePpoeActive($client, $d['username']);
+                                } elseif ($c['type'] == 'Static') {
+                                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                                }
                             }
-                            Mikrotik::removePpoeActive($client, $d['username']);
-                        } elseif ($c['type'] == 'Static') {
-                            $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-
-
-
                         }
                     }
+                    r2(U . 'customers/list', 's', 'User Updated Successfully');
+                } else {
+                    r2(U . 'customers/edit/' . $id, 'e', $msg);
                 }
-            }
-            r2(U . 'customers/list', 's', 'User Updated Successfully');
-        } else {
-            r2(U . 'customers/edit/' . $id, 'e', $msg);
-        }
-        break;
+                break;
 
     default:
         r2(U . 'customers/list', 'e', 'action not defined');

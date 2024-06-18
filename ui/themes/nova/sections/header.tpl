@@ -742,7 +742,7 @@
                             <a href="{$_url}pool/list">{Lang::T('IP Pool')}</a>
                         </li>
                         <li {if $_routes[1] eq 'routers' }class="active" {/if}>
-    <a href="{$_url}routers/backup">
+    <a href="{$_url}router_backups/backup">
         {Lang::T('Router Backups')}
         <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
     </a>

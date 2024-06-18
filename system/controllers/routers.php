@@ -1,5 +1,5 @@
 <?php
-
+include "../init.php";
 /**
  *  PHP Mikrotik Billing (https://freeispradius.com/)
  *  by https://t.me/freeispradius
@@ -16,10 +16,32 @@ $ui->assign('_admin', $admin);
 use PEAR2\Net\RouterOS;
 
 require_once 'system/autoload/PEAR2/Autoload.php';
+// Logging function
+function logMessage($message) {
+    $logFile = __DIR__ . '/../logs/router_backup.log';
+    $maxLines = 5000;
+    
+    // Read existing log file
+    $logs = file_exists($logFile) ? file($logFile, FILE_IGNORE_NEW_LINES) : [];
+    
+    // Add new log message
+    $logs[] = date('Y-m-d H:i:s') . ' - ' . $message;
+    
+    // Keep only the last 5000 lines
+    if (count($logs) > $maxLines) {
+        $logs = array_slice($logs, -$maxLines);
+    }
+    
+    // Write back to the log file
+    file_put_contents($logFile, implode("\n", $logs) . "\n");
+}
+
+
 
 if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
     _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
 }
+// Function to download backup
 
 switch ($action) {
     case 'list':
@@ -33,6 +55,7 @@ switch ($action) {
                 ->select('c.state', 'pingStatus')
                 ->select('c.uptime')
                 ->select('c.model')
+                ->select('c.last_seen')
                 ->left_outer_join('tbl_router_cache', array('r.id', '=', 'c.router_id'), 'c')
                 ->where_like('r.name', '%' . $name . '%')
                 ->offset($paginator['startpoint'])
@@ -47,13 +70,14 @@ switch ($action) {
                 ->select('c.state', 'pingStatus')
                 ->select('c.uptime')
                 ->select('c.model')
+                ->select('c.last_seen')
                 ->left_outer_join('tbl_router_cache', array('r.id', '=', 'c.router_id'), 'c')
                 ->offset($paginator['startpoint'])
                 ->limit($paginator['limit'])
                 ->order_by_desc('r.id')
                 ->find_array();
         }
-    
+
         foreach ($routers as &$router) {
             if ($router['pingStatus'] == 'Online') {
                 $router['pingClass'] = 'success';
@@ -73,12 +97,13 @@ switch ($action) {
                 $router['model'] = 'Error';
             }
         }
-    
+
         $ui->assign('routers', $routers);
         $ui->assign('paginator', $paginator);
         run_hook('view_list_routers'); #HOOK
         $ui->display('routers.tpl');
         break;
+
     
         case 'ping':
             $id = $routes['2'];
@@ -177,42 +202,7 @@ switch ($action) {
         }
         break;
 
-        case 'backup':
-            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-            }
-    
-            // Retrieve the router list for the backup option
-            $routers = ORM::for_table('tbl_routers')->find_many();
-            $ui->assign('routers', $routers);
-    
-            // Display the backup template
-            $ui->display('router_backup.tpl');
-            break;
-    
-        case 'backup-post':
-            if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
-            }
-    
-            $router_id = _post('router_id');
-            $router = ORM::for_table('tbl_routers')->find_one($router_id);
-    
-            if ($router) {
-                try {
-                    $result = Mikrotik::backupRouter($router['ip_address'], $router['username'], $router['password']);
-                    if ($result) {
-                        r2(U . 'routers/backup', 's', Lang::T('Router backup completed successfully.'));
-                    } else {
-                        r2(U . 'routers/backup', 'e', Lang::T('Failed to backup router.'));
-                    }
-                } catch (Exception $e) {
-                    r2(U . 'routers/backup', 'e', Lang::T('Error: ') . $e->getMessage());
-                }
-            } else {
-                r2(U . 'routers/backup', 'e', Lang::T('Router not found.'));
-            }
-            break;
+
 
             case 'wireless':
                 $routers = ORM::for_table('tbl_routers')->find_many();

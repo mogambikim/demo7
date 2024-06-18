@@ -52,12 +52,21 @@
                         </div>
                        <span class="help-block col-md-4">{Lang::T('You can use html tag')}</span>
                     </div>
-                    <div class="form-group">
-                       <label class="col-md-2 control-label">{Lang::T('Phone Number')}</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" id="phone" name="phone" value="{$_c['phone']}">
-                        </div>
-                    </div>
+<div class="form-group">
+    <label class="col-md-2 control-label">{Lang::T('Phone Number')}</label>
+    <div class="col-md-6">
+        <input type="text" class="form-control" id="phone" name="phone" value="{$_c['phone']}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-2 control-label">{Lang::T('Router Status Notification No')}</label>
+    <div class="col-md-6">
+        <input type="text" class="form-control" id="router_notifications" name="router_notifications" value="{$_c['router_notifications']}">
+    </div>
+</div>
+
+
                     <div class="form-group">
                         <label class="col-md-2 control-label">{Lang::T('Invoice Footer')}</label>
                         <div class="col-md-6">

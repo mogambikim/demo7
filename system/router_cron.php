@@ -60,10 +60,86 @@ if (!$columns) {
     ORM::raw_execute("ALTER TABLE `tbl_user_recharges` ADD COLUMN `last_seen` DATETIME NULL DEFAULT NULL");
 }
 
+function handleNotificationsAndUpdateState($router, $currentState) {
+    logMessage("Reached handleNotificationsAndUpdateState function for Router ID " . $router['id']);
+    
+    // Fetch the previous state directly using SQL
+    $cacheQuery = "SELECT prev_state FROM tbl_router_cache WHERE router_id = :routerId";
+    $cacheParams = array(':routerId' => $router['id']);
+    $cacheStatement = ORM::get_db()->prepare($cacheQuery);
+    $cacheStatement->execute($cacheParams);
+    $cache = $cacheStatement->fetch(PDO::FETCH_ASSOC);
+
+    if ($cache) {
+        $previousState = $cache['prev_state'];
+        logMessage("Router ID " . $router['id'] . ": Current state is " . $currentState . ", Previous state is " . $previousState);
+        
+        // Fetch the notification phone number from the app config
+        $notificationConfig = ORM::for_table('tbl_appconfig')->where('setting', 'router_notifications')->find_one();
+        $phone = $notificationConfig ? $notificationConfig->value : '';
+        $router['notification_phone'] = $phone;
+        logMessage("Router ID " . $router['id'] . ": Notification phone is " . $phone);
+        
+        if ($currentState === 'Offline' && $previousState !== 'Offline') {
+            // Send offline notification
+            $offlineMessage = "Router [[router_name]] ([[router_ip]]) is offline!";
+            $message = str_replace('[[router_name]]', $router['name'], $offlineMessage);
+            $message = str_replace('[[router_ip]]', $router['ip_address'], $message);
+            
+            Message::sendRouterStatusNotification($router, $message, 'sms');
+            logMessage("Sent offline notification for Router ID " . $router['id']);
+        } elseif ($currentState === 'Online' && $previousState !== 'Online') {
+            // Send online notification
+            $onlineMessage = "Router [[router_name]] ([[router_ip]]) is back online!";
+            $message = str_replace('[[router_name]]', $router['name'], $onlineMessage);
+            $message = str_replace('[[router_ip]]', $router['ip_address'], $message);
+            
+            Message::sendRouterStatusNotification($router, $message, 'sms');
+            logMessage("Sent online notification for Router ID " . $router['id']);
+        } else {
+            logMessage("No state change for Router ID " . $router['id'] . ": Current state is " . $currentState . ", Previous state is " . $previousState);
+        }
+
+        // Update the previous state to the current state using direct SQL
+        logMessage("Updating prev_state for Router ID " . $router['id'] . " from " . $previousState . " to " . $currentState);
+        $updateQuery = "UPDATE tbl_router_cache SET prev_state = :currentState WHERE router_id = :routerId";
+        $params = array(':currentState' => $currentState, ':routerId' => $router['id']);
+        $result = ORM::raw_execute($updateQuery, $params);
+        
+        if ($result) {
+            logMessage("Successfully updated prev_state for Router ID " . $router['id'] . " to " . $currentState);
+        } else {
+            logMessage("Failed to update prev_state for Router ID " . $router['id']);
+        }
+    } else {
+        logMessage("No cache found for Router ID " . $router['id']);
+    }
+}
+
+// Check if the prev_state column exists in tbl_router_cache, if not, add it
+$columnCheck = ORM::for_table('tbl_router_cache')->raw_query("SHOW COLUMNS FROM `tbl_router_cache` LIKE 'prev_state'")->find_one();
+if (!$columnCheck) {
+    logMessage("Adding prev_state column to tbl_router_cache.");
+    ORM::raw_execute("ALTER TABLE `tbl_router_cache` ADD COLUMN `prev_state` VARCHAR(10) DEFAULT NULL");
+} else {
+    logMessage("Column prev_state already exists in tbl_router_cache.");
+}
+
+// Check if the last_seen column exists in tbl_router_cache, if not, add it
+$columnCheck = ORM::for_table('tbl_router_cache')->raw_query("SHOW COLUMNS FROM `tbl_router_cache` LIKE 'last_seen'")->find_one();
+if (!$columnCheck) {
+    logMessage("Adding last_seen column to tbl_router_cache.");
+    ORM::raw_execute("ALTER TABLE `tbl_router_cache` ADD COLUMN `last_seen` DATETIME DEFAULT NULL");
+} else {
+    logMessage("Column last_seen already exists in tbl_router_cache.");
+}
+
 // Fetch all routers
 $routers = ORM::for_table('tbl_routers')->find_many();
 
 foreach ($routers as $router) {
+    logMessage("Processing Router ID " . $router['id']);
+    
     try {
         $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
         
@@ -81,47 +157,51 @@ foreach ($routers as $router) {
         
         if ($cache) {
             // If an entry exists, update it with the new information
-            $updateQuery = "UPDATE tbl_router_cache SET state = 'Online', uptime = ?, model = ? WHERE router_id = ?";
-            $updateParams = array($uptime, $model, $router['id']);
+            $updateQuery = "UPDATE tbl_router_cache SET state = 'Online', uptime = :uptime, model = :model, last_seen = NULL WHERE router_id = :routerId";
+            $updateParams = array(':uptime' => $uptime, ':model' => $model, ':routerId' => $router['id']);
             $updateResult = ORM::raw_execute($updateQuery, $updateParams);
             
             echo "Router " . $router['id'] . " updated successfully.\n";
         } else {
             // If no entry exists, create a new one
-            $cache = ORM::for_table('tbl_router_cache')->create();
-            $cache->router_id = $router['id'];
-            $cache->state = 'Online';
-            $cache->uptime = $uptime;
-            $cache->model = $model;
-            $cache->save();
+            $insertQuery = "INSERT INTO tbl_router_cache (router_id, state, uptime, model) VALUES (:routerId, 'Online', :uptime, :model)";
+            $insertParams = array(':routerId' => $router['id'], ':uptime' => $uptime, ':model' => $model);
+            $insertResult = ORM::raw_execute($insertQuery, $insertParams);
             
             echo "Router " . $router['id'] . " added successfully.\n";
         }
+
+        logMessage("Calling handleNotificationsAndUpdateState for Router ID " . $router['id']);
+        handleNotificationsAndUpdateState($router, 'Online');
+
     } catch (Exception $e) {
+        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+        
         // Check if an entry exists in the cache table
         $cache = ORM::for_table('tbl_router_cache')->where('router_id', $router['id'])->find_one();
         
         if ($cache) {
-            // If an entry exists, update it with the offline status
-            $updateQuery = "UPDATE tbl_router_cache SET state = 'Offline', uptime = NULL, model = NULL WHERE router_id = ?";
-            $updateParams = array($router['id']);
+            // If an entry exists, update it with the offline status, keeping the model unchanged if it was already set
+            $lastSeen = $cache['last_seen'] ? $cache['last_seen'] : date('Y-m-d H:i:s');
+            $model = $cache['model'] ? $cache['model'] : $model;
+            $updateQuery = "UPDATE tbl_router_cache SET state = 'Offline', uptime = NULL, last_seen = :lastSeen WHERE router_id = :routerId";
+            $updateParams = array(':routerId' => $router['id'], ':lastSeen' => $lastSeen);
             $updateResult = ORM::raw_execute($updateQuery, $updateParams);
             
             echo "Router " . $router['id'] . " updated with offline status.\n";
         } else {
             // If no entry exists, create a new one with the offline status
-            $cache = ORM::for_table('tbl_router_cache')->create();
-            $cache->router_id = $router['id'];
-            $cache->state = 'Offline';
-            $cache->uptime = null;
-            $cache->model = null;
-            $cache->save();
+            $insertQuery = "INSERT INTO tbl_router_cache (router_id, state, uptime, model, last_seen) VALUES (:routerId, 'Offline', NULL, :model, :lastSeen)";
+            $insertParams = array(':routerId' => $router['id'], ':model' => $model, ':lastSeen' => date('Y-m-d H:i:s'));
+            $insertResult = ORM::raw_execute($insertQuery, $insertParams);
             
             echo "Router " . $router['id'] . " added with offline status.\n";
         }
+
+        logMessage("Calling handleNotificationsAndUpdateState for Router ID " . $router['id']);
+        handleNotificationsAndUpdateState($router, 'Offline');
     }
 }
-
 
 function fetchDataUsageFromRouters($client, $customers) {
     $dataUsage = array();
@@ -1109,4 +1189,198 @@ try {
     }
 } catch (Exception $e) {
     logMessage("General error: " . $e->getMessage());
+
+
 }
+
+$lastBackupFile = __DIR__ . '/../last_backup_date.txt';
+
+$backupDir = __DIR__ . '/../backups';
+if (!file_exists($backupDir)) {
+    mkdir($backupDir, 0777, true);
+    logMessage("Created backup directory at $backupDir");
+}
+
+
+function performBackup() {
+    global $lastBackupFile;
+    
+    $today = date('Y-m-d');
+    $lastBackupDate = @file_get_contents($lastBackupFile);
+
+    // If the last backup date is today, skip the backup
+    if ($lastBackupDate === $today) {
+        logMessage("Backup already performed today, exiting script.");
+        return;
+    }
+
+    // Update the last backup date
+    file_put_contents($lastBackupFile, $today);
+
+    $routers = ORM::for_table('tbl_routers')->find_many();
+    foreach ($routers as $router) {
+        try {
+            logMessage("Starting backup for router with IP: " . $router['ip_address']);
+            
+            $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
+
+            // Save the backup on the router
+            $backupName = 'freeispradius_backup_' . date('Ymd_His');
+            $backup = new RouterOS\Request('/system/backup/save');
+            $backup->setArgument('name', $backupName);
+            $response = $client->sendSync($backup);
+            logMessage("Backup save response: " . json_encode($response->getAllOfType(RouterOS\Response::TYPE_FINAL)));
+
+            // Connect to the router via FTP
+            $ftp = ftp_connect($router['ip_address']);
+            if (!$ftp) {
+                logMessage("Failed to connect to FTP server at " . $router['ip_address']);
+                continue;
+            }
+            
+            logMessage("Connected to FTP server at " . $router['ip_address']);
+            
+            if (!ftp_login($ftp, $router['username'], $router['password'])) {
+                logMessage("Failed to login to FTP server at " . $router['ip_address'] . " with username " . $router['username']);
+                ftp_close($ftp);
+                continue;
+            }
+            
+            ftp_pasv($ftp, true);
+            logMessage("Logged in to FTP server and set passive mode");
+
+            $remoteFile = $backupName . '.backup';
+            $localFile = __DIR__ . '/../backups/' . $remoteFile;
+            
+            if (!file_exists(__DIR__ . '/../backups/')) {
+                mkdir(__DIR__ . '/../backups/', 0777, true);
+                logMessage("Created backups directory at " . __DIR__ . '/../backups/');
+            }
+
+            if (ftp_get($ftp, $localFile, $remoteFile, FTP_BINARY)) {
+                logMessage("Successfully downloaded backup file $remoteFile to $localFile");
+                ftp_close($ftp);
+                saveBackupRecord($router['id'], $localFile);
+                manageBackupRetention($router['id'], $client, $backupName);
+            } else {
+                logMessage("Failed to download backup file $remoteFile to $localFile");
+                ftp_close($ftp);
+            }
+        } catch (Exception $e) {
+            logMessage("Backup error for router with IP " . $router['ip_address'] . ": " . $e->getMessage());
+        }
+    }
+}
+
+
+
+function saveBackupRecord($router_id, $backupPath) {
+    $backupDate = date('Y-m-d H:i:s');
+
+    // Save the backup record to the database
+    $backupRecord = ORM::for_table('tbl_router_backups')->create();
+    $backupRecord->set('router_id', $router_id);
+    $backupRecord->set('backup_date', $backupDate);
+    $backupRecord->set('file_path', $backupPath);
+    $backupRecord->save();
+
+    logMessage("Backup record saved for router ID $router_id at $backupDate with path $backupPath");
+}
+function manageBackupRetention($router_id, $client, $backupName) {
+    $backupDir = __DIR__ . '/../backups/';
+    $maxBackups = 5;
+
+    // Get all backup files for the server
+    $backupFiles = glob($backupDir . 'freeispradius_backup_*.backup');
+
+    // Sort the files by modification time in descending order (newest first)
+    usort($backupFiles, function($a, $b) {
+        return filemtime($b) - filemtime($a);
+    });
+
+    // If there are more than $maxBackups, delete the oldest ones on the server
+    if (count($backupFiles) > $maxBackups) {
+        $filesToDelete = array_slice($backupFiles, $maxBackups);
+
+        foreach ($filesToDelete as $file) {
+            if (unlink($file)) {
+                logMessage("Deleted old backup file from server: $file");
+            } else {
+                logMessage("Failed to delete old backup file from server: $file");
+            }
+        }
+    }
+
+    // Fetch backup files from the router
+    try {
+        logMessage("Fetching backup files from router");
+        $request = new RouterOS\Request('/file/print');
+        $response = $client->sendSync($request);
+        $routerFiles = $response->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+        // Convert RouterOS response collection to an array of file names
+        $routerFileNames = [];
+        foreach ($routerFiles as $file) {
+            $fileName = $file->getProperty('name');
+            if (strpos($fileName, 'freeispradius_backup_') === 0) {
+                $routerFileNames[] = $file;
+            }
+        }
+
+        // Sort router backup files by creation time, oldest first
+        usort($routerFileNames, function($a, $b) {
+            return strtotime($a->getProperty('creation-time')) - strtotime($b->getProperty('creation-time'));
+        });
+
+        // Log the sorted backup files for debugging
+        foreach ($routerFileNames as $file) {
+            logMessage("Backup file on router: " . $file->getProperty('name') . ", created at: " . $file->getProperty('creation-time'));
+        }
+
+        // Check if there are more than $maxBackups and delete the oldest ones
+        if (count($routerFileNames) > $maxBackups) {
+            $filesToDelete = array_slice($routerFileNames, 0, count($routerFileNames) - $maxBackups);
+            $fileNamesToDelete = array_map(function($file) {
+                return $file->getProperty('name');
+            }, $filesToDelete);
+
+            foreach ($fileNamesToDelete as $fileName) {
+                logMessage("Attempting to delete file from router: " . $fileName);
+                $deleteRequest = new RouterOS\Request('/file/remove');
+                $deleteRequest->setArgument('numbers', $fileName);
+                $deleteResponse = $client->sendSync($deleteRequest);
+
+                // Check if the delete operation was successful
+                if ($deleteResponse->getType() === RouterOS\Response::TYPE_FINAL) {
+                    logMessage("Deleted old backup file from router: " . $fileName);
+                } else {
+                    logMessage("Failed to delete old backup file from router: " . $fileName . ". Response: " . json_encode($deleteResponse->getAll()));
+                }
+            }
+        }
+    } catch (Exception $e) {
+        logMessage("Exception while managing router backups: " . $e->getMessage());
+    }
+}
+
+
+
+// Check if the tbl_router_backups table exists, if not, create it
+$tableCheck = ORM::for_table('tbl_router_backups')->raw_query("SHOW TABLES LIKE 'tbl_router_backups'")->find_one();
+if (!$tableCheck) {
+    logMessage("Creating tbl_router_backups table.");
+    ORM::raw_execute("
+        CREATE TABLE tbl_router_backups (
+            id INT NOT NULL AUTO_INCREMENT,
+            router_id INT NOT NULL,
+            backup_date DATETIME NOT NULL,
+            file_path VARCHAR(255) NOT NULL,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ");
+} else {
+    logMessage("Table tbl_router_backups already exists.");
+}
+
+// Perform the backup every time the script runs for testing purposes
+performBackup();

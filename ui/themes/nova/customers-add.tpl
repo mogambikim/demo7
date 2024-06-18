@@ -99,11 +99,24 @@
 						</div>
                     </div>
 
+                  <!-- SMS Group Selection -->
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">{Lang::T('SMS Group')}</label>
+                        <div class="col-md-9">
+                            <select class="form-control" id="sms_group_id" name="sms_group_id">
+                                <option value="">{Lang::T('Select SMS Group (optional)')}</option>
+                                {foreach from=$sms_groups item=group}
+                                <option value="{$group.id}">{$group.group_name}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group">
     <label class="col-md-3 control-label">Router</label>
     <div class="col-md-9">
   <select class="form-control" id="router_id" name="router_id">
-    <option value="">Select Router (optional)</option>
+    <option value="">Select Router </option>
     {foreach from=$routers item=router}
         <option value="{$router.id}">{$router.name}</option>
     {/foreach}

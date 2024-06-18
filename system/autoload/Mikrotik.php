@@ -926,19 +926,39 @@ public static function addStaticUser($client, $plan, $customer)
         $response = $client->read();
         return $response;
     }
-
-
     public static function backupRouter($ip_address, $username, $password) {
         try {
             $client = new RouterOS\Client($ip_address, $username, $password);
+    
+            // Save the backup on the router
+            $backupName = 'freeispradius_backup_' . date('Ymd_His');
             $backup = new RouterOS\Request('/system/backup/save');
-            $backup->setArgument('name', 'backup_' . date('Ymd_His'));
+            $backup->setArgument('name', $backupName);
             $client->sendSync($backup);
-            return true;
+    
+            // Download the backup file from the router
+            $ftp = ftp_connect($ip_address);
+            if ($ftp && ftp_login($ftp, $username, $password)) {
+                ftp_pasv($ftp, true);
+                $remoteFile = $backupName . '.backup';
+                $localFile = __DIR__ . '/../backups/' . $remoteFile;
+    
+                if (ftp_get($ftp, $localFile, $remoteFile, FTP_BINARY)) {
+                    ftp_close($ftp);
+                    return $localFile;
+                } else {
+                    ftp_close($ftp);
+                    return false;
+                }
+            } else {
+                return false;
+            }
         } catch (Exception $e) {
             return false;
         }
     }
+    
+    
 
     public static function disablePpoeUser($client, $username)
 {

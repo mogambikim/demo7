@@ -90,12 +90,14 @@ switch ($action) {
 
         case 'app-post':
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-                _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
+                _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
             $company = _post('CompanyName');
+            $phone = _post('phone');
+            $router_notifications = _post('router_notifications');
+        
             run_hook('save_settings'); #HOOK
-    
-    
+        
             if (!empty($_FILES['logo']['name'])) {
                 if (function_exists('imagecreatetruecolor')) {
                     if (file_exists($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo.png')) unlink($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo.png');
@@ -105,23 +107,29 @@ switch ($action) {
                     r2(U . 'settings/app', 'e', 'PHP GD is not installed');
                 }
             }
+        
             if ($company == '') {
                 r2(U . 'settings/app', 'e', Lang::T('All field is required'));
             } else {
-                if ($radius_enable) {
-                    try {
-                        Radius::getTableNas()->find_many();
-                    } catch (Exception $e) {
-                        $ui->assign("error_title", "RADIUS Error");
-                        $ui->assign("error_message", "Radius table not found.<br><br>" .
-                            $e->getMessage() .
-                            "<br><br>Download <a href=\"https://raw.githubusercontent.com/hotspotbilling/phpnuxbill/Development/install/radius.sql\">here</a> or <a href=\"https://raw.githubusercontent.com/hotspotbilling/phpnuxbill/master/install/radius.sql\">here</a> and import it to database.<br><br>Check config.php for radius connection details");
-                        $ui->display('router-error.tpl');
-                        die();
-                    }
+                // Retrieve country code from tbl_appconfig
+                $country_code_record = ORM::for_table('tbl_appconfig')->where('setting', 'country_code_phone')->find_one();
+                if ($country_code_record) {
+                    $country_code = $country_code_record->value;
+                } else {
+                    $country_code = ''; // Default to empty if not found
                 }
+        
+                // Check and convert router notifications number if it starts with '0'
+                if (substr($router_notifications, 0, 1) == '0') {
+                    $router_notifications = $country_code . substr($router_notifications, 1);
+                }
+        
                 // save all settings
                 foreach ($_POST as $key => $value) {
+                    if ($key == 'router_notifications') {
+                        $value = $router_notifications;
+                    }
+        
                     $d = ORM::for_table('tbl_appconfig')->where('setting', $key)->find_one();
                     if ($d) {
                         $d->value = $value;
@@ -133,7 +141,7 @@ switch ($action) {
                         $d->save();
                     }
                 }
-    
+        
                 //checkbox
                 $checks = ['hide_mrc', 'hide_tms', 'hide_aui', 'hide_al', 'hide_uet', 'hide_vs', 'hide_pg'];
                 foreach ($checks as $check) {
@@ -150,12 +158,15 @@ switch ($action) {
                         }
                     }
                 }
-    
+        
                 _log('[' . $admin['username'] . ']: ' . Lang::T('Settings Saved Successfully'), $admin['user_type'], $admin['id']);
-    
                 r2(U . 'settings/app', 's', Lang::T('Settings Saved Successfully'));
             }
-            break;        
+            break;
+        
+        
+        
+        
 
     case 'localisation':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {

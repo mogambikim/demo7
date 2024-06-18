@@ -253,4 +253,27 @@ class Message
         }
         return "$via: $msg";
     }
+    public static function sendRouterStatusNotification($router, $message, $via)
+    {
+        global $config;
+
+        // Send notification based on preferred method
+        if (
+            !empty($router['notification_phone']) && strlen($router['notification_phone']) > 5
+            && !empty($message) && in_array($via, ['sms', 'wa', 'email', 'both', 'sms_email', 'email_wa', 'all'])
+        ) {
+            if ($via == 'sms' || $via == 'both' || $via == 'sms_email' || $via == 'all') {
+                self::sendSMS($router['notification_phone'], $message);
+            }
+            if ($via == 'wa' || $via == 'both' || $via == 'email_wa' || $via == 'all') {
+                self::sendWhatsapp($router['notification_phone'], $message);
+            }
+            if ($via == 'email' || $via == 'sms_email' || $via == 'email_wa' || $via == 'all') {
+                $subject = "Router Status Notification";
+                self::sendEmail($router['notification_email'], $subject, $message); // Assuming you have a notification email field
+            }
+        }
+
+        return "$via: $message";
+    }
 }

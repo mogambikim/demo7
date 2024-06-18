@@ -480,7 +480,7 @@ margin-bottom: 5px;
     <div class="col-md-12">
         <div class="panel panel-warning">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-download"></i> Top 5 Data Users</h3>
+                <h3 class="panel-title"><i class="fa fa-download"></i> Top 5 Daily Data Users</h3>
             </div>
             <div class="panel-body">
                 <div class="table-responsive">

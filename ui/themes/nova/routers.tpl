@@ -3,12 +3,12 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-hovered mb20 panel-primary">
-                <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>{Lang::T('Routers')}</span>
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-left: auto;">
-                        {Lang::T('Need Help?')}
-                    </button>
-                </div>
+            <div class="panel-heading" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>{Lang::T('Routers')}</span>
+                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#tutorialModal" style="margin-left: auto;">
+                    {Lang::T('Need Help?')}
+                </button>
+            </div>
             <div class="panel-body">
                 <div class="md-whiteframe-z1 mb20 text-center" style="padding: 15px">
                     <div class="col-md-8">
@@ -62,7 +62,7 @@
                                     {if $router['pingStatus'] == 'Online'}
                                         <span class="label label-success">Currently Online</span>
                                     {else}
-                                        {Lang::dateAndTimeFormat($router['last_seen'], '')}
+                                        <span class="label label-danger" style="color: white;">{$router['last_seen']}</span>
                                     {/if}
                                 </td>
                                 <td><a href="{$_url}routers/reboot/{$router['id']}" class="btn btn-warning btn-xs">Reboot</a></td>
@@ -104,9 +104,7 @@
                     <div class="well">
                         <pre><code>/file print file=reboot.txt
 /file set reboot.txt contents="0"
-# Create the "reboot" script
 /system script add name="reboot" source="/file set reboot.txt contents=\"1\""
-# Create the "watch-reboot" scheduler
 /system scheduler add name="watch-reboot" interval=1m on-event=":local needReboot [/file get reboot.txt contents]; :if (\$needReboot != \"0\") do={ /file set \"reboot.txt\" contents=\"0\"; /system reboot; }"</code></pre>
                         <button class="btn btn-primary btn-block" onclick="copyCode()"><i class="fa fa-copy"></i> {Lang::T('Copy Code')}</button>
                     </div>

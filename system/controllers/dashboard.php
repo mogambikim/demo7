@@ -279,20 +279,24 @@ $ui->assign('todayUpload', $todayUpload);
 $ui->assign('todayDownload', $todayDownload);
 
 
-// Fetch top 5 downloaders
-$topDownloadersQuery = "
-    SELECT c.username, du.download
-    FROM tbl_data_usage AS du
+// Fetch top 5 daily downloaders
+$todayDate = date('Y-m-d');
+
+$topDailyDownloadersQuery = "
+    SELECT c.username, du.today_total_download AS download
+    FROM tbl_daily_data_usage AS du
     JOIN tbl_customers AS c ON du.customer_id = c.id
-    ORDER BY du.download DESC
+    WHERE DATE(du.date) = ?
+    ORDER BY du.today_total_download DESC
     LIMIT 5
 ";
 
-$topDownloadersResult = ORM::for_table('tbl_data_usage')
-    ->raw_query($topDownloadersQuery)
+$topDailyDownloadersResult = ORM::for_table('tbl_daily_data_usage')
+    ->raw_query($topDailyDownloadersQuery, [$todayDate])
     ->find_array();
 
-$ui->assign('topDownloaders', $topDownloadersResult);
+$ui->assign('topDownloaders', $topDailyDownloadersResult);
+
 
 // Fetch weekly data usage for all users
 $weekStartDate = date('Y-m-d', strtotime('last monday'));
@@ -732,7 +736,6 @@ $sms_url = get_sms_url_from_main_db($db_host, $db_user, $db_password, $db_name);
 // Extract API token from the sms_url
 $api_token = extract_api_token($sms_url);
 if (!$api_token) {
-    die("Failed to extract API token from sms_url.");
 }
 
 // Get SMS units from the SMS database

@@ -131,18 +131,18 @@
             </div>
             <div class="col-md-4">
                 <div class="panel panel-primary">
-                    <div class="panel-heading">{Lang::T('Login / Activate Voucher')}</div>
+                    <div class="panel-heading">{Lang::T('Activate Voucher')}</div>
                     <div class="panel-body">
                         <form id="activationForm" action="{$_url}login/activation" method="post">
                             <div class="form-group">
-                                <label>{Lang::T('Username')}</label>
+                                <label>{Lang::T('Enter your name or number')}</label>
                                 <div class="input-group">
                                     {if $_c['country_code_phone']!= ''}
                                         <span class="input-group-addon" id="basic-addon1">+</span>
                                     {else}
                                         <span class="input-group-addon" id="basic-addon1"><i class="fas fa-phone-alt"></i></span>
                                     {/if}
-                                    <input type="text" class="form-control" name="username" required placeholder="08xxxxxxx">
+                                    <input type="text" class="form-control" name="username" required placeholder="07xxxxxxx">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -151,7 +151,7 @@
                             </div>
                             <div class="btn-group btn-group-justified mb15">
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-primary" onclick="activateAndLogin()">{Lang::T('Login / Activate Voucher')}</button>
+                                    <button type="button" class="btn btn-primary" onclick="activateAndLogin()">{Lang::T('Activate Voucher')}</button>
                                 </div>
                             </div>
                             <br>
