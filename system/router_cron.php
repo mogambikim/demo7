@@ -1384,3 +1384,46 @@ if (!$tableCheck) {
 
 // Perform the backup every time the script runs for testing purposes
 performBackup();
+
+function createTableIfNotExists($tableName, $createQuery) {
+    $db = ORM::get_db();
+    $result = $db->query("SHOW TABLES LIKE '{$tableName}'")->fetch();
+    if (!$result) {
+        $db->exec($createQuery);
+        echo "Table {$tableName} created.\n";
+    } else {
+        echo "Table {$tableName} already exists.\n";
+    }
+}
+
+// Create tbl_sms_groups table if not exists
+createTableIfNotExists('tbl_sms_groups', "
+    CREATE TABLE `tbl_sms_groups` (
+        `id` INT NOT NULL AUTO_INCREMENT,
+        `group_name` VARCHAR(255) NOT NULL,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+");
+
+// Create tbl_sms_group_customers table if not exists
+createTableIfNotExists('tbl_sms_group_customers', "
+    CREATE TABLE `tbl_sms_group_customers` (
+        `id` INT NOT NULL AUTO_INCREMENT,
+        `group_id` INT NOT NULL,
+        `customer_id` INT NOT NULL,
+        PRIMARY KEY (`id`),
+        FOREIGN KEY (`group_id`) REFERENCES `tbl_sms_groups`(`id`) ON DELETE CASCADE,
+        FOREIGN KEY (`customer_id`) REFERENCES `tbl_customers`(`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+");
+
+// Create tbl_router_backups table if not exists
+createTableIfNotExists('tbl_router_backups', "
+    CREATE TABLE `tbl_router_backups` (
+        id INT NOT NULL AUTO_INCREMENT,
+        router_id INT NOT NULL,
+        backup_date DATETIME NOT NULL,
+        file_path VARCHAR(255) NOT NULL,
+        PRIMARY KEY (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+");
