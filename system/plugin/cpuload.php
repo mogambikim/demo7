@@ -2,14 +2,16 @@
 use PEAR2\Net\RouterOS;
 
 // Fungsi untuk mendaftarkan menu pemantauan beban CPU
-register_menu("CPU Load", true, "cpuload_ui", 'AFTER_SETTINGS', 'fa fa-pie-chart', "New", "green");
+
+//register_menu("Clear Cache", true, "clear_cache", 'SETTINGS', '');
+register_menu("CPU Load", true, "cpuload_ui", 'NETWORK', '', "New", "green");
 
 function cpuload_ui()
 {
     global $ui, $routes;
     _admin();
-    $ui->assign('_title', 'Pemantauan Beban');
-    $ui->assign('_system_menu', 'Pemantauan Beban');
+    $ui->assign('_title', 'Load Monitoring');
+    $ui->assign('_system_menu', 'Load Monitoring');
     $admin = Admin::_info();
     $ui->assign('_admin', $admin);
     $routers = ORM::for_table('tbl_routers')->where('enabled', '1')->find_many();

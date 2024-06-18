@@ -722,6 +722,12 @@
         <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
     </a>
 </li>
+<li {if $_routes[1] eq 'schedule'}class="active" {/if}>
+    <a href="{$_url}message/sms_groups">
+        {Lang::T('Sms Groups')}
+        <span class="label label-success" style="margin-left: 5px; background-color: green;">New</span>
+    </a>
+</li>
                     {$_MENU_MESSAGE}
                 </ul>
             </li>
@@ -886,13 +892,20 @@
     <ul class="treeview-menu">
         <li {if $_routes[1] eq 'list'}class="active" {/if}>
             <a href="{$_url}logs/freeispradius">FreeIspRadius</a>
-        </li>
+<li {if $_routes[1] eq 'list'}class="active" {/if}>
+    <a href="{$_url}plugin/log_ui">
+        <i class="ion ion-clipboard"></i> <span>Mikrotik Logs</span>
+        <small class="label pull-right bg-green">New</small>
+    </a>
+</li>
+
         {if $_c['radius_enable']}
             <li {if $_routes[1] eq 'radius'}class="active" {/if}>
                 <a href="{$_url}logs/radius">Radius</a>
             </li>
         {/if}
     </ul>
+    
     {$_MENU_LOGS}
 </li>
 {$_MENU_AFTER_LOGS}

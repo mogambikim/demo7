@@ -121,9 +121,9 @@
     <table class="table table-bordered table-striped">
         <thead class="thead-dark">
             <tr>
-                <th>Waktu</th>
-                <th>Topik</th>
-                <th>Pesan</th>
+                <th>Time</th>
+                <th>Topic</th>
+                <th>Description</th>
             </tr>
         </thead>
         <tbody id="logTableBody">

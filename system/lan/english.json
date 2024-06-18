@@ -816,5 +816,6 @@
     "SMS_Group": "SMS Group",
     "Select_SMS_Group__optional_": "Select SMS Group (optional)",
     "Activate_Voucher": "Activate Voucher",
-    "Enter_your_name_or_number": "Enter your name or number"
+    "Enter_your_name_or_number": "Enter your name or number",
+    "Sms_Groups": "Sms Groups"
 }

@@ -85,7 +85,7 @@ function createChart() {
     },
     yaxis: {
       title: {
-        text: 'Lalu Lintas Langsung'
+        text: 'Live Traffic'
       },
       labels: {
         formatter: function(value) {
@@ -174,8 +174,8 @@ createChart(); // Create the chart on page load
 
 <script>
   window.addEventListener('DOMContentLoaded', function() {
-    var portalLink = "https://github.com/kevindoni";
-    $('#version').html('Interface Monitor | Ver: 1.0 | by: <a href="' + portalLink + '">Kevin Doni</a>');
+    var portalLink = "https://freeispradius.com";
+    $('#version').html('Interface Monitor | Ver: 1.0 | by: <a href="' + portalLink + '">FreeIspRadius</a>');
   });
 </script>
 

@@ -1,7 +1,7 @@
 <?php
 use PEAR2\Net\RouterOS;
 
-register_menu(" MikroTik Monitor", true, "mikrotik_monitor_ui", 'AFTER_SETTINGS', 'ion ion-wifi', "New", "green");
+register_menu(" MikroTik Monitor", true, "mikrotik_monitor_ui", 'NETWORK', '', "New", "green");
 
 function mikrotik_monitor_ui()
 {

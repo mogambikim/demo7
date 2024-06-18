@@ -2,7 +2,7 @@
 
 use PEAR2\Net\RouterOS;
 
-register_menu(" Interface Monitor", true, "interface_ui", 'AFTER_SETTINGS', 'ion-ios-pulse', "New", "green");
+register_menu(" Interface Monitor", true, "interface_ui", 'NETWORK', '', "New", "green");
 
 function interface_ui() {
     global $ui, $routes;
