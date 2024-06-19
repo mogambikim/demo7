@@ -19,7 +19,7 @@ switch ($action) {
         }
 
         if (!empty(_get('testWa'))) {
-            $result = Message::sendWhatsapp(_get('testWa'), 'PHPNuxBill Test Whatsapp');
+            $result = Message::sendWhatsapp(_get('testWa'), 'FreeIspRadius Test Whatsapp');
             r2(U . "settings/app", 's', 'Test Whatsapp has been send<br>Result: ' . $result);
         }
         if (!empty(_get('testSms'))) {

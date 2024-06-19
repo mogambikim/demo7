@@ -30,3 +30,4 @@ system/uploads/system/**
 /vendor/
 logs.txt
 *.log
+backups/

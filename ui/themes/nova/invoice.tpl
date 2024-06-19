@@ -21,7 +21,7 @@
                     <a href="nux://print?text={urlencode($invoice)}"
                     class="btn btn-success text-black btn-sm hidden-md hidden-lg">
                         <i class="glyphicon glyphicon-phone"></i>
-                        NuxPrint
+                        FreeispRadius
                 </form>
             </div>
         </div>
