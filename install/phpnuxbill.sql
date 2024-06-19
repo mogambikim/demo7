@@ -206,40 +206,7 @@ CREATE TABLE `tbl_router_cache` (
   `last_seen` DATETIME
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-DROP TABLE IF EXISTS `tbl_sms_groups`;
-CREATE TABLE `tbl_sms_groups` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `group_name` VARCHAR(255) NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
-DROP TABLE IF EXISTS `tbl_sms_group_customers`;
-CREATE TABLE `tbl_sms_group_customers` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `group_id` INT NOT NULL,
-    `customer_id` INT NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`group_id`) REFERENCES `tbl_sms_groups`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`customer_id`) REFERENCES `tbl_customers`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
-CREATE TABLE `tbl_sms_groups` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `group_name` varchar(255) NOT NULL,
-    PRIMARY KEY (`id`)
-);
-
-
-CREATE TABLE `tbl_sms_group_customers` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `group_id` int(11) NOT NULL,
-    `customer_id` int(11) NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`group_id`) REFERENCES `tbl_sms_groups`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`customer_id`) REFERENCES `tbl_customers`(`id`) ON DELETE CASCADE
-);
 
 
 DROP TABLE IF EXISTS `tbl_voucher`;
@@ -562,3 +529,20 @@ CREATE TABLE `tbl_reset_counters` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE `tbl_users` MODIFY COLUMN `status` VARCHAR(50);
+
+DROP TABLE IF EXISTS `tbl_sms_groups`;
+CREATE TABLE `tbl_sms_groups` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `group_name` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DROP TABLE IF EXISTS `tbl_sms_group_customers`;
+CREATE TABLE `tbl_sms_group_customers` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `group_id` INT NOT NULL,
+    `customer_id` INT NOT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`group_id`) REFERENCES `tbl_sms_groups`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`customer_id`) REFERENCES `tbl_customers`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
