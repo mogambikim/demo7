@@ -31,3 +31,5 @@ system/uploads/system/**
 logs.txt
 *.log
 backups/
+last_backup_date.txt
+last_backup_date.txt
