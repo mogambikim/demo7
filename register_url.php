@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4134781';
-$consumerkey    = "KlcTBFfKr9naPrW9P1b3hwU0S9FUsoeaodmkZFpGFCucGA4M";
-$consumersecret = "SkkRKVpJ2ZMVuPwZ6Xbo5whEQF26GwGgXk4PAorAzYoBWskOrkFcIoBK53bidmlg";
-$validationurl = "https://harmonyandsons.freeispradius.com/validation_url.php";
+$shortcode = '4095091';
+$consumerkey    = "uYa5L9RO0Sm18MlMGijANwWrwadSgI1Y9W5zh786uTMSQfGw";
+$consumersecret = "r8qppdgHIdjs0gUo4PpyxNmOv0Wl9oMeiuGtAC58QPqhjTmTy7gjCUA4Dr3J4lnv";
+$validationurl = "https://corefiber.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://harmonyandsons.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://corefiber.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
