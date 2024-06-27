@@ -150,15 +150,18 @@ switch ($action) {
             }
             break;
 
-    case 'delete':
-        $id  = $routes['2'];
-        run_hook('router_delete'); #HOOK
-        $d = ORM::for_table('tbl_routers')->find_one($id);
-        if ($d) {
-            $d->delete();
-            r2(U . 'routers/list', 's', Lang::T('Data Deleted Successfully'));
-        }
-        break;
+            case 'delete':
+                $id  = $routes['2'];
+                run_hook('router_delete'); #HOOK
+                $d = ORM::for_table('tbl_routers')->find_one($id);
+                if ($d) {
+                    // Add log entry for router deletion
+                    _log('[' . $admin['username'] . ']: Router ' . $d->name . ' deleted successfully', $admin['user_type'], $admin['id']);
+                    $d->delete();
+                    r2(U . 'routers/list', 's', Lang::T('Data Deleted Successfully'));
+                }
+                break;
+            
 
     case 'add-post':
         $name = _post('name');
@@ -195,6 +198,7 @@ switch ($action) {
             $d->description = $description;
             $d->enabled = $enabled;
             $d->save();
+            _log('[' . $admin['username'] . ']: Router ' . $d->name . ' created successfully', $admin['user_type'], $admin['id']);
 
             r2(U . 'routers/list', 's', Lang::T('Data Created Successfully'));
         } else {
