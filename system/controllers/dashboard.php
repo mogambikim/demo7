@@ -22,6 +22,7 @@ $iday = ORM::for_table('tbl_transactions')
     ->where('recharged_on', $mdate)
     ->where_not_equal('method', 'Kopokopo Manual')
     ->where_not_equal('method', 'Mpesa Paybill Manual')
+    ->where_not_equal('plan_name', 'Manual Balance Edit')
     ->sum('price');
 if ($iday == '') {
     $iday = '0.00';
@@ -31,6 +32,7 @@ $ui->assign('iday', $iday);
 $imonth = ORM::for_table('tbl_transactions')
 ->where_not_equal('method', 'Mpesa Paybill Manual')
 ->where_not_equal('method', 'Kopokopo Manual')
+->where_not_equal('plan_name', 'Manual Balance Edit')
 ->where_gte('recharged_on', $first_day_month)
 ->where_lte('recharged_on', $mdate)
 ->sum('price');
