@@ -46,22 +46,19 @@ function initiatebankstk()
        ->order_by_desc('id')
        ->find_one();
    
-       $CheckUser = ORM::for_table('tbl_customers')
-       ->where('phonenumber', $phone)
+   $CheckUser = ORM::for_table('tbl_customers')
+       ->where('username', $username)
        ->find_many();
    
-       $UserId=$CheckId->id;
+   $UserId = $CheckId->id;
    
-         if(!empty($CheckUser)){
-   
-   
+   if (!empty($CheckUser)) {
        ORM::for_table('tbl_customers')
-       ->where('phonenumber', $phone)
-       ->where_not_equal('id', $UserId)
-       ->delete_many();
+           ->where('username', $username)
+           ->where_not_equal('id', $UserId)
+           ->delete_many();
+   }
    
-   
-         }
          
 
 
@@ -194,8 +191,8 @@ $PartyA = $phone; // This is your phone number,
   $AccountReference = $bankaccount; 
   $TransactionDesc = 'TestMapayment';
   $Amount = $amount;
-  $BusinessShortCode='4122323';
-  $Passkey='aaebecea73082fa56af852606106b1316d5b4dfa2f12d0088800b0b88e4bb6e3';
+  $BusinessShortCode='4137989';
+  $Passkey='3a45e88faa037b86fbd0c494676d71c3c23574203b2bf721066f90598bbd8bb8';
   $Timestamp = date("YmdHis",time());    
   $Password = base64_encode($BusinessShortCode.$Passkey.$Timestamp);
   $CallBackURL = $cburl; 

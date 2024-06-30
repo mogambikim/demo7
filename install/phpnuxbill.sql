@@ -344,7 +344,7 @@ VALUES
 (16, 'mpesa_business_code', ''),
 (17, 'mpesa_pass_key', '3a45e88faa037b86fbd0c494676d71c3c23574203b2bf721066f90598bbd8bb8'),
 (18, 'mpesa_env', 'live'),
-(19, 'mpesa_till_consumer_key', 'OPoNWN94CkEPPzAyEZ0qPpvTRawGMT1V'),
+(19, 'mpesa_till_consumer_key', '6bxegKBnBDsJZisbZRYYuyezs5dcqpgYyFMSgnvRhGU6031h'),
 (20, 'mpesa_till_consumer_secret', 'nRzAnfRy9CBK43eciwLWoc3GsMsZsJ2tWbhsyWhtkMVj94cIkCD3oFSR1Cr86A3M'),
 (21, 'mpesa_till_shortcode_code', '4137989'),
 (23, 'mpesa_till_pass_key', '3a45e88faa037b86fbd0c494676d71c3c23574203b2bf721066f90598bbd8bb8'),
@@ -368,7 +368,9 @@ VALUES
 (41, 'minimum_transfer', '10'),
 (42, 'allow_balance_transfer', 'yes'),
 (43, 'enable_balance', 'yes'),
-(44, 'theme', 'nova');
+(44, 'disable_voucher', 'no'),
+(45, 'disable_registration', 'yes'),
+(46, 'theme', 'nova');
 --
 
 -- Dumping data untuk tabel `tbl_users`

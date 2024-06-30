@@ -60,28 +60,24 @@ function initiatetillstk()
   
 
     //
-
     $CheckId = ORM::for_table('tbl_customers')
     ->where('username', $username)
     ->order_by_desc('id')
     ->find_one();
 
-    $CheckUser = ORM::for_table('tbl_customers')
-    ->where('phonenumber', $phone)
+$CheckUser = ORM::for_table('tbl_customers')
+    ->where('username', $username)
     ->find_many();
 
-    $UserId=$CheckId->id;
+$UserId = $CheckId->id;
 
-      if(!empty($CheckUser)){
-
-
+if (!empty($CheckUser)) {
     ORM::for_table('tbl_customers')
-    ->where('phonenumber', $phone)
-    ->where_not_equal('id', $UserId)
-    ->delete_many();
+        ->where('username', $username)
+        ->where_not_equal('id', $UserId)
+        ->delete_many();
+}
 
-
-      }
       
 
 
