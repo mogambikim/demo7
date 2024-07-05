@@ -243,14 +243,21 @@ if ($customer) {
     // you can add that code here. Otherwise, this block can be left empty or removed.
 }
 
-// Continue with the rest of your code
-$PaymentGatewayRecord->status = 2;
-$PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
-$PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
-$PaymentGatewayRecord->save();
+if ($PaymentGatewayRecord->status != 2) {
+    file_put_contents('finalupdate.log', "Updating PaymentGatewayRecord...\n", FILE_APPEND);
 
-file_put_contents('finalupdate.log', "Paid date is  at $paid_date\n", FILE_APPEND);
-file_put_contents('finalupdate.log', "Paid date is  at $gateway_trx_id\n", FILE_APPEND);
+    $PaymentGatewayRecord->status = 2;
+    $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
+    $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
+    $PaymentGatewayRecord->save();
+
+    file_put_contents('finalupdate.log', "Updated PaymentGatewayRecord status to: 2\n", FILE_APPEND);
+    file_put_contents('finalupdate.log', "Updated PaymentGatewayRecord paid_date to: " . $PaymentGatewayRecord->paid_date . "\n", FILE_APPEND);
+    file_put_contents('finalupdate.log', "Updated PaymentGatewayRecord gateway_trx_id to: " . $PaymentGatewayRecord->gateway_trx_id . "\n", FILE_APPEND);
+} else {
+    file_put_contents('finalupdate.log', "PaymentGatewayRecord status is already 2. No update needed.\n", FILE_APPEND);
+}
+
 
 // Log completion
 $completionTimestamp = (new DateTime('now', new DateTimeZone('GMT+3')))->format('Y-m-d H:i:s');
