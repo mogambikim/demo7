@@ -44,7 +44,7 @@ $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
 logToFile('finalupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
-sleep(15);
+sleep(45);
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
 $resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
@@ -121,176 +121,141 @@ if ($response_code == "0") {
     // Log the recharge details
     file_put_contents('finalupdate.log', "Recharge details:\nPlan Type: $plan_type\nPlan Name: $plan_name\nValidity: $validity $units\nExpiry Date: $expiry_date\nExpiry Time: $expiry_time\n", FILE_APPEND);
 
-    // Update any existing records for the username to status 'off'
-    $existing_recharges = ORM::for_table('tbl_user_recharges')
-        ->where('username', $uname)
-        ->where('status', 'on')
-        ->find_many();
-
-    foreach ($existing_recharges as $record) {
-        $record->status = 'off';
-        $record->save();
-    }
-
     // Include the external script
     $file_path = 'system/adduser.php';
-    if (file_exists($file_path)) {
-        include_once $file_path;
-        file_put_contents('finalupdate.log', "Included file: $file_path\n", FILE_APPEND);
-    } else {
-        file_put_contents('finalupdate.log', "File not found: $file_path\n", FILE_APPEND);
-        exit();
-    }
+    include_once $file_path;
 
     // Fetch the router name
     $router = ORM::for_table('tbl_routers')
         ->where('id', $routerId)
         ->find_one();
 
-    if (!$router) {
-        file_put_contents('finalupdate.log', "Router not found for router ID: $routerId\n", FILE_APPEND);
-        exit();
+              // Check if the status of the username is 'on'
+              $existing_recharge = ORM::for_table('tbl_user_recharges')
+              ->where('username', $uname)
+              ->where('status', 'on')
+              ->find_one();
+
+          if ($existing_recharge) {
+              file_put_contents('finalupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
+          } else {
+              // Delete existing records for the username
+              $deleted_count = ORM::for_table('tbl_user_recharges')
+                  ->where('username', $uname)
+                  ->delete_many();
+
+              file_put_contents('finalupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
+
+              // Insert new record into tbl_user_recharges
+              ORM::for_table('tbl_user_recharges')->create(array(
+                  'customer_id' => $userid->id,
+                  'username' => $uname,
+                  'plan_id' => $plan_id,
+                  'namebp' => $plan_name,
+                  'recharged_on' => $recharged_on,
+                  'recharged_time' => $recharged_time,
+                  'expiration' => $expiry_date,
+                  'time' => $expiry_time,
+                  'status' => "on",
+                  'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
+                  'routers' => $router_name, // Use the router name instead of the ID
+                  'type' => $plan_type
+              ))->save();
+
+              file_put_contents('finalupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
+          }
+
+
+
+    // Check if a transaction with the same invoice already exists
+    $existingTransactions = ORM::for_table('tbl_transactions')
+        ->where('invoice', $mpesa_code)
+        ->order_by_desc('id')
+        ->find_many();
+
+    if (count($existingTransactions) > 1) {
+        // Convert to array for using array_pop
+        $existingTransactionsArray = $existingTransactions->as_array();
+        $keepTransaction = array_pop($existingTransactionsArray); // Keep the most recent transaction
+        logToFile('finalupdate.log', "Keeping transaction with ID: " . $keepTransaction['id']);
+
+        foreach ($existingTransactionsArray as $transaction) {
+            logToFile('finalupdate.log', "Attempting to delete transaction with ID: " . $transaction['id']);
+            $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
+            if ($transactionToDelete) {
+                $transactionToDelete->delete();
+                logToFile('finalupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code and ID: " . $transaction['id']);
+            } else {
+                logToFile('finalupdate.log', "Failed to find transaction with ID: " . $transaction['id']);
+            }
+        }
+    } else {
+        logToFile('finalupdate.log', "No duplicates found or only one transaction found for invoice: $mpesa_code");
     }
 
-    $router_name = $router->name;
-
-    // Delete existing records for the username
-    $deleted_count = ORM::for_table('tbl_user_recharges')
-        ->where('username', $uname)
-        ->delete_many();
-
-    file_put_contents('finalupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
-
-    // Insert new record into tbl_user_recharges
-    try {
-        ORM::for_table('tbl_user_recharges')->create(array(
-            'customer_id' => $userid->id,
+    if (count($existingTransactions) == 0) {
+        // Insert new record into tbl_transactions
+        ORM::for_table('tbl_transactions')->create(array(
+            'invoice' => $mpesa_code,
             'username' => $uname,
-            'plan_id' => $plan_id,
-            'namebp' => $plan_name,
+            'plan_name' => $plan_name,
+            'price' => $amount_paid,
             'recharged_on' => $recharged_on,
             'recharged_time' => $recharged_time,
             'expiration' => $expiry_date,
             'time' => $expiry_time,
-            'status' => "on",
             'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-            'routers' => $router_name, // Use the router name instead of the ID
+            'routers' => $router_name,
             'type' => $plan_type
         ))->save();
 
-        file_put_contents('finalupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
-
-        // Check if a transaction with the same invoice already exists
-        $existingTransactions = ORM::for_table('tbl_transactions')
-            ->where('invoice', $mpesa_code)
-            ->order_by_desc('id')
-            ->find_many();
-
-        if (count($existingTransactions) > 1) {
-            // Convert to array for using array_pop
-            $existingTransactionsArray = $existingTransactions->as_array();
-            $keepTransaction = array_pop($existingTransactionsArray); // Keep the most recent transaction
-            logToFile('finalupdate.log', "Keeping transaction with ID: " . $keepTransaction['id']);
-
-            foreach ($existingTransactionsArray as $transaction) {
-                logToFile('finalupdate.log', "Attempting to delete transaction with ID: " . $transaction['id']);
-                try {
-                    $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
-                    if ($transactionToDelete) {
-                        $transactionToDelete->delete();
-                        logToFile('finalupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code and ID: " . $transaction['id']);
-                    } else {
-                        logToFile('finalupdate.log', "Failed to find transaction with ID: " . $transaction['id']);
-                    }
-                } catch (Exception $e) {
-                    logToFile('error.log', "Exception during deletion of transaction ID: " . $transaction['id'] . " - " . $e->getMessage());
-                }
-            }
-        } else {
-            logToFile('finalupdate.log', "No duplicates found or only one transaction found for invoice: $mpesa_code");
-        }
-
-        if (count($existingTransactions) == 0) {
-            // Insert new record into tbl_transactions
-            ORM::for_table('tbl_transactions')->create(array(
-                'invoice' => $mpesa_code,
-                'username' => $uname,
-                'plan_name' => $plan_name,
-                'price' => $amount_paid,
-                'recharged_on' => $recharged_on,
-                'recharged_time' => $recharged_time,
-                'expiration' => $expiry_date,
-                'time' => $expiry_time,
-                'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-                'routers' => $router_name,
-                'type' => $plan_type
-            ))->save();
-
-            file_put_contents('finalupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
-        } else {
-            file_put_contents('finalupdate.log', "Transaction record already exists for invoice: $mpesa_code\n", FILE_APPEND);
-        }
-
-        // Secondary check for duplicate transactions
-        $secondaryCheckTransactions = ORM::for_table('tbl_transactions')
-            ->where('invoice', $mpesa_code)
-            ->order_by_desc('id')
-            ->find_many();
-
-        if (count($secondaryCheckTransactions) > 1) {
-            $secondaryCheckTransactionsArray = $secondaryCheckTransactions->as_array(); // Convert to array
-            $keepTransaction = array_pop($secondaryCheckTransactionsArray); // Keep the most recent transaction
-            foreach ($secondaryCheckTransactionsArray as $transaction) {
-                $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
-                if ($transactionToDelete) {
-                    $transactionToDelete->delete();
-                    file_put_contents('finalupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
-                } else {
-                    file_put_contents('finalupdate.log', "Failed to find transaction with ID: " . $transaction['id'] . "\n", FILE_APPEND);
-                }
-            }
-        }
-
-        // Fetch the customer details
-        $customer = ORM::for_table('tbl_customers')
-            ->where('username', $uname)
-            ->find_one();
-
-        if ($customer) {
-            // Prepare the customer and transaction data
-            $cust = array(
-                'phonenumber' => $customer->phonenumber,
-                'fullname' => $customer->fullname,
-                'password' => $customer->password
-            );
-            $trx = array(
-                'invoice' => $mpesa_code,
-                'recharged_on' => $recharged_on,
-                'recharged_time' => $recharged_time,
-                'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-                'type' => $plan_type,
-                'plan_name' => $plan_name,
-                'price' => $amount_paid,
-                'username' => $uname,
-                'expiration' => $expiry_date,
-                'time' => $expiry_time
-            );
-
-            Message::sendInvoice($cust, $trx);
-        }
-    } catch (Exception $e) {
-        file_put_contents('finalupdate.log', "Error inserting new recharge record: " . $e->getMessage() . "\n", FILE_APPEND);
+        file_put_contents('finalupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
+    } else {
+        file_put_contents('finalupdate.log', "Transaction record already exists for invoice: $mpesa_code\n", FILE_APPEND);
     }
 
-    $PaymentGatewayRecord->status = 2;
-    $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
-    $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
-    $PaymentGatewayRecord->save();
+    // Secondary check for duplicate transactions
+    $secondaryCheckTransactions = ORM::for_table('tbl_transactions')
+        ->where('invoice', $mpesa_code)
+        ->order_by_desc('id')
+        ->find_many();
 
-    // Log completion
-    $completionTimestamp = (new DateTime('now', new DateTimeZone('GMT+3')))->format('Y-m-d H:i:s');
-    file_put_contents('finalupdate.log', "Process completed at $completionTimestamp\n", FILE_APPEND);
+    if (count($secondaryCheckTransactions) > 1) {
+        $secondaryCheckTransactionsArray = $secondaryCheckTransactions->as_array(); // Convert to array
+        $keepTransaction = array_pop($secondaryCheckTransactionsArray); // Keep the most recent transaction
+        foreach ($secondaryCheckTransactionsArray as $transaction) {
+            $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
+            if ($transactionToDelete) {
+                $transactionToDelete->delete();
+                file_put_contents('finalupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
+            } else {
+                file_put_contents('finalupdate.log', "Failed to find transaction with ID: " . $transaction['id'] . "\n", FILE_APPEND);
+            }
+        }
+    }
+// Fetch the customer details
+$customer = ORM::for_table('tbl_customers')
+    ->where('username', $uname)
+    ->find_one();
+
+if ($customer) {
+    // If you have any other actions you want to perform with the customer details,
+    // you can add that code here. Otherwise, this block can be left empty or removed.
+}
+
+// Continue with the rest of your code
+$PaymentGatewayRecord->status = 2;
+$PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
+$PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
+$PaymentGatewayRecord->save();
+
+file_put_contents('finalupdate.log', "Paid date is  at $paid_date\n", FILE_APPEND);
+file_put_contents('finalupdate.log', "Paid date is  at $gateway_trx_id\n", FILE_APPEND);
+
+// Log completion
+$completionTimestamp = (new DateTime('now', new DateTimeZone('GMT+3')))->format('Y-m-d H:i:s');
+file_put_contents('finalupdate.log', "Process completed at $completionTimestamp\n", FILE_APPEND);
 } else {
-    file_put_contents('finalupdate.log', "Response code is not 0. No action taken.\n", FILE_APPEND);
+file_put_contents('finalupdate.log', "Response code is not 0. No action taken.\n", FILE_APPEND);
 }
 ?>

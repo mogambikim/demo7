@@ -44,7 +44,7 @@ $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
 logToFile('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
-sleep(4);
+sleep(10);
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
 $resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
@@ -130,41 +130,40 @@ if ($response_code == "0") {
         ->where('id', $routerId)
         ->find_one();
 
-    // Check if the status of the username is 'on'
-    $existing_recharge = ORM::for_table('tbl_user_recharges')
-        ->where('username', $uname)
-        ->where('status', 'on')
-        ->find_one();
+              // Check if the status of the username is 'on'
+              $existing_recharge = ORM::for_table('tbl_user_recharges')
+              ->where('username', $uname)
+              ->where('status', 'on')
+              ->find_one();
 
-    if ($existing_recharge) {
-        file_put_contents('secondupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
-        return; // Exit to prevent further execution
-    } else {
-        // Delete existing records for the username
-        $deleted_count = ORM::for_table('tbl_user_recharges')
-            ->where('username', $uname)
-            ->delete_many();
+          if ($existing_recharge) {
+              file_put_contents('secondupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
+          } else {
+              // Delete existing records for the username
+              $deleted_count = ORM::for_table('tbl_user_recharges')
+                  ->where('username', $uname)
+                  ->delete_many();
 
-        file_put_contents('secondupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
+              file_put_contents('secondupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
 
-        // Insert new record into tbl_user_recharges
-        ORM::for_table('tbl_user_recharges')->create(array(
-            'customer_id' => $userid->id,
-            'username' => $uname,
-            'plan_id' => $plan_id,
-            'namebp' => $plan_name,
-            'recharged_on' => $recharged_on,
-            'recharged_time' => $recharged_time,
-            'expiration' => $expiry_date,
-            'time' => $expiry_time,
-            'status' => "on",
-            'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
-            'routers' => $router_name, // Use the router name instead of the ID
-            'type' => $plan_type
-        ))->save();
+              // Insert new record into tbl_user_recharges
+              ORM::for_table('tbl_user_recharges')->create(array(
+                  'customer_id' => $userid->id,
+                  'username' => $uname,
+                  'plan_id' => $plan_id,
+                  'namebp' => $plan_name,
+                  'recharged_on' => $recharged_on,
+                  'recharged_time' => $recharged_time,
+                  'expiration' => $expiry_date,
+                  'time' => $expiry_time,
+                  'status' => "on",
+                  'method' => $PaymentGatewayRecord->gateway . "-" . $mpesa_code,
+                  'routers' => $router_name, // Use the router name instead of the ID
+                  'type' => $plan_type
+              ))->save();
 
-        file_put_contents('secondupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
-    }
+              file_put_contents('secondupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
+          }
 
 
 

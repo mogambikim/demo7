@@ -44,7 +44,7 @@ $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
 logToFile('thirdupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
-sleep(4);
+sleep(30);
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
 $resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
@@ -130,15 +130,13 @@ if ($response_code == "0") {
         ->where('id', $routerId)
         ->find_one();
 
-    // Check if the status of the username is 'on'
-    $existing_recharge = ORM::for_table('tbl_user_recharges')
+        $existing_recharge = ORM::for_table('tbl_user_recharges')
         ->where('username', $uname)
         ->where('status', 'on')
         ->find_one();
 
     if ($existing_recharge) {
         file_put_contents('thirdupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
-        return; // Exit to prevent further execution
     } else {
         // Delete existing records for the username
         $deleted_count = ORM::for_table('tbl_user_recharges')
