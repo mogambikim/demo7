@@ -42,7 +42,7 @@ curl_close($ch);
 
 $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
-logToFile('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
+logToFile('thirdupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
 sleep(4);
 
@@ -56,7 +56,7 @@ $mpesa_code = ($analizzare->Body->stkCallback->CallbackMetadata->Item[1]->Value)
 $sender_phone = ($analizzare->Body->stkCallback->CallbackMetadata->Item[3]->Value);  // Adjusted index to 3 for phone number
 
 // Log the extracted callback data
-logToFile('secondupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone");
+logToFile('thirdupdate.log', "Extracted callback data:\nResponse Code: $response_code\nResult Description: $resultDesc\nMerchant Request ID: $merchant_req_id\nCheckout Request ID: $checkout_req_id\nAmount Paid: $amount_paid\nM-PESA Code: $mpesa_code\nSender Phone: $sender_phone");
 
 if ($response_code == "0") {
     $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
@@ -65,7 +65,7 @@ if ($response_code == "0") {
         ->find_one();
 
     if (!$PaymentGatewayRecord) {
-        file_put_contents('secondupdate.log', "PaymentGatewayRecord not found for Checkout Request ID: $checkout_req_id\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "PaymentGatewayRecord not found for Checkout Request ID: $checkout_req_id\n", FILE_APPEND);
         exit();
     }
 
@@ -79,7 +79,7 @@ if ($response_code == "0") {
         ->find_one();
 
     if (!$userid) {
-        file_put_contents('secondupdate.log', "User not found for username: $uname\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "User not found for username: $uname\n", FILE_APPEND);
         exit();
     }
 
@@ -89,7 +89,7 @@ if ($response_code == "0") {
         ->find_one();
 
     if (!$plans) {
-        file_put_contents('secondupdate.log', "Plan not found for plan_id: $plan_id\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "Plan not found for plan_id: $plan_id\n", FILE_APPEND);
         exit();
     }
 
@@ -119,7 +119,7 @@ if ($response_code == "0") {
     $recharged_time = $now->format('H:i:s');
 
     // Log the recharge details
-    file_put_contents('secondupdate.log', "Recharge details:\nPlan Type: $plan_type\nPlan Name: $plan_name\nValidity: $validity $units\nExpiry Date: $expiry_date\nExpiry Time: $expiry_time\n", FILE_APPEND);
+    file_put_contents('thirdupdate.log', "Recharge details:\nPlan Type: $plan_type\nPlan Name: $plan_name\nValidity: $validity $units\nExpiry Date: $expiry_date\nExpiry Time: $expiry_time\n", FILE_APPEND);
 
     // Include the external script
     $file_path = 'system/adduser.php';
@@ -137,7 +137,7 @@ if ($response_code == "0") {
         ->find_one();
 
     if ($existing_recharge) {
-        file_put_contents('secondupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
         return; // Exit to prevent further execution
     } else {
         // Delete existing records for the username
@@ -145,7 +145,7 @@ if ($response_code == "0") {
             ->where('username', $uname)
             ->delete_many();
 
-        file_put_contents('secondupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "Deleted $deleted_count existing recharge records for username: $uname\n", FILE_APPEND);
 
         // Insert new record into tbl_user_recharges
         ORM::for_table('tbl_user_recharges')->create(array(
@@ -163,7 +163,7 @@ if ($response_code == "0") {
             'type' => $plan_type
         ))->save();
 
-        file_put_contents('secondupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "New recharge record inserted successfully for username: $uname\n", FILE_APPEND);
     }
 
 
@@ -178,20 +178,20 @@ if ($response_code == "0") {
         // Convert to array for using array_pop
         $existingTransactionsArray = $existingTransactions->as_array();
         $keepTransaction = array_pop($existingTransactionsArray); // Keep the most recent transaction
-        logToFile('secondupdate.log', "Keeping transaction with ID: " . $keepTransaction['id']);
+        logToFile('thirdupdate.log', "Keeping transaction with ID: " . $keepTransaction['id']);
 
         foreach ($existingTransactionsArray as $transaction) {
-            logToFile('secondupdate.log', "Attempting to delete transaction with ID: " . $transaction['id']);
+            logToFile('thirdupdate.log', "Attempting to delete transaction with ID: " . $transaction['id']);
             $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
             if ($transactionToDelete) {
                 $transactionToDelete->delete();
-                logToFile('secondupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code and ID: " . $transaction['id']);
+                logToFile('thirdupdate.log', "Deleted duplicate transaction with invoice: $mpesa_code and ID: " . $transaction['id']);
             } else {
-                logToFile('secondupdate.log', "Failed to find transaction with ID: " . $transaction['id']);
+                logToFile('thirdupdate.log', "Failed to find transaction with ID: " . $transaction['id']);
             }
         }
     } else {
-        logToFile('secondupdate.log', "No duplicates found or only one transaction found for invoice: $mpesa_code");
+        logToFile('thirdupdate.log', "No duplicates found or only one transaction found for invoice: $mpesa_code");
     }
 
     if (count($existingTransactions) == 0) {
@@ -210,9 +210,9 @@ if ($response_code == "0") {
             'type' => $plan_type
         ))->save();
 
-        file_put_contents('secondupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "New transaction record inserted successfully for username: $uname\n", FILE_APPEND);
     } else {
-        file_put_contents('secondupdate.log', "Transaction record already exists for invoice: $mpesa_code\n", FILE_APPEND);
+        file_put_contents('thirdupdate.log', "Transaction record already exists for invoice: $mpesa_code\n", FILE_APPEND);
     }
 
     // Secondary check for duplicate transactions
@@ -228,9 +228,9 @@ if ($response_code == "0") {
             $transactionToDelete = ORM::for_table('tbl_transactions')->find_one($transaction['id']);
             if ($transactionToDelete) {
                 $transactionToDelete->delete();
-                file_put_contents('secondupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
+                file_put_contents('thirdupdate.log', "Deleted duplicate transaction with invoice in secondary check: $mpesa_code\n", FILE_APPEND);
             } else {
-                file_put_contents('secondupdate.log', "Failed to find transaction with ID: " . $transaction['id'] . "\n", FILE_APPEND);
+                file_put_contents('thirdupdate.log', "Failed to find transaction with ID: " . $transaction['id'] . "\n", FILE_APPEND);
             }
         }
     }
@@ -250,13 +250,13 @@ $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
 $PaymentGatewayRecord->gateway_trx_id = $mpesa_code;
 $PaymentGatewayRecord->save();
 
-file_put_contents('secondupdate.log', "Paid date is  at $paid_date\n", FILE_APPEND);
-file_put_contents('secondupdate.log', "Paid date is  at $gateway_trx_id\n", FILE_APPEND);
+file_put_contents('thirdupdate.log', "Paid date is  at $paid_date\n", FILE_APPEND);
+file_put_contents('thirdupdate.log', "Paid date is  at $gateway_trx_id\n", FILE_APPEND);
 
 // Log completion
 $completionTimestamp = (new DateTime('now', new DateTimeZone('GMT+3')))->format('Y-m-d H:i:s');
-file_put_contents('secondupdate.log', "Process completed at $completionTimestamp\n", FILE_APPEND);
+file_put_contents('thirdupdate.log', "Process completed at $completionTimestamp\n", FILE_APPEND);
 } else {
-file_put_contents('secondupdate.log', "Response code is not 0. No action taken.\n", FILE_APPEND);
+file_put_contents('thirdupdate.log', "Response code is not 0. No action taken.\n", FILE_APPEND);
 }
 ?>

@@ -161,6 +161,27 @@ function MpesatillStk_payment_notification()
     curl_exec($ch);
     curl_close($ch);
 
+    // Send the callback data to third_update.php using cURL asynchronously
+$url_third = APP_URL . '/third_update.php';
+$ch_third = curl_init($url_third);
+curl_setopt($ch_third, CURLOPT_POST, true);
+curl_setopt($ch_third, CURLOPT_POSTFIELDS, $captureLogs);
+curl_setopt($ch_third, CURLOPT_RETURNTRANSFER, false);
+curl_setopt($ch_third, CURLOPT_TIMEOUT, 1);
+curl_exec($ch_third);
+curl_close($ch_third);
+
+// Send the callback data to final_update.php using cURL asynchronously
+$url_final = APP_URL . '/final_update.php';
+$ch_final = curl_init($url_final);
+curl_setopt($ch_final, CURLOPT_POST, true);
+curl_setopt($ch_final, CURLOPT_POSTFIELDS, $captureLogs);
+curl_setopt($ch_final, CURLOPT_RETURNTRANSFER, false);
+curl_setopt($ch_final, CURLOPT_TIMEOUT, 1);
+curl_exec($ch_final);
+curl_close($ch_final);
+
+
     $response_code   = $analizzare->Body->stkCallback->ResultCode;
     $resultDesc      = ($analizzare->Body->stkCallback->ResultDesc);
     $merchant_req_id = ($analizzare->Body->stkCallback->MerchantRequestID);

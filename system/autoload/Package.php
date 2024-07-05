@@ -113,19 +113,22 @@ class Package
             run_hook("recharge_user");
 
         $mikrotik = Mikrotik::info($router_name);
-        if ($p['validity_unit'] == 'Months') {
-            $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' month'));
-        } else if ($p['validity_unit'] == 'Days') {
-            $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' day'));
-        } else if ($p['validity_unit'] == 'Hrs') {
-            $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' hour')));
-            $date_exp = $datetime[0];
-            $time = $datetime[1];
-        } else if ($p['validity_unit'] == 'Mins') {
-            $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' minute')));
-            $date_exp = $datetime[0];
-            $time = $datetime[1];
-        }
+ // Calculate the new expiration date based on the current date and validity period
+ if ($p['validity_unit'] == 'Months') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' month'));
+} else if ($p['validity_unit'] == 'Days') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' day'));
+} else if ($p['validity_unit'] == 'Hrs') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' hour')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+} else if ($p['validity_unit'] == 'Mins') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' minute')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+}
+
+
 
         if ($p['type'] == 'Hotspot') {
             if ($b) {
@@ -144,21 +147,21 @@ class Package
 */
                 if ($b['namebp'] == $p['name_plan'] && $b['status'] == 'on') {
                     // if it same internet plan, expired will extend
-                    if ($p['validity_unit'] == 'Months') {
-                        $date_exp = date("Y-m-d", strtotime($b['expiration'] . ' +' . $p['validity'] . ' months'));
-                        $time = $b['time'];
-                    } else if ($p['validity_unit'] == 'Days') {
-                        $date_exp = date("Y-m-d", strtotime($b['expiration'] . ' +' . $p['validity'] . ' days'));
-                        $time = $b['time'];
-                    } else if ($p['validity_unit'] == 'Hrs') {
-                        $datetime = explode(' ', date("Y-m-d H:i:s", strtotime($b['expiration'] . ' ' . $b['time'] . ' +' . $p['validity'] . ' hours')));
-                        $date_exp = $datetime[0];
-                        $time = $datetime[1];
-                    } else if ($p['validity_unit'] == 'Mins') {
-                        $datetime = explode(' ', date("Y-m-d H:i:s", strtotime($b['expiration'] . ' ' . $b['time'] . ' +' . $p['validity'] . ' minutes')));
-                        $date_exp = $datetime[0];
-                        $time = $datetime[1];
-                    }
+ // Calculate the new expiration date based on the current date and validity period
+ if ($p['validity_unit'] == 'Months') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' month'));
+} else if ($p['validity_unit'] == 'Days') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' day'));
+} else if ($p['validity_unit'] == 'Hrs') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' hour')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+} else if ($p['validity_unit'] == 'Mins') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' minute')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+}
+
                 }
                 if ($p['is_radius']) {
                     Radius::customerAddPlan($c, $p, "$date_exp $time");
@@ -295,21 +298,21 @@ class Package
 */
                 if ($b['namebp'] == $p['name_plan'] && $b['status'] == 'on') {
                     // if it same internet plan, expired will extend
-                    if ($p['validity_unit'] == 'Months') {
-                        $date_exp = date("Y-m-d", strtotime($b['expiration'] . ' +' . $p['validity'] . ' months'));
-                        $time = $b['time'];
-                    } else if ($p['validity_unit'] == 'Days') {
-                        $date_exp = date("Y-m-d", strtotime($b['expiration'] . ' +' . $p['validity'] . ' days'));
-                        $time = $b['time'];
-                    } else if ($p['validity_unit'] == 'Hrs') {
-                        $datetime = explode(' ', date("Y-m-d H:i:s", strtotime($b['expiration'] . ' ' . $b['time'] . ' +' . $p['validity'] . ' hours')));
-                        $date_exp = $datetime[0];
-                        $time = $datetime[1];
-                    } else if ($p['validity_unit'] == 'Mins') {
-                        $datetime = explode(' ', date("Y-m-d H:i:s", strtotime($b['expiration'] . ' ' . $b['time'] . ' +' . $p['validity'] . ' minutes')));
-                        $date_exp = $datetime[0];
-                        $time = $datetime[1];
-                    }
+ // Calculate the new expiration date based on the current date and validity period
+ if ($p['validity_unit'] == 'Months') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' month'));
+} else if ($p['validity_unit'] == 'Days') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' day'));
+} else if ($p['validity_unit'] == 'Hrs') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' hour')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+} else if ($p['validity_unit'] == 'Mins') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' minute')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+}
+
                 }
 
                 if ($p['is_radius']) {
@@ -447,21 +450,21 @@ class Package
         
                 if ($b['namebp'] == $p['name_plan'] && $b['status'] == 'on') {
                     // if it same internet plan, expired will extend
-                    if ($p['validity_unit'] == 'Months') {
-                        $date_exp = date("Y-m-d", strtotime($b['expiration'] . ' +' . $p['validity'] . ' months'));
-                        $time = $b['time'];
-                    } else if ($p['validity_unit'] == 'Days') {
-                        $date_exp = date("Y-m-d", strtotime($b['expiration'] . ' +' . $p['validity'] . ' days'));
-                        $time = $b['time'];
-                    } else if ($p['validity_unit'] == 'Hrs') {
-                        $datetime = explode(' ', date("Y-m-d H:i:s", strtotime($b['expiration'] . ' ' . $b['time'] . ' +' . $p['validity'] . ' hours')));
-                        $date_exp = $datetime[0];
-                        $time = $datetime[1];
-                    } else if ($p['validity_unit'] == 'Mins') {
-                        $datetime = explode(' ', date("Y-m-d H:i:s", strtotime($b['expiration'] . ' ' . $b['time'] . ' +' . $p['validity'] . ' minutes')));
-                        $date_exp = $datetime[0];
-                        $time = $datetime[1];
-                    }
+ // Calculate the new expiration date based on the current date and validity period
+ if ($p['validity_unit'] == 'Months') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' month'));
+} else if ($p['validity_unit'] == 'Days') {
+    $date_exp = date("Y-m-d", strtotime('+' . $p['validity'] . ' day'));
+} else if ($p['validity_unit'] == 'Hrs') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' hour')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+} else if ($p['validity_unit'] == 'Mins') {
+    $datetime = explode(' ', date("Y-m-d H:i:s", strtotime('+' . $p['validity'] . ' minute')));
+    $date_exp = $datetime[0];
+    $time = $datetime[1];
+}
+
                 }
         
                 $b->customer_id = $id_customer;
