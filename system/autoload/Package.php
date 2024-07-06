@@ -103,11 +103,11 @@ class Package
 
         /**
          * 1 Customer only can have 1 PPPOE and 1 Hotspot Plan
+         * 
+         * One user can only have one account so it deactivates all the others and updates the new one
          */
         $b = ORM::for_table('tbl_user_recharges')
             ->where('customer_id', $id_customer)
-            ->where('routers', $router_name)
-            ->where('Type', $p['type'])
             ->find_one();
 
             run_hook("recharge_user");
