@@ -130,6 +130,9 @@ if ($response_code == "0") {
         ->where('id', $routerId)
         ->find_one();
 
+        $router_name = $router->name;
+        file_put_contents('thirdupdate.log', "Fetched router name: $router_name for router ID: $routerId\n", FILE_APPEND);
+
         $existing_recharge = ORM::for_table('tbl_user_recharges')
         ->where('username', $uname)
         ->where('status', 'on')

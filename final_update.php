@@ -129,6 +129,8 @@ if ($response_code == "0") {
     $router = ORM::for_table('tbl_routers')
         ->where('id', $routerId)
         ->find_one();
+        $router_name = $router->name;
+file_put_contents('finalupdate.log', "Fetched router name: $router_name for router ID: $routerId\n", FILE_APPEND);
 
               // Check if the status of the username is 'on'
               $existing_recharge = ORM::for_table('tbl_user_recharges')

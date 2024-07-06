@@ -130,11 +130,17 @@ if ($response_code == "0") {
         ->where('id', $routerId)
         ->find_one();
 
+        $router_name = $router->name;
+file_put_contents('secondupdate.log', "Fetched router name: $router_name for router ID: $routerId\n", FILE_APPEND);
+
+
               // Check if the status of the username is 'on'
               $existing_recharge = ORM::for_table('tbl_user_recharges')
               ->where('username', $uname)
               ->where('status', 'on')
               ->find_one();
+
+
 
           if ($existing_recharge) {
               file_put_contents('secondupdate.log', "Username: $uname already has an active recharge. Exiting.\n", FILE_APPEND);
