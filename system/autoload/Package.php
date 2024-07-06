@@ -106,11 +106,16 @@ class Package
          * 
          * One user can only have one account so it deactivates all the others and updates the new one
          */
-        $b = ORM::for_table('tbl_user_recharges')
-            ->where('customer_id', $id_customer)
-            ->find_one();
+    // Deactivate and delete all existing recharges for the user
+    $existing_recharges = ORM::for_table('tbl_user_recharges')
+        ->where('customer_id', $id_customer)
+        ->find_many();
 
-            run_hook("recharge_user");
+    foreach ($existing_recharges as $record) {
+        $record->delete();
+    }
+
+    run_hook("recharge_user");
 
         $mikrotik = Mikrotik::info($router_name);
  // Calculate the new expiration date based on the current date and validity period
