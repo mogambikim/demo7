@@ -63,7 +63,7 @@ if ($transID !== null && $amount !== null && $billRefNumber !== null) {
             ->order_by_desc('id')
             ->find_one();
         $planId = $planData ? $planData->plan_id : 1;
-        $planName = $planData ? $planData->namebp : 'test';
+        $planName = $planData ? $planData->namebp : 'No Plan';
 
         logToFile('paybill.log', "Router data and plan data retrieved for user: $username");
 
