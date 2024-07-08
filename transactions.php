@@ -44,7 +44,7 @@ $mpesa_code = $analizzare->Body->stkCallback->CallbackMetadata->Item[1]->Value;
 // Log the extracted callback data
 logToFile('transactions.log', "Extracted callback data:\nResponse Code: $response_code\nCheckout Request ID: $checkout_req_id\nM-PESA Code: $mpesa_code");
 
-// Check if the transaction exists
+// Check if the transaction exists in tbl_transactions
 $existingTransaction = ORM::for_table('tbl_transactions')
     ->where('invoice', $mpesa_code)
     ->order_by_desc('id')
@@ -54,6 +54,18 @@ if ($existingTransaction) {
     logToFile('transactions.log', "Transaction found for invoice: $mpesa_code");
 } else {
     logToFile('transactions.log', "No transaction found for invoice: $mpesa_code");
+}
+
+// Check if the user recharge exists in tbl_user_recharges
+$existingRecharge = ORM::for_table('tbl_user_recharges')
+    ->where('method', $PaymentGatewayRecord->gateway . "-" . $mpesa_code)
+    ->order_by_desc('id')
+    ->find_one();
+
+if ($existingRecharge) {
+    logToFile('transactions.log', "Recharge record found for method: " . $PaymentGatewayRecord->gateway . "-" . $mpesa_code);
+} else {
+    logToFile('transactions.log', "No recharge record found for method: " . $PaymentGatewayRecord->gateway . "-" . $mpesa_code);
 }
 
 logToFile('transactions.log', "Check completed at " . $now->format('Y-m-d H:i:s'));
