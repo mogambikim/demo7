@@ -727,62 +727,65 @@ function smarty_modifier_convert_bytes($bytes) {
                     r2(U . 'customers/list', 'e', Lang::T('Account Not Found'));
                 }
                 break;
-    case 'delete':
-        if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
-            _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
-        }
-        $id  = $routes['2'];
-        run_hook('delete_customer'); #HOOK
-        $d = ORM::for_table('tbl_customers')->find_one($id);
-        if ($d) {
-            // Delete the associated Customers Attributes records from tbl_customer_custom_fields table
-            ORM::for_table('tbl_customers_fields')->where('customer_id', $id)->delete_many();
-            $c = ORM::for_table('tbl_user_recharges')->where('username', $d['username'])->find_one();
-            if ($c) {
-                $p = ORM::for_table('tbl_plans')->find_one($c['plan_id']);
-                if ($p['is_radius']) {
-                    Radius::customerDelete($d['username']);
-                } else {
-                    $mikrotik = Mikrotik::info($c['routers']);
-                    if ($c['type'] == 'Hotspot') {
-                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                        Mikrotik::removeHotspotUser($client, $d['username']);
-                        Mikrotik::removeHotspotActiveUser($client, $d['username']);
-                    } elseif ($c['type'] == 'PPPOE') {
-                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                        Mikrotik::removePpoeUser($client, $d['username']);
-                        Mikrotik::removePpoeActive($client, $d['username']);
-                    } elseif ($c['type'] == 'Static') {
-                        $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-                      
-                        Mikrotik::removeStaticUser($client, $d['username']);
+                case 'delete':
+                    if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                        _alert(Lang::T('You do not have permission to access this page'),'danger', "dashboard");
                     }
-                    try {
-                        $d->delete();
-                    } catch (Exception $e) {
-                    } catch (Throwable $e) {
+                    $id  = $routes['2'];
+                    run_hook('delete_customer'); #HOOK
+                    $d = ORM::for_table('tbl_customers')->find_one($id);
+                    if ($d) {
+                        // Store the username for logging purposes
+                        $deletedUsername = $d['username'];
+                        
+                        // Delete the associated Customers Attributes records from tbl_customer_custom_fields table
+                        ORM::for_table('tbl_customers_fields')->where('customer_id', $id)->delete_many();
+                        $c = ORM::for_table('tbl_user_recharges')->where('username', $d['username'])->find_one();
+                        if ($c) {
+                            $p = ORM::for_table('tbl_plans')->find_one($c['plan_id']);
+                            if ($p['is_radius']) {
+                                Radius::customerDelete($d['username']);
+                            } else {
+                                $mikrotik = Mikrotik::info($c['routers']);
+                                if ($c['type'] == 'Hotspot') {
+                                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                                    Mikrotik::removeHotspotUser($client, $d['username']);
+                                    Mikrotik::removeHotspotActiveUser($client, $d['username']);
+                                } elseif ($c['type'] == 'PPPOE') {
+                                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                                    Mikrotik::removePpoeUser($client, $d['username']);
+                                    Mikrotik::removePpoeActive($client, $d['username']);
+                                } elseif ($c['type'] == 'Static') {
+                                    $client = Mikrotik::getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+                                    Mikrotik::removeStaticUser($client, $d['username']);
+                                }
+                                try {
+                                    $d->delete();
+                                } catch (Exception $e) {
+                                } catch (Throwable $e) {
+                                }
+                                try {
+                                    $c->delete();
+                                } catch (Exception $e) {
+                                }
+                            }
+                        } else {
+                            try {
+                                $d->delete();
+                            } catch (Exception $e) {
+                            } catch (Throwable $e) {
+                            }
+                            try {
+                                if($c) $c->delete();
+                            } catch (Exception $e) {
+                            } catch (Throwable $e) {
+                            }
+                        }
+                        _log('[' . $admin['username'] . ']: Customer ' . $deletedUsername . ' deleted successfully', $admin['user_type'], $admin['id']);
+                        r2(U . 'customers/list', 's', Lang::T('User deleted Successfully'));
                     }
-                    try {
-                        $c->delete();
-                    } catch (Exception $e) {
-                    }
-                }
-            } else {
-                try {
-                    $d->delete();
-                } catch (Exception $e) {
-                } catch (Throwable $e) {
-                }
-                try {
-                    if($c) $c->delete();
-                } catch (Exception $e) {
-                } catch (Throwable $e) {
-                }
-            }
-            _log('[' . $admin['username'] . ']: Customer ' . $deletedUsername . ' deleted successfully', $admin['user_type'], $admin['id']);
-            r2(U . 'customers/list', 's', Lang::T('User deleted Successfully'));
-        }
-        break;
+                    break;
+                
 
         case 'add-post':
             $username = _post('username');

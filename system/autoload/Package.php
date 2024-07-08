@@ -107,8 +107,10 @@ class Package
          * One user can only have one account so it deactivates all the others and updates the new one
          */
     // Deactivate and delete all existing recharges for the user
+    // Delete all existing recharges for the user based on username
+    $username = $c['username'];
     $existing_recharges = ORM::for_table('tbl_user_recharges')
-        ->where('customer_id', $id_customer)
+        ->where('username', $username)
         ->find_many();
 
     foreach ($existing_recharges as $record) {

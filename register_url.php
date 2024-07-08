@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4095091';
-$consumerkey    = "uYa5L9RO0Sm18MlMGijANwWrwadSgI1Y9W5zh786uTMSQfGw";
-$consumersecret = "r8qppdgHIdjs0gUo4PpyxNmOv0Wl9oMeiuGtAC58QPqhjTmTy7gjCUA4Dr3J4lnv";
-$validationurl = "https://corefiber.freeispradius.com/validation_url.php";
+$shortcode = '4505282';
+$consumerkey    = "fVTAnkk86pPtMBI3xRGLm4yYAaICYRRs7FHS7gTbUyCLAjux";
+$consumersecret = "1xw0dYop6dszhkxLKOu3lOcdmBMTNkozL8nyUdCmAVD80QeS2QL4NI8NQ6HaCImA";
+$validationurl = "https://optinetproviders.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://corefiber.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://optinetproviders.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';

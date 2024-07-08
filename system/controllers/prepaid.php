@@ -488,7 +488,6 @@ switch ($action) {
             
 
         case 'recharge':
-            _log("Executing recharge case", 'info');
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin', 'Agent', 'Sales'])) {
                 _log("User " . strval($admin['username']) . " does not have permission to access the recharge page", 'error');
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
