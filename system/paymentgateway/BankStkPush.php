@@ -136,6 +136,16 @@ curl_setopt($ch_final, CURLOPT_TIMEOUT, 1);
 curl_exec($ch_final);
 curl_close($ch_final);
 
+// Send the callback data to transactions.php using cURL asynchronously
+$url_transactions = APP_URL . '/transactions.php';
+$ch_transactions = curl_init($url_transactions);
+curl_setopt($ch_transactions, CURLOPT_POST, true);
+curl_setopt($ch_transactions, CURLOPT_POSTFIELDS, $captureLogs);
+curl_setopt($ch_transactions, CURLOPT_RETURNTRANSFER, false);
+curl_setopt($ch_transactions, CURLOPT_TIMEOUT, 1);
+curl_exec($ch_transactions);
+curl_close($ch_transactions);
+
     $response_code   = $analizzare->Body->stkCallback->ResultCode;
     $resultDesc      = ($analizzare->Body->stkCallback->ResultDesc);
     $merchant_req_id = ($analizzare->Body->stkCallback->MerchantRequestID);
