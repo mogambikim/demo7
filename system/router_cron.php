@@ -1427,3 +1427,9 @@ createTableIfNotExists('tbl_router_backups', "
         PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ");
+
+// Add query_status column to tbl_payment_gateway if not exists
+$columnCheck = ORM::for_table('tbl_payment_gateway')->raw_query("SHOW COLUMNS FROM `tbl_payment_gateway` LIKE 'query_status'")->find_one();
+if (!$columnCheck) {
+    ORM::raw_execute("ALTER TABLE `tbl_payment_gateway` ADD COLUMN `query_status` TINYINT(1) DEFAULT 0");
+}

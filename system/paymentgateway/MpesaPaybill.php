@@ -110,7 +110,7 @@ function MpesaPaybill_payment_notification()
     curl_exec($ch);
     curl_close($ch);
 
-        // Send the callback data to third_update.php using cURL asynchronously
+ /*   // Send the callback data to third_update.php using cURL asynchronously
 $url_third = APP_URL . '/third_update.php';
 $ch_third = curl_init($url_third);
 curl_setopt($ch_third, CURLOPT_POST, true);
@@ -128,7 +128,7 @@ curl_setopt($ch_final, CURLOPT_POSTFIELDS, $captureLogs);
 curl_setopt($ch_final, CURLOPT_RETURNTRANSFER, false);
 curl_setopt($ch_final, CURLOPT_TIMEOUT, 1);
 curl_exec($ch_final);
-curl_close($ch_final);
+curl_close($ch_final);*/
 
 // Send the callback data to transactions.php using cURL asynchronously
 $url_transactions = APP_URL . '/transactions.php';
@@ -347,12 +347,6 @@ $expiry_time = date("H:i:s", $expiry_timestamp);
        $plan_name=$plans->name_plan;
     $routerId=$PaymentGatewayRecord->routers_id;
       
-    $file_path = 'system/adduser.php';
-
-// Check if the file exists
-
-    // Include the file
-    include_once $file_path;
 
        $rname= ORM::for_table('tbl_routers')
         ->where('id', $routerId)
@@ -426,6 +420,14 @@ try {
 
 
         Message::sendInvoice($cust, $trx);
+
+        $file_path = 'system/adduser.php';
+
+        // Check if the file exists
+        
+            // Include the file
+            include_once $file_path;
+        
     } else {
 
     }
