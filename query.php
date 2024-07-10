@@ -24,6 +24,62 @@ function logToFile($filePath, $message, $maxLines = 5000) {
 // Define log file path
 $logFilePath = 'stk_push_query.log';
 
+// Capture incoming POST data
+$inputData = file_get_contents('php://input');
+logToFile($logFilePath, "Received data: " . $inputData);
+error_log("Received data: " . $inputData);
+
+// Decode JSON data to an array
+$data = json_decode($inputData, true);
+
+// If JSON decoding fails, try to capture URL-encoded form data
+if (json_last_error() !== JSON_ERROR_NONE) {
+    parse_str($inputData, $data);
+}
+
+if (isset($data['CheckoutRequestID'])) {
+    $CheckoutRequestID = $data['CheckoutRequestID'];
+    logToFile($logFilePath, "Captured CheckoutRequestID: $CheckoutRequestID");
+    error_log("Captured CheckoutRequestID: $CheckoutRequestID");
+
+    // Sleep for 10 seconds before querying the STK Push status
+    sleep(15);
+
+    // Call queryStkPush function with the captured CheckoutRequestID
+    $response = queryStkPush($CheckoutRequestID);
+
+    // Send the response to the specified URL as a callback
+    $callbackUrl = APP_URL . '/query_update.php';
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $callbackUrl);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $response);
+    $callbackResponse = curl_exec($curl);
+    curl_close($curl);
+
+    logToFile($logFilePath, "Callback response: " . $callbackResponse);
+    error_log("Callback response: " . $callbackResponse);
+
+    // Update query status in the database
+    $payment = ORM::for_table('tbl_payment_gateway')
+        ->where('checkout', $CheckoutRequestID)
+        ->find_one();
+
+    if ($payment) {
+        $payment->query_status = 1;
+        $payment->save();
+        logToFile($logFilePath, "Updated query status for CheckoutRequestID: $CheckoutRequestID");
+        error_log("Updated query status for CheckoutRequestID: $CheckoutRequestID");
+    }
+} else {
+    logToFile($logFilePath, "No CheckoutRequestID found in the received data.");
+    error_log("No CheckoutRequestID found in the received data.");
+}
+
+// Function to query STK Push status
 function queryStkPush($CheckoutRequestID) {
     global $logFilePath;
 
@@ -108,53 +164,5 @@ function queryStkPush($CheckoutRequestID) {
     curl_close($curlfinal);
 
     return $curl_responsefinal; // Return the full raw response
-}
-
-// Example usage with provided CheckoutRequestID
-$logFilePath = 'stk_push_query.log'; // Define the path for the log file
-$latestPayments = ORM::for_table('tbl_payment_gateway')
-    ->order_by_desc('id')
-    ->limit(3) // Fetch the last 3 records to check the last two
-    ->find_many();
-
-$processedCount = 0;
-
-foreach ($latestPayments as $payment) {
-    if ($processedCount >= 2) {
-        break;
-    }
-
-    if ($payment->query_status == 0) { // Assuming query_status 0 means not yet processed
-        $CheckoutRequestID = $payment->checkout;
-        logToFile($logFilePath, "Processing CheckoutRequestID: $CheckoutRequestID");
-
-        // Query the STK Push status and capture the full response
-        $response = queryStkPush($CheckoutRequestID);
-
-        // Send the full response as a callback to the specified URL
-        $callbackUrl = APP_URL . '/query_update.php';
-
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $callbackUrl);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $response);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        logToFile($logFilePath, "Callback response: " . $response);
-
-        // Update the query_status to 1 (processed)
-        $payment->query_status = 1;
-        $payment->save();
-    } else {
-        logToFile($logFilePath, "CheckoutRequestID: $payment->checkout has already been processed.");
-        $processedCount++;
-    }
-}
-
-if ($processedCount == 0) {
-    echo "No payments found to process.";
 }
 ?>

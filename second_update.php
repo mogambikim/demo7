@@ -44,7 +44,7 @@ $now = new DateTime('now', new DateTimeZone('GMT+3'));
 $receivedTimestamp = $now->format('Y-m-d H:i:s');
 logToFile('secondupdate.log', "Received callback data in second_update.php at " . $receivedTimestamp . ":\n" . $captureLogs);
 
-sleep(10);
+sleep(8);
 
 $response_code = $analizzare->Body->stkCallback->ResultCode;
 $resultDesc = ($analizzare->Body->stkCallback->ResultDesc);
@@ -121,9 +121,6 @@ if ($response_code == "0") {
     // Log the recharge details
     file_put_contents('secondupdate.log', "Recharge details:\nPlan Type: $plan_type\nPlan Name: $plan_name\nValidity: $validity $units\nExpiry Date: $expiry_date\nExpiry Time: $expiry_time\n", FILE_APPEND);
 
-    // Include the external script
-    $file_path = 'system/adduser.php';
-    include_once $file_path;
 
     // Fetch the router name
     $router = ORM::for_table('tbl_routers')
@@ -265,6 +262,10 @@ if ($PaymentGatewayRecord->status != 2) {
 } else {
     file_put_contents('secondupdate.log', "PaymentGatewayRecord status is already 2. No update needed.\n", FILE_APPEND);
 }
+
+    // Include the external script
+    $file_path = 'system/adduser.php';
+    include_once $file_path;
 
 
 // Log completion

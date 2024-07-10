@@ -253,6 +253,20 @@ $CheckoutRequestID = $mpesaResponse->CheckoutRequestID;
        $PaymentGatewayRecord->payment_channel = 'Mpesa Stk Push';
         $PaymentGatewayRecord->save();
         
+
+        // After saving the PaymentGatewayRecord, add the following cURL request to post CheckoutRequestID to query.php
+// After saving the PaymentGatewayRecord, add the following cURL request to post CheckoutRequestID to query.php
+$queryUrl = APP_URL . '/query.php';
+$postData = http_build_query(['CheckoutRequestID' => $CheckoutRequestID]);
+
+// Command to send the cURL request in the background
+$command = "curl -X POST -d \"$postData\" \"$queryUrl\" > /dev/null 2>&1 &";
+
+// Use popen to execute the command without blocking the script
+$handle = popen($command, 'r');
+pclose($handle);
+
+// Log the CheckoutRequestID in the error log
         
         
         if(!empty($_POST['channel'])){
