@@ -43,7 +43,7 @@ if (isset($data['CheckoutRequestID'])) {
     error_log("Captured CheckoutRequestID: $CheckoutRequestID");
 
     // Sleep for 10 seconds before querying the STK Push status
-    sleep(15);
+    sleep(25);
 
     // Call queryStkPush function with the captured CheckoutRequestID
     $response = queryStkPush($CheckoutRequestID);
