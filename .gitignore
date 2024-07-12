@@ -27,7 +27,6 @@ system/uploads/sms/**
 !system/uploads/sms/index.html
 system/uploads/system/**
 !system/uploads/system/index.html
-/vendor/
 logs.txt
 *.log
 backups/
