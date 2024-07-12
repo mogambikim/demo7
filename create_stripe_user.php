@@ -13,18 +13,11 @@ ORM::configure('logging', true);
 
 // Function to manage log file lines
 function logToFile($filePath, $message, $maxLines = 5000) {
-    // Read existing file content
     $lines = file_exists($filePath) ? file($filePath, FILE_IGNORE_NEW_LINES) : [];
-
-    // Add new log entry
     $lines[] = '[' . date('Y-m-d H:i:s') . '] ' . $message;
-
-    // Trim to the maximum number of lines
     if (count($lines) > $maxLines) {
         $lines = array_slice($lines, count($lines) - $maxLines);
     }
-
-    // Write the trimmed log back to the file
     file_put_contents($filePath, implode(PHP_EOL, $lines) . PHP_EOL);
 }
 
@@ -34,12 +27,10 @@ function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $rout
         ->where('id', $planId)
         ->order_by_desc('id')
         ->find_one();
-
     $Findrouter = ORM::for_table('tbl_routers')
         ->where('id', $routerId)
         ->order_by_desc('id')
         ->find_one();
-
     $rname = $Findrouter->name;
     $price = $Planname->price;
     $Planname = $Planname->name_plan;
@@ -49,7 +40,6 @@ function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $rout
         ->where('status', 1)
         ->order_by_desc('id')
         ->find_many();
-
     if ($Checkorders) {
         foreach ($Checkorders as $Dorder) {
             $Dorder->delete();
@@ -72,6 +62,19 @@ function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $rout
     $d->pg_url_payment = '';
     $d->status = 1;
     $d->save();
+}
+
+// Function to send data to add_stripe_user.php using cURL
+function sendToAddStripeUser($data) {
+    $url = 'https://demo.freeispradius.com/add_stripe_user.php'; // Adjust the URL accordingly
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return $response;
 }
 
 // Parse JSON input
@@ -105,6 +108,10 @@ if (strlen($phone) == 10) {
         // Log payment gateway details
         logToPaymentGateway($username, 'Stripe Card', 'Stripe', $planId, $routerId);
 
+        // Send data to add_stripe_user.php
+        $addStripeResponse = sendToAddStripeUser($input);
+        logToFile($logFilePath, "Sent to add_stripe_user.php: $addStripeResponse");
+
         echo json_encode(['status' => 'success', 'message' => 'Operation completed']);
         exit();
     }
@@ -131,6 +138,10 @@ if (strlen($phone) == 10) {
 
         // Log payment gateway details
         logToPaymentGateway($username, 'Stripe Card', 'Stripe', $planId, $routerId);
+
+        // Send data to add_stripe_user.php
+        $addStripeResponse = sendToAddStripeUser($input);
+        logToFile($logFilePath, "Sent to add_stripe_user.php: $addStripeResponse");
 
         echo json_encode(['status' => 'success', 'message' => 'Operation completed']);
         exit();
