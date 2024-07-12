@@ -58,15 +58,16 @@ if ($event['type'] == 'payment_intent.succeeded') {
     }
 
     // Retrieve plan_id and router_id from tbl_payment_gateway
-    $paymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
+    $PaymentGatewayRecord = ORM::for_table('tbl_payment_gateway')
         ->where('username', $username)
         ->order_by_desc('id')
         ->find_one();
 
-    if ($paymentGatewayRecord) {
-        $plan_id = $paymentGatewayRecord->plan_id;
-        $router_id = $paymentGatewayRecord->routers_id;
-        logToFile($logFilePath, "Retrieved plan_id: $plan_id and router_id: $router_id from tbl_payment_gateway");
+    if ($PaymentGatewayRecord) {
+        $uname = $PaymentGatewayRecord->username;
+        $plan_id = $PaymentGatewayRecord->plan_id;
+        $routerId = $PaymentGatewayRecord->routers_id;
+        logToFile($logFilePath, "Retrieved plan_id: $plan_id and router_id: $routerId from tbl_payment_gateway");
     } else {
         // Log and exit if no payment gateway record is found
         logToFile($logFilePath, "No payment gateway record found for username: $username");
@@ -82,7 +83,7 @@ if ($event['type'] == 'payment_intent.succeeded') {
     $units = $plan->validity_unit;
 
     // Fetch the router details
-    $router = ORM::for_table('tbl_routers')->where('id', $router_id)->find_one();
+    $router = ORM::for_table('tbl_routers')->where('id', $routerId)->find_one();
     $router_name = $router->name;
 
     // Calculate the expiration time
@@ -104,7 +105,17 @@ if ($event['type'] == 'payment_intent.succeeded') {
     $recharged_on = $now->format('Y-m-d');
     $recharged_time = $now->format('H:i:s');
 
-    // Insert recharge record
+    // Delete any existing recharge record for the username
+    $existing_recharges = ORM::for_table('tbl_user_recharges')
+        ->where('username', $username)
+        ->find_many();
+
+    foreach ($existing_recharges as $recharge) {
+        $recharge->delete();
+    }
+    logToFile($logFilePath, "Deleted existing recharge records for username: $username");
+
+    // Insert new recharge record
     ORM::for_table('tbl_user_recharges')->create(array(
         'customer_id' => $user->id,
         'username' => $username,
@@ -137,17 +148,23 @@ if ($event['type'] == 'payment_intent.succeeded') {
         'type' => $plan_type
     ))->save();
 
-        // Include the external script
-        $file_path = 'system/adduser.php';
-        include_once $file_path;
-
     logToFile($logFilePath, "Transaction record inserted successfully for username: $username");
 
+    // Include the external script
+    $file_path = 'system/adduser.php';
+    if (file_exists($file_path)) {
+        logToFile($logFilePath, "Including external script: $file_path");
+        include_once $file_path;
+        logToFile($logFilePath, "External script executed successfully: $file_path");
+    } else {
+        logToFile($logFilePath, "External script not found: $file_path");
+    }
+
     // Update payment gateway record
-    $paymentGatewayRecord->status = 2;
-    $paymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
-    $paymentGatewayRecord->gateway_trx_id = uniqid('stripe');
-    $paymentGatewayRecord->save();
+    $PaymentGatewayRecord->status = 2;
+    $PaymentGatewayRecord->paid_date = $now->format('Y-m-d H:i:s');
+    $PaymentGatewayRecord->gateway_trx_id = uniqid('stripe');
+    $PaymentGatewayRecord->save();
 
     logToFile($logFilePath, "Payment gateway record updated successfully for username: $username");
 }
