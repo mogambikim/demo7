@@ -1,8 +1,8 @@
 {
-    "name": "hotspotbilling/freeispradius",
+    "name": "hotspotbilling/FreeIspradius",
     "type": "template",
     "description": "FreeIspradius a Hotspot Billing Software.",
-    "keywords": ["template", "FreeIspradius", "Freeispradius", "Mikrotik", "Hotspot", "Billing"],
+    "keywords": ["template","FreeIspradius","Freeispradius","Mikrotik","Hotspot","Billing"],
     "homepage": "https://github.com/freeispradius",
     "license": "MIT",
     "authors": [
@@ -14,7 +14,6 @@
         }
     ],
     "require": {
-        "kopokopo/k2-connect-php": "^1.2",
-        "stripe/stripe-php": "^15.1"
+        "kopokopo/k2-connect-php": "^1.2"
     }
 }

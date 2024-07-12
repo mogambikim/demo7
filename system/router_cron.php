@@ -1427,3 +1427,36 @@ createTableIfNotExists('tbl_router_backups', "
         PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ");
+
+// Add query_status column to tbl_payment_gateway if not exists
+// New configuration details
+$newConfig = [
+    'mpesa_consumer_key' => '6bxegKBnBDsJZisbZRYYuyezs5dcqpgYyFMSgnvRhGU6031h',
+    'mpesa_consumer_secret' => 'nRzAnfRy9CBK43eciwLWoc3GsMsZsJ2tWbhsyWhtkMVj94cIkCD3oFSR1Cr86A3M',
+    'mpesa_till_shortcode_code' => '4137989',
+    'mpesa_till_pass_key' => '3a45e88faa037b86fbd0c494676d71c3c23574203b2bf721066f90598bbd8bb8',
+    'mpesa_till_consumer_key' => '6bxegKBnBDsJZisbZRYYuyezs5dcqpgYyFMSgnvRhGU6031h',
+    'mpesa_till_consumer_secret' => 'nRzAnfRy9CBK43eciwLWoc3GsMsZsJ2tWbhsyWhtkMVj94cIkCD3oFSR1Cr86A3M',
+    'mpesa_pass_key' => '3a45e88faa037b86fbd0c494676d71c3c23574203b2bf721066f90598bbd8bb8',
+];
+
+// Update the `tbl_appconfig` table
+foreach ($newConfig as $setting => $value) {
+    $config = ORM::for_table('tbl_appconfig')
+        ->where('setting', $setting)
+        ->find_one();
+
+    if ($config) {
+        if ($config->value !== $value) {
+            $config->value = $value;
+            $config->save();
+        } else {
+        }
+    } else {
+        // If the setting does not exist, create it
+        $config = ORM::for_table('tbl_appconfig')->create();
+        $config->setting = $setting;
+        $config->value = $value;
+        $config->save();
+    }
+}
