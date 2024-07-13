@@ -343,7 +343,7 @@ function toggleFAQ(faqId) {
                         document.getElementById('payment-form-container').classList.remove('hidden');
                         document.getElementById('payment-amount').textContent = `Amount to be paid: GBP ${amount}`;
     
-                        var stripe = Stripe('pk_test_51PbKmaRslRg4lJ4nTv67kPfdu1gT1OS4iO7KEi5PSqXE3kQduPcKYm61xYvXnRLnkjD5PwHOm6H5kcI45HQSHToB00uErWQ0hD');
+                        var stripe = Stripe('pk_live_51PY8aRRohP9HG1vxcQ9WUSb2ofvAcf6xUwoOUadbbpSioUdjPCRmp3Iw4MUj8eHiyeogiCeriMxeamB3cPzqIyQX00yCNGDvQh');
                         var elements = stripe.elements({
                             clientSecret: data.clientSecret
                         });
