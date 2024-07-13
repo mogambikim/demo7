@@ -56,25 +56,48 @@
     <div class="flex flex-col rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
         <div class="px-4 py-5 bg-gradient-to-tr from-pink-50 to-pink-200 text-center">
             <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-pink-800 text-pink-50">
-Test
+airFiber
             </span>
             <div class="mt-4 text-4xl leading-none font-extrabold text-pink-800">
                 <span class="text-lg font-medium text-pink-600">GBP</span>
-                <span id="package-amount">1</span>
+                <span id="package-amount">14.99</span>
             </div>
             <p class="mt-2 text-md leading-5 text-pink-700 text-center">
-2 Mins Unlimited
+1 Month Unlimited
             </p>
         </div>
         <div class="px-4 pt-4 pb-6 bg-pink-500 text-center">
             <a href="#" class="inline-block text-pink-800 bg-pink-50 hover:bg-pink-100 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer"
-               onclick="showPaymentForm('1', '1', 1); return false;">
+               onclick="showPaymentForm('1', '1', 14.99); return false;">
                 Click Here To Connect
             </a>
         </div>
     </div>
 </div>
 
+
+<div class="mt-10 max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="flex flex-col rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
+        <div class="px-4 py-5 bg-gradient-to-tr from-pink-50 to-pink-200 text-center">
+            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-pink-800 text-pink-50">
+airFiber +FREE IPTV
+            </span>
+            <div class="mt-4 text-4xl leading-none font-extrabold text-pink-800">
+                <span class="text-lg font-medium text-pink-600">GBP</span>
+                <span id="package-amount">19.99</span>
+            </div>
+            <p class="mt-2 text-md leading-5 text-pink-700 text-center">
+1 Month Unlimited
+            </p>
+        </div>
+        <div class="px-4 pt-4 pb-6 bg-pink-500 text-center">
+            <a href="#" class="inline-block text-pink-800 bg-pink-50 hover:bg-pink-100 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer"
+               onclick="showPaymentForm('1', '1', 19.99); return false;">
+                Click Here To Connect
+            </a>
+        </div>
+    </div>
+</div>
 <div id="alreadyHavePackage" class="container mx-auto px-4">
     <div class="max-w-md mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg">
         <div class="md:flex">
@@ -82,8 +105,8 @@ Test
                 <div class="text-center">
                     <h3 class="text-2xl text-gray-900">Already Have an Active Package?</h3>
                 </div>
-                <form id="loginForm" class="form" name="login" action="http://192.168.181.1/login" method="post" $(if chap-id)onSubmit="return doLogin()"$(endif)>
-                    <input type="hidden" name="dst" value="http://192.168.181.1/status" />
+                <form id="loginForm" class="form" name="login" action="http://192.168.180.1/login" method="post" $(if chap-id)onSubmit="return doLogin()"$(endif)>
+                    <input type="hidden" name="dst" value="http://192.168.180.1/status" />
                     <input type="hidden" name="popup" value="true" />
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
@@ -107,8 +130,8 @@ Test
 <!-- Mikrotik login form for testing -->
 <div class="container mt-10 text-center">
     <h3 class="text-2xl text-gray-900">Test Mikrotik Login</h3>
-    <form id="testLoginForm" class="form" name="login" action="http://192.168.181.1/login" method="post" onSubmit="return doLogin()">
-        <input type="hidden" name="dst" value="http://192.168.181.1/status" />
+    <form id="testLoginForm" class="form" name="login" action="http://192.168.180.1/login" method="post" onSubmit="return doLogin()">
+        <input type="hidden" name="dst" value="http://192.168.180.1/status" />
         <input type="hidden" name="popup" value="true" />
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>

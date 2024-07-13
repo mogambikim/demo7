@@ -125,22 +125,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Handle the event
         switch ($event->type) {
-            case 'invoice.payment_failed':
-                $username = $event->data->object->metadata->username;
-                logMessage("Failed payment for username: $username");
+            case 'payment_intent.payment_failed':
+                if (isset($event->data->object->metadata->phone_number)) {
+                    $phone_number = $event->data->object->metadata->phone_number;
+                    logMessage("Failed payment for phone number: $phone_number");
 
-                // Fetch all routers
-                $routers = ORM::for_table('tbl_routers')->find_many();
+                    // Get customer details from tbl_customers based on phone number (stored as username)
+                    $customer = ORM::for_table('tbl_customers')
+                        ->where('username', $phone_number)  // Ensure you use the correct column name
+                        ->find_one();
 
-                foreach ($routers as $router) {
-                    try {
-                        $client = new RouterOS\Client($router['ip_address'], $router['username'], $router['password']);
-                        removeInactiveHotspotUsers($client, $username);
-                    } catch (Exception $e) {
-                        logMessage("Error with router ID " . $router['id'] . ": " . $e->getMessage());
+                    if ($customer) {
+                        $username = $customer->username;
+                        logMessage("Found customer with phone number: $phone_number");
+
+                        // Get router_id from tbl_customers based on username
+                        $router_id = $customer->router_id;
+                        logMessage("Found router ID: $router_id");
+
+                        // Get router details from tbl_routers based on router_id
+                        $router = ORM::for_table('tbl_routers')
+                            ->where('id', $router_id)
+                            ->find_one();
+
+                        if ($router) {
+                            logMessage("Found router details: IP - " . $router->ip_address);
+
+                            try {
+                                $client = new RouterOS\Client($router->ip_address, $router->username, $router->password);
+                                logMessage("Connected to router ID " . $router->id);
+                                removeInactiveHotspotUsers($client, $username);
+                            } catch (Exception $e) {
+                                logMessage("Error with router ID " . $router->id . ": " . $e->getMessage());
+                            }
+                        } else {
+                            logMessage("Router with ID $router_id not found.");
+                        }
+                    } else {
+                        logMessage("Customer with phone number $phone_number not found.");
                     }
+                } else {
+                    logMessage("Phone number not found in the metadata.");
                 }
                 break;
+
             // Add more cases to handle other event types if needed
         }
     } else {
