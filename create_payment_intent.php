@@ -1,7 +1,7 @@
 <?php
 require_once 'vendor/autoload.php';
 
-\Stripe\Stripe::setApiKey('sk_test_51PbKmaRslRg4lJ4nG2ZS7xct6xZmmjJQRfXSHRjQleDAeJNW4yss5cf8I7Rjohe4hcIT5tnHHkhTbqcfRDMm0xla00aVpNt7mh'); // Replace with your secret key
+\Stripe\Stripe::setApiKey('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'); // Replace with your secret key
 
 header('Content-Type: application/json');
 
