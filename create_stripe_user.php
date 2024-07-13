@@ -84,9 +84,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $phone = isset($input['phone_number']) ? $input['phone_number'] : '';
 $planId = isset($input['plan_id']) ? $input['plan_id'] : '';
 $routerId = isset($input['router_id']) ? $input['router_id'] : '';
-
-// Create the username using the phone number
-$username = $phone;
+$username = isset($input['username']) ? $input['username'] : $phone; // Use input username directly if provided
 
 // Log the extracted data to the error log
 $logFilePath = 'create_stripe_user.log';
@@ -95,7 +93,7 @@ logToFile($logFilePath, "Received data: phone: $phone, planId: $planId, routerId
 // Your POST request processing code here...
 header('Content-Type: application/json'); // Ensure JSON content type header
 
-if (strlen($phone) == 10) {
+if ($phone) { // Proceed if phone number is provided
     $Userexist = ORM::for_table('tbl_customers')->where('username', $username)->find_one();
     if ($Userexist) {
         // Update the router ID for the existing user
@@ -122,7 +120,7 @@ if (strlen($phone) == 10) {
     $router = $routerId;
 
     $createUser = ORM::for_table('tbl_customers')->create();
-    $createUser->username = $username; // Use $username instead of $phone
+    $createUser->username = $username; // Use input username directly
     $createUser->password = $defpass;
     $createUser->fullname = $phone;
     $createUser->phonenumber = $phone;
@@ -152,9 +150,9 @@ if (strlen($phone) == 10) {
         exit();
     }
 } else {
-    $error_message = 'Invalid phone number length';
+    $error_message = 'Phone number is required';
     logToFile($logFilePath, "Error: $error_message");
-    echo json_encode(['status' => 'error', 'message' => 'An error occurred']);
+    echo json_encode(['status' => 'error', 'message' => 'Phone number is required']);
     exit();
 }
 ?>

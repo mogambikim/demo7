@@ -943,7 +943,7 @@ foreach ($routers as $router) {
     }
 }
 
-// Define the function to remove inactive Hotspot users and from the users list
+// Define the function to remove inactive Hotspot users from the users list
 function removeInactiveHotspotUsers($client) {
     // Fetch all Hotspot users
     $usersRequest = new RouterOS\Request('/ip/hotspot/user/print');
@@ -960,36 +960,53 @@ function removeInactiveHotspotUsers($client) {
             ->where('type', 'Hotspot')
             ->find_one();
 
-        if ($userRecharge) {
-            logMessage("User $username is inactive in the database. Removing from Hotspot users list and active users...");
-            try {
-                // Remove the user from Hotspot users list
-                $removeUserRequest = new RouterOS\Request('/ip/hotspot/user/remove');
-                $removeUserRequest->setArgument('.id', $user->getProperty('.id'));
-                $client->sendSync($removeUserRequest);
-                logMessage("Removed user $username from Hotspot users list");
+        // Check if user is not in the database or is inactive
+        if (!$userRecharge) {
+            $userRechargeExists = ORM::for_table('tbl_user_recharges')
+                ->where('username', $username)
+                ->find_one();
 
-                // Remove the user from Hotspot active users
-                $activeUsersRequest = new RouterOS\Request('/ip/hotspot/active/print');
-                $activeUsers = $client->sendSync($activeUsersRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
-
-                foreach ($activeUsers as $activeUser) {
-                    if ($activeUser->getProperty('user') == $username) {
-                        $removeActiveUserRequest = new RouterOS\Request('/ip/hotspot/active/remove');
-                        $removeActiveUserRequest->setArgument('.id', $activeUser->getProperty('.id'));
-                        $client->sendSync($removeActiveUserRequest);
-                        logMessage("Removed inactive Hotspot user: $username from active users");
-                        break;
-                    }
-                }
-            } catch (Exception $e) {
-                logMessage("Error removing Hotspot user $username: " . $e->getMessage());
+            if (!$userRechargeExists) {
+                logMessage("User $username is not in the database. Removing from Hotspot users list and active users...");
+                removeUserFromHotspot($client, $user);
+            } else {
+                logMessage("User $username is active in the database. Skipping...");
+                continue; // Skip active users
             }
         } else {
-            logMessage("User $username is not inactive or not of type Hotspot in the database.");
+            logMessage("User $username is inactive in the database. Removing from Hotspot users list and active users...");
+            removeUserFromHotspot($client, $user);
         }
     }
 }
+
+// Helper function to remove a user from Hotspot users and active users
+function removeUserFromHotspot($client, $user) {
+    try {
+        // Remove the user from Hotspot users list
+        $removeUserRequest = new RouterOS\Request('/ip/hotspot/user/remove');
+        $removeUserRequest->setArgument('.id', $user->getProperty('.id'));
+        $client->sendSync($removeUserRequest);
+        logMessage("Removed user " . $user->getProperty('name') . " from Hotspot users list");
+
+        // Remove the user from Hotspot active users
+        $activeUsersRequest = new RouterOS\Request('/ip/hotspot/active/print');
+        $activeUsers = $client->sendSync($activeUsersRequest)->getAllOfType(RouterOS\Response::TYPE_DATA);
+
+        foreach ($activeUsers as $activeUser) {
+            if ($activeUser->getProperty('user') == $user->getProperty('name')) {
+                $removeActiveUserRequest = new RouterOS\Request('/ip/hotspot/active/remove');
+                $removeActiveUserRequest->setArgument('.id', $activeUser->getProperty('.id'));
+                $client->sendSync($removeActiveUserRequest);
+                logMessage("Removed inactive Hotspot user: " . $user->getProperty('name') . " from active users");
+                break;
+            }
+        }
+    } catch (Exception $e) {
+        logMessage("Error removing Hotspot user " . $user->getProperty('name') . ": " . $e->getMessage());
+    }
+}
+
 
 // Fetch all routers
 $routers = ORM::for_table('tbl_routers')->find_many();
