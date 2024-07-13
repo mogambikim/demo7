@@ -21,13 +21,13 @@
                 <!-- Logo and title area -->
                 <div class="flex items-center">
                     <img src="logo.png" alt="Your Company Logo" class="h-8 w-8 mr-2">
-                    <h1 class="text-xl font-bold">Hot-spot</h1>
+                    <h1 class="text-xl font-bold">Aurius Hotspot Page</h1>
                 </div>
                 <!-- Navigation Links and Contact Number -->
                 <div class="block">
                     <div class="ml-10 flex items-baseline space-x-4">
                         <a href="#alreadyHavePackage" class="text-fuchsia-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Already Paid? Click Here.</a>
-                        <span class="text-fuchsia-200">0721176433</span>
+                        <span class="text-fuchsia-200">07554 522255</span>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
     <main class="pt-24">
         <section class="bg-white">
             <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-extrabold text-gray-900 mb-6">We Provide Fast, Cheap and Reliable Wifi Connection Near You. Get connected today</h2>
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-6">We Provide Fast, Cheap and Reliable Wifi Connection Near You./h2>
                 <!-- Pricing Section -->
                 <div class="mt-10">
                     <div class="text-center">
@@ -68,7 +68,7 @@ airFiber
         </div>
         <div class="px-4 pt-4 pb-6 bg-pink-500 text-center">
             <a href="#" class="inline-block text-pink-800 bg-pink-50 hover:bg-pink-100 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer"
-               onclick="showPaymentForm('1', '1', 14.99); return false;">
+               onclick="showPaymentForm('7', '1', 14.99); return false;">
                 Click Here To Connect
             </a>
         </div>
@@ -92,7 +92,7 @@ airFiber +FREE IPTV
         </div>
         <div class="px-4 pt-4 pb-6 bg-pink-500 text-center">
             <a href="#" class="inline-block text-pink-800 bg-pink-50 hover:bg-pink-100 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer"
-               onclick="showPaymentForm('1', '1', 19.99); return false;">
+               onclick="showPaymentForm('8', '1', 19.99); return false;">
                 Click Here To Connect
             </a>
         </div>
@@ -300,7 +300,7 @@ function toggleFAQ(faqId) {
             confirmButtonText: 'Submit',
             preConfirm: (phoneNumber) => {
                 localStorage.setItem('phoneNumber', phoneNumber);
-                localStorage.setItem('loginUrl', 'http://192.168.181.1/login');
+                localStorage.setItem('loginUrl', 'http://192.168.180.1/login');
     
                 // Send data to create_stripe_user.php
                 return fetch('create_stripe_user.php', {
@@ -356,7 +356,7 @@ function toggleFAQ(faqId) {
                             stripe.confirmPayment({
                                 elements,
                                 confirmParams: {
-                                    return_url: 'http://192.168.181.1/status', // Redirect to the status page after successful payment
+                                    return_url: 'http://192.168.180.1/status', // Redirect to the status page after successful payment
                                 },
                             }).then(function(result) {
                                 if (result.error) {
