@@ -66,7 +66,7 @@ function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $rout
 
 // Function to send data to add_stripe_user.php using cURL
 function sendToAddStripeUser($data) {
-    $url = 'https://aurius.freeispradius.com/add_stripe_user.php'; // Adjust the URL accordingly
+    $url = 'http://localhost/radius/add_stripe_user.php'; // Adjust the URL accordingly
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
@@ -77,20 +77,28 @@ function sendToAddStripeUser($data) {
     return $response;
 }
 
+// Read the raw JSON input
+$rawInput = file_get_contents('php://input');
+
+// Log the raw JSON input to the log file
+$logFilePath = 'create_stripe_user.log';
+logToFile($logFilePath, "Raw JSON input: $rawInput");
+
 // Parse JSON input
-$input = json_decode(file_get_contents('php://input'), true);
+$input = json_decode($rawInput, true);
 
 // Extract data from JSON input
 $phone = isset($input['phone_number']) ? $input['phone_number'] : '';
 $planId = isset($input['plan_id']) ? $input['plan_id'] : '';
 $routerId = isset($input['router_id']) ? $input['router_id'] : '';
 $username = isset($input['username']) ? $input['username'] : $phone; // Use input username directly if provided
+$fullName = isset($input['full_name']) ? $input['full_name'] : '';
+$email = isset($input['email']) ? $input['email'] : '';
+$address = isset($input['address']) ? $input['address'] : '';
 
 // Log the extracted data to the error log
-$logFilePath = 'create_stripe_user.log';
-logToFile($logFilePath, "Received data: phone: $phone, planId: $planId, routerId: $routerId, username: $username");
+logToFile($logFilePath, "Received data: phone: $phone, planId: $planId, routerId: $routerId, username: $username, full_name: $fullName, email: $email, address: $address");
 
-// Your POST request processing code here...
 header('Content-Type: application/json'); // Ensure JSON content type header
 
 if ($phone) { // Proceed if phone number is provided
@@ -115,20 +123,17 @@ if ($phone) { // Proceed if phone number is provided
     }
 
     $defpass = '1234';
-    $defaddr = 'FreeispRadius';
-    $defmail = $phone . '@gmail.com';
-    $router = $routerId;
 
     $createUser = ORM::for_table('tbl_customers')->create();
     $createUser->username = $username; // Use input username directly
     $createUser->password = $defpass;
-    $createUser->fullname = $phone;
+    $createUser->fullname = $fullName; // Use the full name from input
     $createUser->phonenumber = $phone;
     $createUser->pppoe_password = $defpass;
-    $createUser->address = $defaddr;
-    $createUser->email = $defmail;
+    $createUser->address = $address; // Use the address from input
+    $createUser->email = $email; // Use the email from input
     $createUser->service_type = 'Hotspot';
-    $createUser->router_id = $router;
+    $createUser->router_id = $routerId;
 
     if ($createUser->save()) {
         $success_message = 'User created successfully';

@@ -1,0 +1,1385 @@
+/*-----------------------------------------------------------------
+[Legal Notice]
+
+Copyright (c) HighHay/Mivfx
+Before using this template, you should agree with themeforest licenses terms.
+http://themeforest.net/licenses
+-------------------------------------------------------------------*/
+/*------------------------------------------------------------------
+[Table of contents]
+/** CSS Reference
+    0. Base Style
+	1. Header, Sidebar and Menu 
+		1.1 Header / .header-top
+		1.2 Sidebar navigation left / .page-nav 
+		1.3 Dot navigation at right / #fp-nav, #fp-nav.right
+	2. Main Page, Sections / .page-main , .section
+		
+		2.1 Cover page / .page-cover
+		2.2 Sections Init
+			2.2.1 Main Page / .page-main
+			2.2.2 Section / .section	
+			2.2.3 Section footer with scroll down button / .s-footer
+			2.2.4 Section animation
+		2.3 Home Page section / .section-home
+			2.3.0 Home section / .section-home
+			2.3.1 Clock / .content.with-clock , .c-clock
+		2.4 About Page section / .section-about
+		2.5 Register / Write message  Page section / .section-register , .section-message
+		2.6 Contact Page section / .section-contact
+	
+	3. Footer / .site-footer
+
+	Hooks for responsiveness (mobile friendly) can be found in "main_responsive.css" file
+	Other styles  in "style-colorX.css" file
+
+**/
+/*---------- 
+[Colors]
+    text color : #FFFFFF, #FFF
+    purple : #6E2AC2
+*/
+/* 0. Base Style  */
+/* 0.0 Tag/Classes Initailization */
+html {
+  /* HTML tag init */
+  color: #fff;
+  font-size: 1em;
+  line-height: 1.4;
+  background: #343434; }
+
+::-moz-selection {
+  background: #fff;
+  text-shadow: none; }
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0; }
+
+audio,
+canvas,
+img,
+svg,
+video {
+  vertical-align: middle; }
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0; }
+
+textarea {
+  resize: vertical; }
+
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0; }
+
+body {
+  font-family: 'OpenSans';
+  background: transparent;
+  color: #fff;
+  margin: 0;
+  padding: 0; }
+
+ul, li {
+  list-style: none outside none;
+  margin: 0; }
+
+iframe {
+  border: none; }
+
+.pos-rel {
+  position: relative; }
+
+.pos-abs {
+  position: absolute; }
+
+.pos-fix {
+  position: fixed; }
+
+.full-width {
+  width: 100%;
+  max-width: 1440px; }
+
+.full-height {
+  height: 100%; }
+
+.full-size {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; }
+
+.my-button {
+  text-transform: uppercase;
+  font-size: 1rem;
+  padding: 1em;
+  /* padding-top: 0.8rem; */
+  padding-bottom: 0.8rem;
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 0; }
+
+.center-vh {
+  /*
+      height: 100%;
+      width: 100%; 
+  */
+  /* width needed for Firefox */
+  /* old flexbox - Webkit and Firefox. For backwards compatibility */
+  display: -webkit-box;
+  /* middle-aged flexbox. Needed for IE 10 */
+  display: -ms-flexbox;
+  /* new flexbox. Chrome (prefix), Opera, upcoming browsers without */
+  display: -webkit-flex;
+  display: flex;
+  /* old flexbox: box-* */
+  -webkit-box-align: center;
+  /* middle flexbox: flex-* */
+  -ms-flex-align: center;
+  /* new flexbox: various property names */
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center; }
+
+.pos-top {
+  top: 0; }
+
+.pos-left {
+  left: 0; }
+
+.pos-right {
+  right: 0; }
+
+.pos-bottom {
+  bottom: 0; }
+
+.relh100 {
+  position: relative;
+  height: 100%; }
+
+/* Make page full width so reset foundation restriction on max-width*/
+.row {
+  /*    width: 100%;*/
+  max-width: 100%; }
+
+ul, li {
+  list-style: none outside none;
+  margin: 0; }
+
+.full-width {
+  width: 100%;
+  max-width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto; }
+
+.fullscreen-width {
+  width: 100%;
+  max-width: 100%; }
+
+.table {
+  display: table;
+  height: inherit;
+  margin: auto; }
+
+.table-cell {
+  display: table-cell;
+  /*    height: inherit;*/
+  vertical-align: middle; }
+
+.align-center {
+  text-align: center; }
+
+.align-left {
+  text-align: left; }
+
+.align-right {
+  text-align: right; }
+
+.align-justify {
+  text-align: justify; }
+
+/*
+.mask{
+    position: relative;
+}
+*/
+/** 0. color Color */
+.mask:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  content: ' ';
+  opacity: 0.8
+  /*    z-index: 10;*/ }
+
+.title.bg-red,
+.bg-red,
+.mask-red:before {
+  background: #e51c23; }
+
+.small-col-20 {
+  width: 20%; }
+
+.box-shadow {
+  -ms-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 2px rgba(0, 0, 0, 0.2), 0 0 4px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 2px rgba(0, 0, 0, 0.2), 0 0 4px 1px rgba(0, 0, 0, 0.1); }
+
+/* Viewport visibility animation  */
+.hidden {
+  opacity: 0;
+  -webkit-transition: 0.6s;
+  transition: 0.6s; }
+
+.visible {
+  opacity: 1;
+  -webkit-transition: 0.6s;
+  transition: 0.6s; }
+
+.invisible {
+  display: none !important; }
+
+.s-visible-medium-up {
+  opacity: 0; }
+
+strong,
+.bold {
+  font-weight: bold; }
+
+.column, .columns {
+  padding: 0; }
+
+.row .row {
+  margin: 0; }
+
+.btn-round, .section .content .btns .btn {
+  font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+  font-size: 16px;
+  background: #6e2ac2;
+  color: #fff;
+  border-radius: 50px;
+  display: inline-block;
+  padding: 12px 32px;
+  line-height: 1;
+  -webkit-transition: 0.3s;
+          transition: 0.3s; }
+
+.btn-round:hover, .section .content .btns .btn:hover {
+  color: #6e2ac2;
+  background: #fff;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2); }
+
+/* 0.1 Helper classes */
+/*
+ * Hide from both screenreaders and browsers: h5bp.com/u
+ */
+.hidden {
+  display: none !important;
+  visibility: hidden; }
+
+/*
+ * Hide only visually, but have it available for screenreaders: h5bp.com/v
+ */
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px; }
+
+/*
+ * Extends the .visuallyhidden class to allow the element to be focusable
+ * when navigated to via the keyboard: h5bp.com/p
+ */
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+  clip: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  position: static;
+  width: auto; }
+
+/*
+ * Hide visually and from screenreaders, but maintain layout
+ */
+.invisible {
+  visibility: hidden; }
+
+/*
+ * Clearfix: contain floats
+ *
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    `contenteditable` attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that receive the `clearfix` class.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+.clearfix:before, .section .content:before, .section .content .c-illustr:before, .section .content.with-clock .c-left .c-clock:before, .section-register .content .c-contact .desc li:before,
+.section-message .content .c-contact .desc li:before, .section-contact .content .c-contact .desc li:before,
+.clearfix:after,
+.section .content:after,
+.section .content .c-illustr:after,
+.section .content.with-clock .c-left .c-clock:after,
+.section-register .content .c-contact .desc li:after,
+.section-message .content .c-contact .desc li:after,
+.section-contact .content .c-contact .desc li:after {
+  content: " ";
+  /* 1 */
+  display: table
+  /* 2 */ }
+
+.clearfix:after, .section .content:after, .section .content .c-illustr:after, .section .content.with-clock .c-left .c-clock:after, .section-register .content .c-contact .desc li:after,
+.section-message .content .c-contact .desc li:after, .section-contact .content .c-contact .desc li:after {
+  clear: both; }
+
+/* 1. Header, Sidebar and Menu */
+/* 1.1 Header / .header-top */
+.header-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: auto;
+  z-index: 10; }
+  .header-top .logo-wrapper {
+    position: relative;
+    float: left;
+    margin-left: 48px;
+    margin-top: 16px; }
+    .header-top .logo-wrapper .logo {
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      text-transform: uppercase;
+      font-size: 24px;
+      color: #fff; }
+      .header-top .logo-wrapper .logo .title {
+        vertical-align: middle; }
+      .header-top .logo-wrapper .logo img {
+        max-height: 56px;
+        width: auto;
+        margin-right: 8px; }
+  .header-top .site-nav {
+    float: right;
+    margin-top: 24px;
+    margin-right: 48px; }
+    .header-top .site-nav li {
+      float: left;
+      display: block;
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      margin-left: 8px;
+      position: relative; }
+      .header-top .site-nav li a {
+        margin-top: -8px;
+        display: block;
+        padding: 8px;
+        color: #fff; }
+      .header-top .site-nav li a:after {
+        content: "";
+        position: absolute;
+        width: 0px;
+        height: 0px;
+        background: rgba(255, 255, 255, 0.3);
+        left: 50%;
+        bottom: -4px;
+        margin-left: -0px;
+        border-radius: 8px;
+        -webkit-transition: 0.3s;
+                transition: 0.3s; }
+    .header-top .site-nav li.separator {
+      color: #fff; }
+    .header-top .site-nav li:hover a:after,
+    .header-top .site-nav li.active a:after {
+      width: 8px;
+      height: 8px;
+      bottom: -8px;
+      margin-left: -4px; }
+    .header-top .site-nav li.active a:after {
+      background: #fff; }
+
+/* 1.2 Sidebar navigation left */
+.page-nav {
+  position: fixed;
+  top: 144px;
+  left: 48px;
+  display: block;
+  z-index: 10; }
+  .page-nav li {
+    position: relative;
+    margin-bottom: 16px; }
+    .page-nav li a {
+      color: #fff;
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      vertical-align: middle;
+      display: block;
+      height: 40px; }
+    .page-nav li .icon {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      padding-top: 11px;
+      line-height: 1;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 40px;
+      text-align: center;
+      vertical-align: middle;
+      margin-right: 8px;
+      position: relative;
+      -webkit-transition: 0.3s;
+              transition: 0.3s; }
+    .page-nav li .icon:after {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      right: 20px;
+      bottom: 20px;
+      content: "";
+      background: #fff;
+      opacity: 0;
+      z-index: -1;
+      border-radius: 40px;
+      -webkit-transition: 0.3s;
+              transition: 0.3s; }
+  .page-nav li.active .icon {
+    background: #6e2ac2; }
+  .page-nav li:not(.active):hover .icon {
+    color: #6e2ac2; }
+  .page-nav li:not(.active):hover .icon:after {
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    opacity: 1; }
+
+/* 1.3 Dot/bar Navigation at rigth */
+#fp-nav li .active span, .fp-slidesNav .active span {
+  background: #6e2ac2; }
+
+#fp-nav ul li a span, .fp-slidesNav ul li a span {
+  background: #fff; }
+
+#fp-nav ul {
+  margin-top: -40px; }
+
+/*#fp-nav.right{
+    right: 0px;
+    margin-right: 48px; 
+	position: absolute;
+}
+#fp-nav ul{
+	margin-top: -22px;
+}
+#fp-nav ul li, .fp-slidesNav ul li {
+    height: 7px;
+}
+#fp-nav span, .fp-slidesNav span{
+    border-color: #fff;
+	-webkit-transition: 0.3s;
+	transition: 0.3s;
+	width: 10px;
+	height: 10px;
+}
+#fp-nav ul li a.active span,
+#fp-nav ul li a:hover span,
+#fp-nav ul li a.active:hover span,
+#fp-nav ul li a span{
+	background: rgba(255, 255, 255, 0.34);
+	width: 16px;
+	border-radius: 0;
+	height: 1px;
+	left: auto;
+	right: 0;
+	top: 0;
+	margin-top: 0;
+	transition: 0.3s;
+}
+#fp-nav ul li a span:before{
+	position: absolute;
+	content: "";
+	top: -6px;
+	left: -2px;
+	right: -2px;
+	bottom: -6px;
+}
+#fp-nav ul li a:hover span{
+	width: 24px;
+	background: #fff;
+}
+#fp-nav ul li a.active span,
+#fp-nav ul li a.active:hover span{
+	width: 32px;
+	background: #fff;
+}*/
+.header-top .menu-icon {
+  display: none;
+  float: right;
+  position: fixed;
+  top: 8px;
+  padding: 8px 16px;
+  right: 8px;
+  -webkit-transition: 0.3s;
+  transition: 0.3s; }
+
+.header-top .menu-icon .bars {
+  content: "";
+  display: block;
+  /*			background: #ff4;*/
+  width: 32px;
+  height: 32px;
+  float: right; }
+
+.header-top .menu-icon .bars .bar1,
+.header-top .menu-icon .bars .bar2,
+.header-top .menu-icon .bars .bar3 {
+  float: right;
+  display: block;
+  content: "";
+  height: 2px;
+  width: 32px;
+  background: #fff;
+  /*				margin: auto;*/
+  margin-bottom: 10px;
+  -webkit-transition: 0.3s;
+  transition: 0.3s; }
+
+.header-top .menu-icon .bars .bar2 {
+  width: 16px; }
+
+.header-top.menu-visible .menu-icon .bars .bar1,
+.header-top.menu-visible .menu-icon .bars .bar3 {
+  width: 16px; }
+
+.header-top.menu-visible .menu-icon .bars .bar2 {
+  width: 32px; }
+
+.header-top .menu-icon .txt {
+  float: left;
+  font-family: "Montserrat";
+  font-size: 16px;
+  color: #fff;
+  padding-top: 0px;
+  padding-left: 16px; }
+
+/* 2. main content / .main */
+.main {
+  height: 100%; }
+
+/* 2.1 Cover */
+.page-cover {
+  width: 100%;
+  position: fixed;
+  height: 120%;
+  z-index: 0;
+  overflow: hidden; }
+  .page-cover .cover-bg {
+    /*  Page cover background image,color */
+    background: url(../img/vipi-pagr.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    z-index: -1; }
+  .page-cover .cover-bg.bg-color {
+    /* Page cover  background mask */
+    background-image: none;
+    z-index: -1; }
+  .page-cover .cover-bg.cover-bg-mask {
+    background: rgba(0, 0, 0, 0.12);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    z-index: 0;
+    -webkit-transition: 2s;
+            transition: 2s; }
+  .page-cover .vegas-timer {
+    /* background slide */
+    display: none; }
+  .page-cover #particles-js {
+    /*  particles.js container */
+    width: 100%;
+    height: 100%;
+    background-color: #b61924;
+    background-image: url("");
+    background-size: cover;
+    background-position: 50% 50%;
+    background-repeat: no-repeat; }
+  .page-cover .video-container {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1; }
+  .page-cover .video-container video {
+    height: 724px;
+    width: 1287px;
+    margin-top: -42px;
+    margin-left: 0px; }
+  .page-cover .video-container iframe {
+    width: 120%;
+    height: 120%;
+    margin-left: -10%;
+    margin-top: -2%; }
+
+.show-for-medium-up {
+  display: none; }
+
+/* particles fixes  */
+/* 2.2 Sections Init */
+/* 2.2 Main Page */
+/* 2.2.1 Main Page */
+.page-main {
+  position: relative;
+  margin-left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; }
+
+/* 2.2.2 Section */
+.section {
+  padding-left: 96px;
+  padding-right: 96px; }
+  .section .content {
+    padding-top: 64px;
+    padding-bottom: 64px; }
+
+.section-cent {
+  width: 100%;
+  position: relative;
+  text-align: center; }
+
+.section .content {
+  padding: 0 96px;
+  position: relative;
+  max-width: 1300px;
+  margin: auto; }
+  .section .content .c-right {
+    float: right;
+    width: 50%;
+    text-align: left;
+    padding-left: 96px;
+    position: relative;
+    padding-top: 24px;
+    padding-bottom: 24px; }
+  .section .content .c-right:before {
+    content: "";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4);
+    top: -48px;
+    bottom: -48px;
+    left: 0;
+    width: 1px; }
+  .section .content .c-left {
+    float: left;
+    width: 50%;
+    text-align: right;
+    padding-right: 96px; }
+    .section .content .c-left .c-logo {
+      margin-top: 56px; }
+  .section .content .c-logo {
+    height: 100%; }
+    .section .content .c-logo img {
+      max-height: 128px;
+      width: auto; }
+    .section .content .c-logo .icon {
+      font-size: 128px;
+      line-height: 1;
+      color: #fff;
+      position: relative;
+      display: inline-block;
+      text-align: center; }
+  .section .content .c-illustr, .section .content.with-clock .c-left .c-clock {
+    float: right;
+    position: relative;
+    margin-top: 48px; }
+    .section .content .c-illustr .img-top, .section .content.with-clock .c-left .c-clock .img-top {
+      content: '';
+      width: 112px;
+      height: 112px;
+      margin-top: -112px;
+      margin-bottom: 112px;
+      background: #fff;
+      display: block;
+      float: left; }
+    .section .content .c-illustr .img-middle, .section .content.with-clock .c-left .c-clock .img-middle {
+      content: '';
+      width: 224px;
+      height: 224px;
+      background: #ccc;
+      display: block;
+      float: left;
+      position: relative; }
+      .section .content .c-illustr .img-middle .slides .slide-item, .section .content.with-clock .c-left .c-clock .img-middle .slides .slide-item {
+        width: 100%;
+        height: 100%;
+        padding-bottom: 100%;
+        overflow: hidden; }
+        .section .content .c-illustr .img-middle .slides .slide-item img, .section .content.with-clock .c-left .c-clock .img-middle .slides .slide-item img {
+          height: 224px;
+          width: auto;
+          max-width: none !important; }
+      .section .content .c-illustr .img-middle .swipe-nav, .section .content.with-clock .c-left .c-clock .img-middle .swipe-nav {
+        position: absolute;
+        height: 56px;
+        width: 56px;
+        left: -56px;
+        background: #6e2ac2;
+        text-align: center;
+        padding-top: 10px; }
+        .section .content .c-illustr .img-middle .swipe-nav .icon, .section .content.with-clock .c-left .c-clock .img-middle .swipe-nav .icon {
+          color: #fff;
+          text-align: center;
+          width: 24px;
+          height: 36px;
+          line-height: 1;
+          display: inline-block;
+          padding-top: 11px;
+          font-size: 12px; }
+        .section .content .c-illustr .img-middle .swipe-nav a:hover .icon, .section .content.with-clock .c-left .c-clock .img-middle .swipe-nav a:hover .icon {
+          opacity: 0.4; }
+    .section .content .c-illustr .img-bottom, .section .content.with-clock .c-left .c-clock .img-bottom {
+      content: '';
+      width: 96px;
+      height: 96px;
+      position: absolute;
+      bottom: 0;
+      right: -96px;
+      background: #4b4b4b;
+      display: block;
+      float: left; }
+  .section .content .header {
+    margin-bottom: 32px; }
+    .section .content .header h2 {
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      color: #fff;
+      font-size: 48px;
+      margin-bottom: 16px; }
+    .section .content .header h3 {
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      color: #fff;
+      font-size: 24px; }
+  .section .content .desc p {
+    color: #fff;
+    font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+    font-size: 16px;
+    font-weight: 300; }
+  .section .content .btns {
+    margin-top: 16px; }
+
+/* forms */
+.section .form label {
+  /*font-family: $geo_font;
+  font-size: 16px;*/
+  font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff; }
+.section .form textarea,
+.section .form input {
+  font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+  padding-left: 16px;
+  color: #fff;
+  padding-right: 16px;
+  font-size: 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px; }
+.section .form textarea {
+  min-height: 96px; }
+
+/* 2.2.3 Section footer with scroll down button */
+.s-footer {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  padding: 0px;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 100;
+  -webkit-transform: scale(0.8);
+      -ms-transform: scale(0.8);
+          transform: scale(0.8);
+  -webkit-transition: 0.3s;
+          transition: 0.3s; }
+  .s-footer a {
+    color: #fff;
+    display: block;
+    margin: auto;
+    margin-bottom: 24px;
+    width: 160px;
+    text-align: center;
+    font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+    position: relative;
+    padding-bottom: 8px;
+    position: relative;
+    -webkit-transition: 0.3s;
+            transition: 0.3s; }
+  .s-footer a:after {
+    content: "";
+    position: absolute;
+    background: #fff;
+    width: 8px;
+    height: 8px;
+    bottom: -8px;
+    margin-left: -4px;
+    border-radius: 8px;
+    left: 50%;
+    -webkit-transition: 0.3s;
+            transition: 0.3s; }
+  .s-footer a:hover {
+    opacity: 0.6; }
+  .s-footer a:hover:after {
+    width: 4px;
+    height: 4px;
+    bottom: -6px;
+    border-radius: 8px;
+    margin-left: -2px;
+    background: #fff; }
+
+.section.active .s-footer {
+  visibility: visible;
+  -webkit-transform: none;
+      -ms-transform: none;
+          transform: none;
+  opacity: 1; }
+
+/* 2.2.4 Section animation */
+.section {
+  /*.anim-slideright{
+  	transform: translateX(-130%);
+  	transition: 1.5s cubic-bezier(.03, .57, .21, .98);
+  }
+  .anim-slideleft{
+  	transform: translateX(120%);
+  	transition: 1.5s cubic-bezier(.03, .57, .21, .98);
+  }
+  .anim-rotate{
+  	opacity: 0;
+  	transform: scale(0.8) rotate(90deg);
+  	position: relative;
+  	transition: 0.8s cubic-bezier(.51, 0, .38, 1.47);
+  }
+  .anim-zoomin{
+  	opacity: 0;
+  	transform: scale(0.8);
+  	position: relative;
+  	transition: 0.8s cubic-bezier(.39, -0.25, 0.4, 2);
+  }*/ }
+  @media (min-width: 720px) {
+    .section .anim-slideright {
+      -webkit-transform: translateX(-130%);
+          -ms-transform: translateX(-130%);
+              transform: translateX(-130%);
+      -webkit-transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98);
+              transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98); }
+    .section .anim-slideleft {
+      -webkit-transform: translateX(120%);
+          -ms-transform: translateX(120%);
+              transform: translateX(120%);
+      -webkit-transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98);
+              transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98); }
+    .section .anim-rotate {
+      opacity: 0;
+      -webkit-transform: scale(0.8) rotate(90deg);
+          -ms-transform: scale(0.8) rotate(90deg);
+              transform: scale(0.8) rotate(90deg);
+      position: relative;
+      -webkit-transition: 0.8s cubic-bezier(0.51, 0, 0.38, 1.47);
+              transition: 0.8s cubic-bezier(0.51, 0, 0.38, 1.47); }
+    .section .anim-zoomin {
+      opacity: 0;
+      -webkit-transform: scale(0.8);
+          -ms-transform: scale(0.8);
+              transform: scale(0.8);
+      position: relative;
+      -webkit-transition: 0.8s cubic-bezier(0.39, -0.25, 0.4, 2);
+              transition: 0.8s cubic-bezier(0.39, -0.25, 0.4, 2); } }
+
+.section.active.anim {
+  /*	.anim-slideright{
+  		transform: translateX(-0%);
+  		transition-delay: 0.6s;
+  	}
+  	.anim-slideleft{
+  		transform: translateX(-0%);
+  		transition-delay: 0.8s;
+  	}
+  	.anim-rotate,
+  	.anim-zoomin{
+  		opacity: 1;
+  		transform: none;
+  		transition-delay: 1.2s;
+  	}*/ }
+  @media (min-width: 720px) {
+    .section.active.anim .anim-slideright {
+      -webkit-transform: translateX(0%);
+          -ms-transform: translateX(0%);
+              transform: translateX(0%);
+      -webkit-transition-delay: 0.6s;
+              transition-delay: 0.6s; }
+    .section.active.anim .anim-slideleft {
+      -webkit-transform: translateX(0%);
+          -ms-transform: translateX(0%);
+              transform: translateX(0%);
+      -webkit-transition-delay: 0.8s;
+              transition-delay: 0.8s; }
+    .section.active.anim .anim-rotate,
+    .section.active.anim .anim-zoomin {
+      opacity: 1;
+      -webkit-transform: none;
+          -ms-transform: none;
+              transform: none;
+      -webkit-transition-delay: 1.2s;
+              transition-delay: 1.2s; } }
+
+/* 2.3 Home Page section */
+/* 2.3.0 home section / .section-home */
+.section-home .content .c-right {
+  overflow: hidden; }
+.section-home .content .c-right:before {
+  top: -48px;
+  bottom: -48px;
+  left: 0;
+  width: 1px; }
+.section-home .content .c-left {
+  overflow: hidden; }
+  .section-home .content .c-left .c-logo {
+    margin-top: 56px; }
+.section-home .content .c-logo {
+  height: 100%; }
+  .section-home .content .c-logo img {
+    max-height: 128px;
+    width: auto; }
+
+@media (min-width: 720px) {
+  .section-home .anim-slideright {
+    -webkit-transform: translateX(-120%);
+    -ms-transform: translateX(-120%);
+        transform: translateX(-120%);
+    -webkit-transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98);
+    transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98); }
+  .section-home .anim-slideleft {
+    -webkit-transform: translateX(120%);
+    -ms-transform: translateX(120%);
+        transform: translateX(120%);
+    -webkit-transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98);
+    transition: 1.5s cubic-bezier(0.03, 0.57, 0.21, 0.98); } }
+
+@media (min-width: 720px) {
+  .section-home.active.anim .anim-slideright {
+    -webkit-transform: translateX(0%);
+    -ms-transform: translateX(0%);
+        transform: translateX(0%);
+    -webkit-transition-delay: 0.6s;
+    transition-delay: 0.6s; }
+  .section-home.active.anim .anim-slideleft {
+    -webkit-transform: translateX(0%);
+    -ms-transform: translateX(0%);
+        transform: translateX(0%);
+    -webkit-transition-delay: 0.8s;
+    transition-delay: 0.8s; } }
+
+/* 2.3.1 Clock */
+.section .content.with-clock .c-left .c-logo {
+  margin-top: 0; }
+  .section .content.with-clock .c-left .c-logo * {
+    margin-bottom: -112px; }
+.section .content.with-clock .c-left .c-clock {
+  padding-top: 112px; }
+  .section .content.with-clock .c-left .c-clock .img-top {
+    background: transparent; }
+  .section .content.with-clock .c-left .c-clock .img-middle {
+    background: #1d1d1d;
+    text-align: center; }
+  .section .content.with-clock .c-left .c-clock .tile-days {
+    display: block;
+    padding-top: 72px;
+    font-size: 72px;
+    color: #fff;
+    font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+    line-height: 1; }
+    .section .content.with-clock .c-left .c-clock .tile-days .days {
+      display: block; }
+    .section .content.with-clock .c-left .c-clock .tile-days .txt {
+      display: block;
+      font-size: 18px; }
+  .section .content.with-clock .c-left .c-clock .tile-hours,
+  .section .content.with-clock .c-left .c-clock .tile-seconds,
+  .section .content.with-clock .c-left .c-clock .tile-minutes {
+    padding-top: 36px;
+    text-align: center;
+    font-size: 36px;
+    color: #6e2ac2;
+    font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+    line-height: 1; }
+    .section .content.with-clock .c-left .c-clock .tile-hours span,
+    .section .content.with-clock .c-left .c-clock .tile-seconds span,
+    .section .content.with-clock .c-left .c-clock .tile-minutes span {
+      display: block; }
+    .section .content.with-clock .c-left .c-clock .tile-hours .txt,
+    .section .content.with-clock .c-left .c-clock .tile-seconds .txt,
+    .section .content.with-clock .c-left .c-clock .tile-minutes .txt {
+      font-size: 18px; }
+  .section .content.with-clock .c-left .c-clock .tile-seconds,
+  .section .content.with-clock .c-left .c-clock .tile-minutes {
+    position: absolute;
+    top: 0;
+    left: -112px;
+    background: #fff;
+    width: 112px;
+    height: 112px; }
+  .section .content.with-clock .c-left .c-clock .tile-seconds {
+    top: 112px;
+    color: #fff;
+    background: #6e2ac2; }
+  .section .content.with-clock .c-left .c-clock .tile-minutes {
+    top: 0; }
+  .section .content.with-clock .c-left .c-clock .tile-hours {
+    top: 0;
+    width: 112px;
+    height: 112px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff; }
+.section .content.with-clock .c-right {
+  margin-top: 48px; }
+
+@media (min-width: 720px) {
+  .section.active.anim .content.with-clock .anim-zoomin.anim-1 {
+    -webkit-transition-delay: 1.2s;
+    transition-delay: 1.2s; }
+  .section.active.anim .content.with-clock .anim-zoomin.anim-2 {
+    -webkit-transition-delay: 1.5s;
+    transition-delay: 1.5s; }
+  .section.active.anim .content.with-clock .anim-zoomin.anim-3 {
+    -webkit-transition-delay: 1.8s;
+    transition-delay: 1.8s; } }
+
+/* 2.4 About Page section */
+/* about section / .section-about */
+.section-about .content .c-right, .section-register .content .c-right,
+.section-message .content .c-right, .section-contact .content .c-right {
+  overflow: hidden; }
+.section-about .content .c-right:before, .section-register .content .c-right:before,
+.section-message .content .c-right:before, .section-contact .content .c-right:before {
+  top: -48px;
+  bottom: -48px;
+  left: 0;
+  width: 1px; }
+.section-about .content .c-left, .section-register .content .c-left,
+.section-message .content .c-left, .section-contact .content .c-left {
+  overflow: hidden; }
+  .section-about .content .c-left .c-logo, .section-register .content .c-left .c-logo,
+  .section-message .content .c-left .c-logo, .section-contact .content .c-left .c-logo {
+    margin-top: 0; }
+.section-about .content .c-logo, .section-register .content .c-logo,
+.section-message .content .c-logo, .section-contact .content .c-logo {
+  height: 100%;
+  position: relative; }
+  .section-about .content .c-logo img, .section-register .content .c-logo img,
+  .section-message .content .c-logo img, .section-contact .content .c-logo img {
+    max-height: 128px;
+    width: auto; }
+  .section-about .content .c-logo .icon, .section-register .content .c-logo .icon,
+  .section-message .content .c-logo .icon, .section-contact .content .c-logo .icon {
+    font-size: 128px;
+    line-height: 1;
+    color: #fff;
+    position: relative;
+    display: inline-block;
+    text-align: center; }
+
+/* 2.5 Register Page section */
+.section-register .content .c-left,
+.section-message .content .c-left {
+  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  margin-top: -64px; }
+.section-register .content .c-illustr, .section-register .section .content.with-clock .c-left .c-clock, .section .section-register .content.with-clock .c-left .c-clock,
+.section-message .content .c-illustr,
+.section-message .section .content.with-clock .c-left .c-clock,
+.section .section-message .content.with-clock .c-left .c-clock {
+  position: relative; }
+  .section-register .content .c-illustr .img-middle .tiles-left, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left,
+  .section-message .content .c-illustr .img-middle .tiles-left,
+  .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left,
+  .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left {
+    position: absolute;
+    left: -112px;
+    top: -112px; }
+    .section-register .content .c-illustr .img-middle .tiles-left h4, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left h4, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left h4,
+    .section-message .content .c-illustr .img-middle .tiles-left h4,
+    .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left h4,
+    .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left h4 {
+      width: 112px;
+      height: 56px;
+      background: #eaeaea;
+      color: #6e2ac2;
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      font-size: 14px;
+      margin: 0px 0;
+      text-align: center;
+      line-height: 1;
+      padding-top: 20px; }
+    .section-register .content .c-illustr .img-middle .tiles-left .socialnet, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet,
+    .section-register .content .c-illustr .img-middle .tiles-left ul,
+    .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul,
+    .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul,
+    .section-message .content .c-illustr .img-middle .tiles-left .socialnet,
+    .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet,
+    .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet,
+    .section-message .content .c-illustr .img-middle .tiles-left ul,
+    .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul,
+    .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul {
+      width: 112px; }
+      .section-register .content .c-illustr .img-middle .tiles-left .socialnet li, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li,
+      .section-register .content .c-illustr .img-middle .tiles-left ul li,
+      .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li,
+      .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li,
+      .section-message .content .c-illustr .img-middle .tiles-left .socialnet li,
+      .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li,
+      .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li,
+      .section-message .content .c-illustr .img-middle .tiles-left ul li,
+      .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li,
+      .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li {
+        float: right;
+        padding-right: 1px;
+        padding-bottom: 1px; }
+        .section-register .content .c-illustr .img-middle .tiles-left .socialnet li a, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a,
+        .section-register .content .c-illustr .img-middle .tiles-left ul li a,
+        .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a,
+        .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a,
+        .section-message .content .c-illustr .img-middle .tiles-left .socialnet li a,
+        .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a,
+        .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a,
+        .section-message .content .c-illustr .img-middle .tiles-left ul li a,
+        .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a,
+        .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a {
+          background: #6e2ac2;
+          color: #fff;
+          position: relative;
+          display: block;
+          width: 55px;
+          height: 55px;
+          text-align: center;
+          font-size: 24px;
+          line-height: 1;
+          padding-top: 16px;
+          -webkit-transition: 0.3s;
+                  transition: 0.3s; }
+          .section-register .content .c-illustr .img-middle .tiles-left .socialnet li a .title, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a .title, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a .title,
+          .section-register .content .c-illustr .img-middle .tiles-left ul li a .title,
+          .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a .title,
+          .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a .title,
+          .section-message .content .c-illustr .img-middle .tiles-left .socialnet li a .title,
+          .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a .title,
+          .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a .title,
+          .section-message .content .c-illustr .img-middle .tiles-left ul li a .title,
+          .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a .title,
+          .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a .title {
+            position: absolute;
+            font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+            visibility: hidden;
+            opacity: 0;
+            display: none; }
+      .section-register .content .c-illustr .img-middle .tiles-left .socialnet li:nth-child(2n + 1), .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1), .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1),
+      .section-register .content .c-illustr .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section-message .content .c-illustr .img-middle .tiles-left .socialnet li:nth-child(2n + 1),
+      .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1),
+      .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1),
+      .section-message .content .c-illustr .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) {
+        padding-right: 0; }
+        .section-register .content .c-illustr .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a,
+        .section-register .content .c-illustr .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section-message .content .c-illustr .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a,
+        .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a,
+        .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a,
+        .section-message .content .c-illustr .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) a {
+          width: 56px; }
+      .section-register .content .c-illustr .img-middle .tiles-left .socialnet li:hover a, .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:hover a, .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:hover a,
+      .section-register .content .c-illustr .img-middle .tiles-left ul li:hover a,
+      .section-register .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:hover a,
+      .section .section-register .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:hover a,
+      .section-message .content .c-illustr .img-middle .tiles-left .socialnet li:hover a,
+      .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:hover a,
+      .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:hover a,
+      .section-message .content .c-illustr .img-middle .tiles-left ul li:hover a,
+      .section-message .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:hover a,
+      .section .section-message .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:hover a {
+        background: #7f3bd3; }
+.section-register .content .c-contact .desc,
+.section-message .content .c-contact .desc {
+  font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+  font-weight: 300;
+  color: #fff; }
+  .section-register .content .c-contact .desc li,
+  .section-message .content .c-contact .desc li {
+    margin-bottom: 16px; }
+    .section-register .content .c-contact .desc li .title,
+    .section-message .content .c-contact .desc li .title {
+      width: 40px;
+      float: left; }
+      .section-register .content .c-contact .desc li .title .readable,
+      .section-message .content .c-contact .desc li .title .readable {
+        display: none;
+        visibility: hidden;
+        opacity: 0; }
+    .section-register .content .c-contact .desc li .data,
+    .section-message .content .c-contact .desc li .data {
+      width: 100%;
+      margin-right: -40px;
+      padding-right: 40px;
+      float: left; }
+    .section-register .content .c-contact .desc li a,
+    .section-message .content .c-contact .desc li a {
+      color: #fff; }
+    .section-register .content .c-contact .desc li a:hover,
+    .section-message .content .c-contact .desc li a:hover {
+      color: #6e2ac2;
+      text-decoration: underline; }
+
+.section-register.section .form input {
+  margin-bottom: 24px; }
+
+/* 2.6 Contact Page section */
+.section-contact .content .c-illustr, .section-contact .section .content.with-clock .c-left .c-clock, .section .section-contact .content.with-clock .c-left .c-clock {
+  position: relative; }
+  .section-contact .content .c-illustr .img-middle .tiles-left, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left {
+    position: absolute;
+    left: -112px;
+    top: -112px; }
+    .section-contact .content .c-illustr .img-middle .tiles-left h4, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left h4, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left h4 {
+      width: 112px;
+      height: 56px;
+      background: #eaeaea;
+      color: #6e2ac2;
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      font-size: 14px;
+      margin: 0px 0;
+      text-align: center;
+      line-height: 1;
+      padding-top: 20px; }
+    .section-contact .content .c-illustr .img-middle .tiles-left .socialnet, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet,
+    .section-contact .content .c-illustr .img-middle .tiles-left ul,
+    .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul,
+    .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul {
+      width: 112px; }
+      .section-contact .content .c-illustr .img-middle .tiles-left .socialnet li, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li,
+      .section-contact .content .c-illustr .img-middle .tiles-left ul li,
+      .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li,
+      .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li {
+        float: right;
+        padding-right: 1px;
+        padding-bottom: 1px; }
+        .section-contact .content .c-illustr .img-middle .tiles-left .socialnet li a, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a,
+        .section-contact .content .c-illustr .img-middle .tiles-left ul li a,
+        .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a,
+        .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a {
+          background: #6e2ac2;
+          color: #fff;
+          position: relative;
+          display: block;
+          width: 55px;
+          height: 55px;
+          text-align: center;
+          font-size: 24px;
+          line-height: 1;
+          padding-top: 16px;
+          -webkit-transition: 0.3s;
+                  transition: 0.3s; }
+          .section-contact .content .c-illustr .img-middle .tiles-left .socialnet li a .title, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a .title, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li a .title,
+          .section-contact .content .c-illustr .img-middle .tiles-left ul li a .title,
+          .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a .title,
+          .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li a .title {
+            position: absolute;
+            font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+            visibility: hidden;
+            opacity: 0;
+            display: none; }
+      .section-contact .content .c-illustr .img-middle .tiles-left .socialnet li:nth-child(2n + 1), .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1), .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1),
+      .section-contact .content .c-illustr .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1),
+      .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) {
+        padding-right: 0; }
+        .section-contact .content .c-illustr .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:nth-child(2n + 1) a,
+        .section-contact .content .c-illustr .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) a,
+        .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:nth-child(2n + 1) a {
+          width: 56px; }
+      .section-contact .content .c-illustr .img-middle .tiles-left .socialnet li:hover a, .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:hover a, .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left .socialnet li:hover a,
+      .section-contact .content .c-illustr .img-middle .tiles-left ul li:hover a,
+      .section-contact .section .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:hover a,
+      .section .section-contact .content.with-clock .c-left .c-clock .img-middle .tiles-left ul li:hover a {
+        background: #7f3bd3; }
+.section-contact .content .c-contact .desc {
+  font-family: "OpenSans", "Roboto", "Helvetica", sans-serif;
+  font-weight: 300;
+  color: #fff; }
+  .section-contact .content .c-contact .desc li {
+    margin-bottom: 16px; }
+    .section-contact .content .c-contact .desc li .title {
+      width: 40px;
+      float: left; }
+      .section-contact .content .c-contact .desc li .title .readable {
+        display: none;
+        visibility: hidden;
+        opacity: 0; }
+    .section-contact .content .c-contact .desc li .data {
+      width: 100%;
+      margin-right: -40px;
+      padding-right: 40px;
+      float: left; }
+    .section-contact .content .c-contact .desc li a {
+      color: #fff; }
+    .section-contact .content .c-contact .desc li a:hover {
+      color: #6e2ac2;
+      text-decoration: underline; }
+
+/* 3 Footer */
+.site-footer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 10; }
+  .site-footer .note {
+    padding-right: 56px; }
+    .site-footer .note p {
+      font-size: 12px;
+      font-family: "Glacial Indifference", "Roboto", "Helvetica", sans-serif;
+      color: #fff; }
+    .site-footer .note .marked {
+      color: #6e2ac2; }
+
+/*# sourceMappingURL=main.css.map */

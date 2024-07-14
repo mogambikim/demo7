@@ -1,0 +1,106 @@
+/* Alternative colors */
+#fp-nav li .active span, .fp-slidesNav .active span,
+.page-nav li.active .icon ,
+.btn-round, .section .content .btns .btn,
+.section .content.with-clock .c-left .c-clock .tile-seconds,
+.section .content .c-illustr .img-middle .swipe-nav{
+    background: #FF6600;
+}
+.page-nav li:hover:not(.active) .icon ,
+.btn-round, .section .content .btns .btn:hover,
+.section .content.with-clock .c-left .c-clock .tile-minutes,
+.section-contact .content .c-illustr .img-middle .tiles-left h4,
+.site-footer .note .marked,
+.section .form label{
+	color: #FF6600;
+}
+.section-about .content .c-logo .icon, .section-register .content .c-logo .icon, .section-message .content .c-logo .icon, .section-contact .content .c-logo .icon {
+	color: #FFF;
+}
+.section-contact .content .c-illustr .img-middle .tiles-left .socialnet li a{
+/*	background: #6e2ac2;*/
+	background: #FF6600;
+}
+.section-contact .content .c-illustr .img-middle .tiles-left .socialnet li:hover a{
+	background: #ffab2f;
+}
+
+/* a section background color */
+
+
+/* FP Nav */
+
+#fp-nav ul li a span, .fp-slidesNav ul li a span{
+	background: #fff;
+}
+#fp-nav ul{
+	margin-top: -40px;
+}
+
+/* Buttons */
+.btn-round, .section .content .btns .btn{
+	border: 2px solid currentColor;
+	background: transparent;
+	
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding-top: 14px;
+    padding-bottom: 13px;
+}
+/* Fonts */
+.section .content .header h2{
+	/*font-family: serif;
+	font-size: 64px;*/
+	line-height: 1;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    font-size: 48px;
+    font-weight: 600;
+}
+.section .content .header h2:before{
+	content: "";
+	position: relative;
+	display: block;
+	width: 96px;
+	height: 6px;
+	background: #FF6600;
+	margin-bottom: 36px;
+}
+.section .content .header h3{
+	font-family: serif;
+	font-size: 24px;
+}
+.section .content .desc p {
+    color: #fff;
+    font-family: "Open Sans", "OpenSans","Roboto", "Helvetica", sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    /* font-style: italic; */
+}
+.page-nav li .icon {
+	-webkit-box-shadow: inset 0 0 0 2px currentColor;
+	box-shadow: inset 0 0 0 2px currentColor;
+	background: transparent;
+	font-size: 16px;
+}
+/*.section .content.with-clock .c-left .c-clock .tile-hours{
+	-webkit-box-shadow: inset 0 0 0 2px currentColor;
+	box-shadow: inset 0 0 0 2px currentColor;
+}
+.section .content.with-clock .c-left .c-clock .tile-minutes{
+	-webkit-box-shadow: inset 0 0 0 2px currentColor;
+	box-shadow: inset 0 0 0 2px currentColor;
+}*/
+.header-top .site-nav li ,
+.page-nav li a ,
+.s-footer a{
+	font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.header-top .site-nav li {
+}

@@ -1,0 +1,294 @@
+/*-----------------------------------------------------------------
+[Legal Notice]
+
+Copyright (c) HighHay/Mivfx
+Before using this template, you should agree with themeforest licenses terms.
+http://themeforest.net/licenses
+-------------------------------------------------------------------*/
+
+
+/** CSS-AddOn for Large screen First responsiveness approch */
+
+
+
+/* Screen small than 1024px */
+@media (max-width : 1024px){
+	#fp-nav,
+	#fp-nav.right{
+		margin-right: 0px;
+	}
+	.section {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+	.section .content{
+		padding: 0 32px;
+	}
+	.section .content .c-right {
+		padding-left: 56px;
+	}
+	.section .content .c-left {
+		padding-right: 56px;
+	}
+	.section .content.with-clock .c-left .c-clock .img-top,
+	.section .content .c-illustr .img-top{
+		margin-bottom: 0;
+	}
+	/* Clock */
+	.section .content.with-clock .c-right {
+		margin-top: 0;
+	}
+	.section .content.with-clock .c-left .c-clock {
+		padding-top: 0;
+		margin-top: 32px;
+		padding-bottom: 112px;
+		padding-right: 112px;
+	}
+	.section .content.with-clock .c-left .c-clock .img-middle {
+		width: 112px;
+		height: 112px;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-days {
+		padding-top: 36px;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-days .days {
+		font-size: 36px;
+	}
+	.section .content.with-clock .c-left .c-clock .img-top{
+		margin-top: 0;
+		float: right;
+		margin-bottom: 0;
+		margin-right: -112px;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-minutes {
+		top: 112px;
+		left: 0;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-seconds {
+		left: 112px;
+	}
+	/* Other section */
+	.section .content .c-illustr .img-top{
+		margin-bottom: 112px;
+	}
+	.section .content .c-illustr .img-middle{
+		margin-left: 0;
+	}
+	.section .content .c-illustr .img-bottom{
+		display: none;
+	}
+}
+/* Screen Small than 800px */
+@media (max-width : 800px){
+	.section .content .c-illustr .img-top{
+		margin-bottom: 0;
+	}
+	.section .content .c-illustr .img-middle{
+		margin-left: 112px;
+		width: 144px;
+		height: 144px;
+	}
+	.section .content .header h3{
+		font-size: 18px;
+	}
+}
+/* Screen Small than 720px */
+@media (max-width : 720px){
+	
+	/* disable animations on mobile : comment below if you want to enable them */
+/*	.section .c-right *,
+	.section .c-left *,
+	.section .clock *{
+		-webkit-transition: 0s !important;
+		-webkit-transition: 0s !important;
+		-webkit-transition-delay: 0s !important;
+		transition-delay: 0s !important;
+	}
+	
+	.section .anim-zoomin,
+	.section .anim-rotate,
+	.section .anim-slideleft,
+	.section .anim-slideright{
+		-webkit-transform: none;
+		transform: none;
+		opacity: 1;
+		-webkit-transition: 0s !important;
+		transition: 0s !important;
+		-webkit-transition-delay: 0s !important;
+		transition-delay: 0s !important;
+	}*/
+	.site-footer{
+		display: none;
+	}
+}
+/* Screen small than 600 */
+
+/* Screen small than 600 Nexus 7, iPhone 6 plus : 412px*/
+@media (max-width : 600px){
+	
+}
+
+/* Screen small than 480px */
+@media (max-width : 481px){
+	.header-top .logo-wrapper {
+		margin-left: 16px;
+		margin-top: 8px;
+	}
+	
+	.header-top .logo-wrapper .logo {
+		font-size: 18px;
+	}
+	.header-top .logo-wrapper .logo img {
+		max-height: 40px;
+		margin-right: 8px;
+	}
+	.header-top .site-nav {
+		float: right;
+		margin-top: 64px;
+/*		background: rgba(0,0,0,0.2);*/
+		margin-right: -100%;
+		opacity: 0;
+		height: 0;
+		visibility: hidden;
+		-webkit-transition: 0.3s;
+		transition: 0.3s;
+	}
+	.header-top .site-nav li {
+		float: none;
+		text-align: right;
+	}
+	.header-top .site-nav li.separator {
+		display: none;
+	}
+	.header-top .site-nav li a{
+		margin: 0;
+		padding: 16px 32px;
+		padding-right: 8px;
+	}
+	.header-top .site-nav li a:after{
+		display: none;
+	}
+	/* Menu visible */
+	.header-top .menu-icon{
+		display: block;
+	}
+	.header-top.menu-visible .site-nav{
+		margin-right: 16px;
+		opacity: 1;
+		visibility: visible;
+		height: auto;
+	}
+	.page-nav{
+		top: 76px;
+		left: -120px;
+		opacity: 0;
+		visibility: hidden;
+		-webkit-transition: 0.3s;
+		transition: 0.3s;
+	}
+	.page-nav.menu-visible{
+		top: 76px;
+		left: 16px;
+		opacity: 1;
+		visibility: visible;
+	}
+	#fp-nav{
+		display: none;
+	}
+	.section {
+		padding-left: 24px;
+		padding-right: 24px;
+		min-height: 320px;
+	}
+	.section .content{
+		padding: 0;
+	}
+	.section .content .c-left {
+		float: none;
+		width: 100%;
+		text-align: left;
+		padding-right: 0px;
+		padding-left: 0px;
+	}
+	.section .content .c-right {
+		float: right;
+		width: 100%;
+		text-align: right;
+		padding-left: 0px;
+/*		position: absolute;*/
+		padding-top: 24px;
+		padding-bottom: 24px;
+		top: 0;
+	}
+	.section .content .c-right:before {
+		display: none;
+	}
+	.section .content.with-clock .c-right {
+		margin-top: 0px;
+	}
+	.section .content.with-clock .c-left .c-clock {
+		padding-top: 0;
+		margin-top: 56px;
+		padding-bottom: 112px;
+		padding-right: 112px;
+	}
+	.section .content.with-clock .c-left .c-clock .img-middle {
+		width: 112px;
+		height: 112px;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-days {
+		padding-top: 36px;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-days .days {
+		font-size: 36px;
+	}
+	.section .content.with-clock .c-left .c-clock .img-top{
+		margin-top: 0;
+		float: right;
+		margin-bottom: 0;
+		margin-right: -112px;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-minutes {
+		top: 112px;
+		left: 0;
+	}
+	.section .content.with-clock .c-left .c-clock .tile-seconds {
+		left: 112px;
+	}
+	/*other sections*/
+	.section .content .c-illustr .img-middle{
+		width: 112px;
+		height: 112px;
+		display: block;
+	}
+	.section .content .c-left .c-logo {
+		margin-bottom: 72px;
+	}
+}
+/* Screen small than 360px */
+@media (max-width : 360px){
+	
+	
+	
+}
+/* Screen small than 320px */
+@media (max-width : 320px){
+	
+	
+}
+
+
+ 
+/* Responsive height */
+@media (max-height : 640px) and (max-width: 600px){
+	#fp-nav{
+		display: none;
+	}
+	
+}
+/* Responsive height */
+@media (max-height : 420px) and (max-width: 480px){
+	
+}
+
+    
