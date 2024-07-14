@@ -10,7 +10,7 @@
                         <label class="col-md-2 control-label">Publishable Key (Public)</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="stripe_api_key" name="stripe_api_key"
-                                value="{$_c['stripe_api_key']}">
+                                value="{$stripe_api_key}">
                             <a href="https://dashboard.stripe.com/apikeys" target="_blank"
                                 class="help-block">Get your Stripe Publishable Key from the Stripe Dashboard</a>
                         </div>
@@ -19,7 +19,7 @@
                         <label class="col-md-2 control-label">Secret Key (Private)</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control" id="stripe_secret_key" name="stripe_secret_key"
-                                value="{$_c['stripe_secret_key']}">
+                                value="{$stripe_secret_key}">
                             <a href="https://dashboard.stripe.com/apikeys" target="_blank"
                                 class="help-block">Get your Stripe Secret Key from the Stripe Dashboard</a>
                         </div>
@@ -30,7 +30,7 @@
                             <select class="form-control" name="stripe_currency">
                                 {foreach $currency as $cur}
                                     <option value="{$cur['id']}"
-                                    {if $cur['id'] == $_c['stripe_currency']}selected{/if}
+                                    {if $cur['id'] == $stripe_currency}selected{/if}
                                     >{$cur['id']} - {$cur['name']}</option>
                                 {/foreach}
                             </select>

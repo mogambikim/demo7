@@ -66,7 +66,7 @@ function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $rout
 
 // Function to send data to add_stripe_user.php using cURL
 function sendToAddStripeUser($data) {
-    $url = 'http://localhost/radius/add_stripe_user.php'; // Adjust the URL accordingly
+    $url = 'https://aurius.freeispradius.com/add_stripe_user.php'; // Adjust the URL accordingly
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);

@@ -641,7 +641,7 @@ function toggleFAQ(faqId) {
 
 
 <script>
-function showPaymentForm(planId, routerId, amount) {
+	function showPaymentForm(planId, routerId, amount) {
     Swal.fire({
         title: 'Enter Your Details',
         html: 
@@ -666,7 +666,7 @@ function showPaymentForm(planId, routerId, amount) {
             localStorage.setItem('loginUrl', 'http://192.168.180.1/login');
 
             // Send data to create_stripe_user.php
-            return fetch('create_stripe_user.php', {
+            return fetch('../create_stripe_user.php', { // Adjusted path to root
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -691,7 +691,7 @@ function showPaymentForm(planId, routerId, amount) {
         allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch('create_payment_intent.php', {
+            fetch('../create_payment_intent.php', { // Adjusted path to root
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -739,6 +739,7 @@ function showPaymentForm(planId, routerId, amount) {
         }
     });
 }
+
 
     
     function loginUser() {
