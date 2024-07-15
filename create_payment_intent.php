@@ -20,6 +20,15 @@ if ($stripe_secret_key_record) {
     exit();
 }
 
+// Retrieve the Stripe public key from the database
+$stripe_public_key_record = ORM::for_table('tbl_appconfig')->where('setting', 'stripe_public_key')->find_one();
+
+if ($stripe_public_key_record) {
+    echo json_encode(['public_key' => $stripe_public_key_record->value]);
+} else {
+    echo json_encode(['error' => 'Stripe public key not found in database']);
+}
+
 \Stripe\Stripe::setApiKey($stripe_secret_key);
 
 header('Content-Type: application/json');
