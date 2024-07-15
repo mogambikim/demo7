@@ -817,5 +817,7 @@
     "Select_SMS_Group__optional_": "Select SMS Group (optional)",
     "Activate_Voucher": "Activate Voucher",
     "Enter_your_name_or_number": "Enter your name or number",
-    "Sms_Groups": "Sms Groups"
+    "Sms_Groups": "Sms Groups",
+    "Hashback_API_Key": "Hashback API Key",
+    "Enter_your_Hashback_API_Key_here": "Enter your Hashback API Key here"
 }

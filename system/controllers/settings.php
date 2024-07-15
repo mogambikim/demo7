@@ -92,12 +92,14 @@ switch ($action) {
             if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
                 _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
             }
+            
             $company = _post('CompanyName');
             $phone = _post('phone');
             $router_notifications = _post('router_notifications');
-        
+            $hashback_api_key = _post('hashback_api_key'); // Retrieve the Hashback API Key
+            
             run_hook('save_settings'); #HOOK
-        
+            
             if (!empty($_FILES['logo']['name'])) {
                 if (function_exists('imagecreatetruecolor')) {
                     if (file_exists($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo.png')) unlink($UPLOAD_PATH . DIRECTORY_SEPARATOR . 'logo.png');
@@ -107,7 +109,7 @@ switch ($action) {
                     r2(U . 'settings/app', 'e', 'PHP GD is not installed');
                 }
             }
-        
+            
             if ($company == '') {
                 r2(U . 'settings/app', 'e', Lang::T('All field is required'));
             } else {
@@ -118,18 +120,18 @@ switch ($action) {
                 } else {
                     $country_code = ''; // Default to empty if not found
                 }
-        
+                
                 // Check and convert router notifications number if it starts with '0'
                 if (substr($router_notifications, 0, 1) == '0') {
                     $router_notifications = $country_code . substr($router_notifications, 1);
                 }
-        
+                
                 // save all settings
                 foreach ($_POST as $key => $value) {
                     if ($key == 'router_notifications') {
                         $value = $router_notifications;
                     }
-        
+                    
                     $d = ORM::for_table('tbl_appconfig')->where('setting', $key)->find_one();
                     if ($d) {
                         $d->value = $value;
@@ -141,8 +143,8 @@ switch ($action) {
                         $d->save();
                     }
                 }
-        
-                //checkbox
+                
+                // checkbox
                 $checks = ['hide_mrc', 'hide_tms', 'hide_aui', 'hide_al', 'hide_uet', 'hide_vs', 'hide_pg'];
                 foreach ($checks as $check) {
                     if (!isset($_POST[$check])) {
@@ -158,7 +160,19 @@ switch ($action) {
                         }
                     }
                 }
-        
+                
+                // Save the Hashback API Key separately
+                $d = ORM::for_table('tbl_appconfig')->where('setting', 'hashback_api_key')->find_one();
+                if ($d) {
+                    $d->value = $hashback_api_key;
+                    $d->save();
+                } else {
+                    $d = ORM::for_table('tbl_appconfig')->create();
+                    $d->setting = 'hashback_api_key';
+                    $d->value = $hashback_api_key;
+                    $d->save();
+                }
+                
                 _log('[' . $admin['username'] . ']: ' . Lang::T('Settings Saved Successfully'), $admin['user_type'], $admin['id']);
                 r2(U . 'settings/app', 's', Lang::T('Settings Saved Successfully'));
             }
@@ -167,6 +181,33 @@ switch ($action) {
         
         
         
+            case 'hashback-post':
+                if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {
+                    _alert(Lang::T('You do not have permission to access this page'), 'danger', "dashboard");
+                }
+            
+                $hashback_api_key = _post('hashback_api_key'); // Retrieve the Hashback API Key
+            
+                if ($hashback_api_key == '') {
+                    r2(U . 'settings/hashback', 'e', Lang::T('Hashback API Key is required'));
+                } else {
+                    // Save the Hashback API Key
+                    $d = ORM::for_table('tbl_appconfig')->where('setting', 'hashback_api_key')->find_one();
+                    if ($d) {
+                        $d->value = $hashback_api_key;
+                        $d->save();
+                    } else {
+                        $d = ORM::for_table('tbl_appconfig')->create();
+                        $d->setting = 'hashback_api_key';
+                        $d->value = $hashback_api_key;
+                        $d->save();
+                    }
+            
+                    _log('[' . $admin['username'] . ']: ' . Lang::T('Hashback API Key Saved Successfully'), $admin['user_type'], $admin['id']);
+                    r2(U . 'settings/hashback', 's', Lang::T('Hashback API Key Saved Successfully'));
+                }
+                break;
+            
 
     case 'localisation':
         if (!in_array($admin['user_type'], ['SuperAdmin', 'Admin'])) {

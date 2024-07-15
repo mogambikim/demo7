@@ -11,6 +11,11 @@ ORM::configure('return_result_sets', true);
 ORM::configure('logging', true);
 
 $filename = "webhook_log.txt";
+
+// Fetch the Hashback API Key from the tbl_appconfig table
+$hashbackApiKeyConfig = ORM::for_table('tbl_appconfig')->where('setting', 'hashback_api_key')->find_one();
+$hashbackApiKey = $hashbackApiKeyConfig ? $hashbackApiKeyConfig->value : 'default_api_key';
+
 // Retrieve the SMS URL from the tbl_appconfig table
 $smsUrlConfig = ORM::for_table('tbl_appconfig')->where('setting', 'sms_url')->find_one();
 if ($smsUrlConfig) {
@@ -19,11 +24,13 @@ if ($smsUrlConfig) {
     // Set a default SMS URL if not found in the database
     $config['sms_url'] = 'https://example.com/sms/send?api=YOUR_API_KEY&SenderId=YOUR_SENDER_ID&msg=[text]&phone=[number]';
 }
-function decodePhoneNumber($hash) {
+
+// Define the function to decode phone number using Hashback API
+function decodePhoneNumber($hash, $apiKey) {
     $url = "https://api.hashback.co.ke/decode";
     $data = array(
         'hash' => $hash,
-        'API_KEY' => 'h24620yxCbH8y'
+        'API_KEY' => $apiKey
     );
 
     $ch = curl_init($url);
@@ -72,7 +79,8 @@ $logData = "Topic: $topic\nID: $id\nCreated At: $createdAt\nEvent Type: $eventTy
 file_put_contents('capture.txt', $logData, FILE_APPEND);
 
 if ($reference !== null && $amount !== null && $hashedSenderPhone !== null) {
-    $decodedPhoneNumber = decodePhoneNumber($hashedSenderPhone);
+    // Decode the hashed phone number using the API key
+    $decodedPhoneNumber = decodePhoneNumber($hashedSenderPhone, $hashbackApiKey);
     $phoneNumberLast9Digits = substr($decodedPhoneNumber, -9);
 
     // Use the ORM to query the database
@@ -126,85 +134,82 @@ if ($reference !== null && $amount !== null && $hashedSenderPhone !== null) {
     
         $paymentGatewayRecord->save();
 
-     
-$transaction = ORM::for_table('tbl_transactions')->create();
-$transaction->invoice = $reference;
-$transaction->username = $username;
-$transaction->plan_name = $planName;
-$transaction->price = $amount;
-$transaction->recharged_on = date("Y-m-d"); 
-$transaction->recharged_time = date("H:i:s"); 
-$transaction->expiration = date("Y-m-d H:i:s"); 
-$transaction->time = date("Y-m-d H:i:s"); 
-$transaction->method = 'Kopokopo Manual';
-$transaction->routers = $routerName;
-$transaction->Type = 'Balance';
-$transaction->save();
+        $transaction = ORM::for_table('tbl_transactions')->create();
+        $transaction->invoice = $reference;
+        $transaction->username = $username;
+        $transaction->plan_name = $planName;
+        $transaction->price = $amount;
+        $transaction->recharged_on = date("Y-m-d"); 
+        $transaction->recharged_time = date("H:i:s"); 
+        $transaction->expiration = date("Y-m-d H:i:s"); 
+        $transaction->time = date("Y-m-d H:i:s"); 
+        $transaction->method = 'Kopokopo Manual';
+        $transaction->routers = $routerName;
+        $transaction->Type = 'Balance';
+        $transaction->save();
 
+        $latestRecharge = ORM::for_table('tbl_user_recharges')
+            ->where('customer_id', $userId)
+            ->order_by_desc('id')
+            ->find_one();
 
-$latestRecharge = ORM::for_table('tbl_user_recharges')
-    ->where('customer_id', $userId)
-    ->order_by_desc('id')
-    ->find_one();
+        $planData = ORM::for_table('tbl_plans')
+            ->where('id', $planId)
+            ->find_one();
+        $planPrice = $planData ? $planData->price : 0;
 
+        // Add the amount to the user's balance
+        $userData->balance += $amount;
+        $userData->save(); // Save the new balance
 
-$planData = ORM::for_table('tbl_plans')
-    ->where('id', $planId)
-    ->find_one();
-$planPrice = $planData ? $planData->price : 0;
+        // Check if the user's balance is enough for the recharge and the latest recharge status is 'off'
+        if ($userData->balance >= $planPrice && $latestRecharge && $latestRecharge->status == 'off') {
+            // Delete existing records
+            $deleted_count = ORM::for_table('tbl_user_recharges')
+                ->where('username', $username)
+                ->delete_many();
 
-// Add the amount to the user's balance
-$userData->balance += $amount;
-$userData->save(); // Save the new balance
+            // Deduct the plan price from the user's balance
+            $userData->balance -= $planPrice;
+            $userData->save();
 
-// Check if the user's balance is enough for the recharge and the latest recharge status is 'off'
-if ($userData->balance >= $planPrice && $latestRecharge && $latestRecharge->status == 'off') {
-    // Delete existing records
-    $deleted_count = ORM::for_table('tbl_user_recharges')
-        ->where('username', $username)
-        ->delete_many();
+            // Then recharge the user
+            $rechargeResult = Package::rechargeUser($userId, $routerName, $planId, 'Kopokopo Manual', 'kopokopo');
 
-    // Deduct the plan price from the user's balance
-    $userData->balance -= $planPrice;
-    $userData->save();
-
-    // Then recharge the user
-    $rechargeResult = Package::rechargeUser($userId, $routerName, $planId, 'Kopokopo Manual', 'kopokopo');
-
-    if (!$rechargeResult) {
-        // Handle failure
-    }
-}
-} else {
-    // Save transaction data to tbl_transactions
-    $transaction = ORM::for_table('tbl_transactions')->create();
-    $transaction->invoice = $reference;
-    $transaction->username = 'unknown ' . $decodedPhoneNumber;
-    $transaction->plan_name = 'unknown';
-    $transaction->price = $amount;
-    $transaction->recharged_on = date("Y-m-d"); // Use current date
-    $transaction->recharged_time = date("H:i:s"); // Use current time
-    $transaction->expiration = date("Y-m-d H:i:s"); // Use current date-time
-    $transaction->time = date("Y-m-d H:i:s"); // Use current date-time
-    $transaction->method = 'Kopokopo Manual';
-    $transaction->routers = 'uknown';
-    $transaction->Type = 'Balance';
-    $transaction->save();
-
-    try {
-        // Load the notifications from the JSON file
-        $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
-
-        if (isset($notifications['custom_message'])) {
-            $customMessage = $notifications['custom_message'];
-        
-            $customMessage = str_replace('[[amount]]', $amount, $customMessage);
-            $customMessage = str_replace('[[phone]]', $decodedPhoneNumber, $customMessage);
-        
-            $result = Message::sendUnknownPayment($decodedPhoneNumber, $amount, $customMessage, 'sms');
-        } else {
+            if (!$rechargeResult) {
+                // Handle failure
+            }
         }
+    } else {
+        // Save transaction data to tbl_transactions
+        $transaction = ORM::for_table('tbl_transactions')->create();
+        $transaction->invoice = $reference;
+        $transaction->username = 'unknown ' . $decodedPhoneNumber;
+        $transaction->plan_name = 'unknown';
+        $transaction->price = $amount;
+        $transaction->recharged_on = date("Y-m-d"); // Use current date
+        $transaction->recharged_time = date("H:i:s"); // Use current time
+        $transaction->expiration = date("Y-m-d H:i:s"); // Use current date-time
+        $transaction->time = date("Y-m-d H:i:s"); // Use current date-time
+        $transaction->method = 'Kopokopo Manual';
+        $transaction->routers = 'unknown';
+        $transaction->Type = 'Balance';
+        $transaction->save();
+
+        try {
+            // Load the notifications from the JSON file
+            $notifications = json_decode(file_get_contents('system/uploads/notifications.json'), true);
+
+            if (isset($notifications['custom_message'])) {
+                $customMessage = $notifications['custom_message'];
+
+                $customMessage = str_replace('[[amount]]', $amount, $customMessage);
+                $customMessage = str_replace('[[phone]]', $decodedPhoneNumber, $customMessage);
+
+                $result = Message::sendUnknownPayment($decodedPhoneNumber, $amount, $customMessage, 'sms');
+            }
         } catch (Exception $e) {
         }
+    }
 }
-}
+?>

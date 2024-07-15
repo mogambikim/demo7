@@ -543,6 +543,27 @@
                         </div>
                     </div>
                 </div>
+
+<!-- New panel for Hashback API Key section -->
+<div class="panel-heading">
+    <div class="btn-group pull-right">
+        <button class="btn btn-primary btn-xs" title="save" type="submit"><span
+                class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
+    </div>
+    {Lang::T('Hashback API Key')}
+</div>
+<div class="panel-body">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{Lang::T('Hashback API Key')}</label>
+        <div class="col-md-6">
+            <input type="text" name="hashback_api_key" id="hashback_api_key" class="form-control" value="{$_c['hashback_api_key']|escape:'html'}">
+        </div>
+        <p class="help-block col-md-4">{Lang::T('Enter your Hashback API Key here')}</p>
+    </div>
+</div>
+
+
+
    <div class="panel-heading">
                     <div class="btn-group pull-right">
                         <button class="btn btn-primary btn-xs" title="save" type="submit"><span
