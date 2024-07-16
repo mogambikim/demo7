@@ -27,7 +27,6 @@ $logFilePath = 'stk_push_query.log';
 // Capture incoming POST data
 $inputData = file_get_contents('php://input');
 logToFile($logFilePath, "Received data: " . $inputData);
-error_log("Received data: " . $inputData);
 
 // Decode JSON data to an array
 $data = json_decode($inputData, true);
@@ -40,7 +39,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 if (isset($data['CheckoutRequestID'])) {
     $CheckoutRequestID = $data['CheckoutRequestID'];
     logToFile($logFilePath, "Captured CheckoutRequestID: $CheckoutRequestID");
-    error_log("Captured CheckoutRequestID: $CheckoutRequestID");
 
     // Sleep for 10 seconds before querying the STK Push status
     sleep(25);
@@ -61,22 +59,18 @@ if (isset($data['CheckoutRequestID'])) {
     curl_close($curl);
 
     logToFile($logFilePath, "Callback response: " . $callbackResponse);
-    error_log("Callback response: " . $callbackResponse);
 
-    // Update query status in the database
+    // Update record in the database
     $payment = ORM::for_table('tbl_payment_gateway')
         ->where('checkout', $CheckoutRequestID)
         ->find_one();
 
     if ($payment) {
-        $payment->query_status = 1;
         $payment->save();
-        logToFile($logFilePath, "Updated query status for CheckoutRequestID: $CheckoutRequestID");
-        error_log("Updated query status for CheckoutRequestID: $CheckoutRequestID");
+        logToFile($logFilePath, "Updated record for CheckoutRequestID: $CheckoutRequestID");
     }
 } else {
     logToFile($logFilePath, "No CheckoutRequestID found in the received data.");
-    error_log("No CheckoutRequestID found in the received data.");
 }
 
 // Function to query STK Push status

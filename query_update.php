@@ -219,6 +219,9 @@ if ($response_code == "0" && $result_code == "0") {
         }
     }
 
+
+
+
     // Fetch the customer details
     $customer = ORM::for_table('tbl_customers')
         ->where('username', $uname)
@@ -250,4 +253,31 @@ if ($response_code == "0" && $result_code == "0") {
 } else {
     logToFile('queryupdate.log', "Response code or result code is not 0. No action taken.");
 }
+
+// Fetch the latest 2 transactions for the username, ordered by id in descending order
+$transactionsToCheck = ORM::for_table('tbl_transactions')
+    ->where('username', $uname)
+    ->order_by_desc('id')
+    ->limit(2)
+    ->find_many();
+
+if (count($transactionsToCheck) == 2) {
+    $latestTransaction = $transactionsToCheck[0];
+    $previousTransaction = $transactionsToCheck[1];
+
+    $latestRechargedTime = strtotime($latestTransaction->recharged_time);
+    $previousRechargedTime = strtotime($previousTransaction->recharged_time);
+
+    // Check if the previous transaction is within 5 minutes of the latest transaction
+    $timeDifference = $latestRechargedTime - $previousRechargedTime;
+
+    if ($timeDifference <= 300) { // 5 minutes in seconds
+        $previousTransaction->delete();
+        logToFile('queryupdate.log', "Deleted previous transaction with ID: " . $previousTransaction->id . " for username: " . $uname . " (Time difference: $timeDifference seconds)");
+    }
+}
+
+logToFile('queryupdate.log', "Completed check for transactions within 5 minutes for username: " . $uname);
+
+
 ?>
