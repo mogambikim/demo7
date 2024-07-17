@@ -819,5 +819,11 @@
     "Enter_your_name_or_number": "Enter your name or number",
     "Sms_Groups": "Sms Groups",
     "Hashback_API_Key": "Hashback API Key",
-    "Enter_your_Hashback_API_Key_here": "Enter your Hashback API Key here"
+    "Enter_your_Hashback_API_Key_here": "Enter your Hashback API Key here",
+    "N_B_When_the_Method_is_Query_that_means_Safaricom_Failed_and_We_Used_An_Alternative_Method_to_Update_Payment_All_Transactions_at_Date": "N.B When the Method is Query that means Safaricom Failed and We Used An Alternative Method to Update Payment.All Transactions at Date",
+    "_All_Transactions_at_Date": ".All Transactions at Date",
+    "Kindly_note_When_the_Method_is_Query_An_Alternative_Method_to_Update_Payment_since_the_main_one_failed_All_Transactions_at_Date": "Kindly note When the Method is Query,An Alternative Method to Update Payment since the main one failed.All Transactions at Date",
+    "Kindly_note_When_the_Method_is_Query__an_alternative_method_was_to_Update_Payment_since_the_main_one_failed_All_Transactions_at_Date": "Kindly note When the Method is Query, an alternative method was to Update Payment since the main one failed.All Transactions at Date",
+    "Kindly_note_when_the_method_is_Query__an_alternative_was_used_to_update_Payment_since_the_main_one_failed__All_Transactions_at_Date": "Kindly note when the method is Query, an alternative was used to update Payment since the main one failed. All Transactions at Date",
+    "Kindly_note_when_the_METHOD_is_QUERY__an_alternative_was_used_to_update_Payment_since_the_main_one_failed__All_Transactions_at_Date": "Kindly note when the METHOD is QUERY, an alternative was used to update Payment since the main one failed. All Transactions at Date"
 }

@@ -129,7 +129,7 @@
                         </div>
                     </div>
                     <div class="box-footer">
-                        <button type="submit" class="btn btn-success btn-lg pull-right"><i class="fa fa-save"></i> Save Changes</button>
+                        <button type="submit" class="btn btn-success btn-lg pull-right"><i class="fa fa-save"></i> Save Changes and Upload File</button>
                     </div>
                 </form>
             </div>
@@ -148,6 +148,7 @@
                     <div class="callout callout-info">
                         <h4><i class="icon fa fa-primary"></i> Steps:</h4>
                         <ol>
+                         <li>Easy and Quick way to upload your Login file is buy clicking on save changes twice. If it doesn't work you can continue with the guide below.</li>
                             <li>Make sure you change these custom settings and personalize them.</li>
                             <li>Download the <code>login.html</code> file by clicking on the "Download Login Page" button.</li>
                             <li>Upload the downloaded <code>login.html</code> file to your MikroTik router.</li>

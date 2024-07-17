@@ -11,7 +11,7 @@
             </div>
             <div class="clearfix invoice-subhead mb20">
                 <div class="group clearfix left">
-     <p class="text-bold mb5">{Lang::T('All Transactions at Date')}:</p>
+     <p class="text-bold mb5">{Lang::T('.All Transactions at Date')}:</p>
                     <p class="small">{date($_c['date_format'], strtotime($mdate))} {$mtime}</p>
                 </div>
                 <div class="group clearfix right">
@@ -57,7 +57,7 @@
                 <h4 class="text-uppercase text-bold">{Lang::T('Total Income')}:</h4>
                 <h3 class="sum">{Lang::moneyFormat($dr)}</h3>
             </div>
-                  <p class="text-center small text-info">{Lang::T('All Transactions at Date')}:
+                  <p class="text-center small text-info">{Lang::T('Kindly note when the METHOD is QUERY, an alternative was used to update Payment since the main one failed. All Transactions at Date')}:
                 {date($_c['date_format'], strtotime($mdate))} {$mtime}</p>
         </div>
     </div>

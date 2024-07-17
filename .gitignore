@@ -32,3 +32,4 @@ logs.txt
 *.log
 backups/
 last_backup_date.txt
+*.txt
