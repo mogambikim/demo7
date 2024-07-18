@@ -32,4 +32,5 @@ logs.txt
 *.log
 backups/
 last_backup_date.txt
-*.txt
+upload_log.txt
+system/plugin/login.html

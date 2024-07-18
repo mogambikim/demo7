@@ -825,5 +825,8 @@
     "Kindly_note_When_the_Method_is_Query_An_Alternative_Method_to_Update_Payment_since_the_main_one_failed_All_Transactions_at_Date": "Kindly note When the Method is Query,An Alternative Method to Update Payment since the main one failed.All Transactions at Date",
     "Kindly_note_When_the_Method_is_Query__an_alternative_method_was_to_Update_Payment_since_the_main_one_failed_All_Transactions_at_Date": "Kindly note When the Method is Query, an alternative method was to Update Payment since the main one failed.All Transactions at Date",
     "Kindly_note_when_the_method_is_Query__an_alternative_was_used_to_update_Payment_since_the_main_one_failed__All_Transactions_at_Date": "Kindly note when the method is Query, an alternative was used to update Payment since the main one failed. All Transactions at Date",
-    "Kindly_note_when_the_METHOD_is_QUERY__an_alternative_was_used_to_update_Payment_since_the_main_one_failed__All_Transactions_at_Date": "Kindly note when the METHOD is QUERY, an alternative was used to update Payment since the main one failed. All Transactions at Date"
+    "Kindly_note_when_the_METHOD_is_QUERY__an_alternative_was_used_to_update_Payment_since_the_main_one_failed__All_Transactions_at_Date": "Kindly note when the METHOD is QUERY, an alternative was used to update Payment since the main one failed. All Transactions at Date",
+    "Router_IP_Addresses": "Router IP Addresses",
+    "Router_ID_not_specified_": "Router ID not specified.",
+    "View_IPs": "View IPs"
 }
