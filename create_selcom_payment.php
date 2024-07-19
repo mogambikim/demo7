@@ -5,6 +5,8 @@ require_once 'system/orm.php';
 require_once 'system/autoload/PEAR2/Autoload.php';
 include "system/autoload/Hookers.php";
 
+use Selcom\ApigwClient\Client;
+
 ORM::configure("mysql:host=$db_host;dbname=$db_name");
 ORM::configure('username', $db_user);
 ORM::configure('password', $db_password);
@@ -22,23 +24,13 @@ function logToFile($filePath, $message, $maxLines = 5000) {
 }
 
 function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $routerId) {
-    $Planname = ORM::for_table('tbl_plans')
-        ->where('id', $planId)
-        ->order_by_desc('id')
-        ->find_one();
-    $Findrouter = ORM::for_table('tbl_routers')
-        ->where('id', $routerId)
-        ->order_by_desc('id')
-        ->find_one();
+    $Planname = ORM::for_table('tbl_plans')->where('id', $planId)->find_one();
+    $Findrouter = ORM::for_table('tbl_routers')->where('id', $routerId)->find_one();
     $rname = $Findrouter->name;
     $price = $Planname->price;
     $Planname = $Planname->name_plan;
 
-    $Checkorders = ORM::for_table('tbl_payment_gateway')
-        ->where('username', $username)
-        ->where('status', 1)
-        ->order_by_desc('id')
-        ->find_many();
+    $Checkorders = ORM::for_table('tbl_payment_gateway')->where('username', $username)->where('status', 1)->find_many();
     if ($Checkorders) {
         foreach ($Checkorders as $Dorder) {
             $Dorder->delete();
@@ -63,17 +55,9 @@ function logToPaymentGateway($username, $paymentMethod, $gateway, $planId, $rout
     $d->save();
 }
 
-// Retrieve the Selcom API key and secret from the database
-$selcom_api_key_record = ORM::for_table('tbl_appconfig')->where('setting', 'selcom_api_key')->find_one();
-$selcom_api_secret_record = ORM::for_table('tbl_appconfig')->where('setting', 'selcom_api_secret')->find_one();
-
-if ($selcom_api_key_record && $selcom_api_secret_record) {
-    $selcom_api_key = $selcom_api_key_record->value;
-    $selcom_api_secret = $selcom_api_secret_record->value;
-} else {
-    echo json_encode(['error' => 'Selcom API credentials not found in database']);
-    exit();
-}
+// Directly use the provided API key and secret for testing
+$selcom_api_key = 'TILL61056399-ed669eb84bee8a8e';
+$selcom_api_secret = '621a499113380bc0a1ce580ce4acb936878826';
 
 class SelcomClient {
     private $config;
@@ -83,11 +67,12 @@ class SelcomClient {
         $this->config = [
             'api_key' => $api_key,
             'api_secret' => $api_secret,
-            'base_url' => 'https://api.selcom.net', // replace with the correct base URL
+            'base_url' => 'https://apigw.selcommobile.com/v1', // replace with the correct base URL
         ];
         $this->client = new GuzzleHttp\Client([
             'base_uri' => $this->config['base_url'],
             'timeout'  => 30.0,
+            'verify'   => false, // Disable SSL verification for testing
         ]);
     }
 
@@ -137,16 +122,22 @@ $selcomClient = new SelcomClient($selcom_api_key, $selcom_api_secret);
 
 try {
     $paymentData = [
-        'transid' => uniqid('SEL'),
-        'utilitycode' => 'UTILITY_CODE',
-        'utilityref' => '654944949',
+        'vendor' => 'TILL61056399',
+        'order_id' => uniqid('ORDER_'),
+        'buyer_email' => 'john@example.com',
+        'buyer_name' => 'John Joh',
+        'buyer_phone' => $phone_number,
         'amount' => $amount,
-        'vendor' => '66546846845',
-        'pin' => '48585',
-        'msisdn' => $phone_number,
+        'currency' => 'TZS',
+        'redirect_url' => base64_encode('https://example.com/success'),
+        'cancel_url' => base64_encode('https://example.com/cancel'),
+        'webhook' => base64_encode('https://example.com/webhook'),
+        'buyer_remarks' => 'None',
+        'merchant_remarks' => 'None',
+        'no_of_items' => 1
     ];
 
-    $response = $selcomClient->sendRequest('POST', '/v1/utilitypayment/process', $paymentData);
+    $response = $selcomClient->sendRequest('POST', '/checkout/create-order-minimal', $paymentData);
     echo json_encode($response);
 } catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);
