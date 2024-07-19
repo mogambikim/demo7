@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotspot Hotspot Template - Index</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.0.18/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glider-js@1.7.7/glider.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/glider-js@1.7.7/glider.min.js"></script>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body class="font-sans antialiased text-gray-900">
+    <!-- Sticky Header -->
+    <header class="bg-fuchsia-900 text-white fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo and title area -->
+                <div class="flex items-center">
+                    <img src="logo.png" alt="Your Company Logo" class="h-8 w-8 mr-2">
+                    <h1 class="text-xl font-bold">Aurius Hotspot Page</h1>
+                </div>
+                <!-- Navigation Links and Contact Number -->
+                <div class="block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#alreadyHavePackage" class="text-fuchsia-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Already Paid? Click Here.</a>
+                        <span class="text-fuchsia-200">07554 522255</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main content -->
+    <main class="pt-24">
+        <section class="bg-white">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-6">We Provide Fast, Cheap and Reliable Wifi Connection Near You.</h2>
+                <!-- Pricing Section -->
+                <div class="mt-10">
+                    <div class="text-center">
+                        <h3 class="text-2xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-3xl sm:leading-9">
+                            CHECK OUR PRICING
+                        </h3>
+                        <p class="mt-4 max-w-2xl text-xl leading-7 text-gray-500 lg:mx-auto">
+                            Choose the plan that fits your needs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div class="mt-10 max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="flex flex-col rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
+            <div class="px-4 py-5 bg-gradient-to-tr from-pink-50 to-pink-200 text-center">
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-pink-800 text-pink-50">
+                    airFiber
+                </span>
+                <div class="mt-4 text-4xl leading-none font-extrabold text-pink-800">
+                    <span class="text-lg font-medium text-pink-600">GBP</span>
+                    <span id="package-amount">14.99</span>
+                </div>
+                <p class="mt-2 text-md leading-5 text-pink-700 text-center">
+                    1 Month Unlimited
+                </p>
+            </div>
+            <div class="px-4 pt-4 pb-6 bg-pink-500 text-center">
+                <a href="#" class="inline-block text-pink-800 bg-pink-50 hover:bg-pink-100 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer"
+                   onclick="showPaymentForm('7', '3', 14.99); return false;">
+                    Click Here To Connect
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-10 max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="flex flex-col rounded-lg shadow-xl overflow-hidden transform transition duration-500 hover:scale-105">
+            <div class="px-4 py-5 bg-gradient-to-tr from-pink-50 to-pink-200 text-center">
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase bg-pink-800 text-pink-50">
+                    airFiber +FREE IPTV
+                </span>
+                <div class="mt-4 text-4xl leading-none font-extrabold text-pink-800">
+                    <span class="text-lg font-medium text-pink-600">GBP</span>
+                    <span id="package-amount">19.99</span>
+                </div>
+                <p class="mt-2 text-md leading-5 text-pink-700 text-center">
+                    1 Month Unlimited
+                </p>
+            </div>
+            <div class="px-4 pt-4 pb-6 bg-pink-500 text-center">
+                <a href="#" class="inline-block text-pink-800 bg-pink-50 hover:bg-pink-100 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-50 transform transition duration-150 ease-in-out rounded-lg font-semibold px-3 py-2 text-xs shadow-lg cursor-pointer"
+                   onclick="showPaymentForm('7', '3', 19.99); return false;">
+                    Click Here To Connect
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Arrows -->
+    <button aria-label="Previous" class="glider-prev">«</button>
+    <button aria-label="Next" class="glider-next">»</button>
+    <div role="tablist" class="dots"></div>
+
+    <script>
+        new Glider(document.querySelector('.glider'), {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            draggable: true,
+            dots: '.dots',
+            arrows: {
+                prev: '.glider-prev',
+                next: '.glider-next'
+            },
+            responsive: [
+                {
+                    breakpoint: 775,
+                    settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 2,
+                    }
+                },
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 3,
+                    }
+                }
+            ]
+        });
+    </script>
+
+    <script>
+        function toggleFAQ(faqId) {
+            var element = document.getElementById(faqId);
+            if (element.style.display === "block") {
+                element.style.display = "none";
+            } else {
+                element.style.display = "block";
+            }
+        }
+    </script>
+
+    <!-- Add a container to display the MAC address -->
+    <div id="macAddressContainer" class="mt-4">
+        <p>Your MAC Address: <span id="macAddressDisplay"></span></p>
+    </div>
+
+    <!-- Add a script to retrieve and display the MAC address -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var macAddressInput = document.querySelector('input[name="mac"]');
+            var macAddressDisplay = document.getElementById('macAddressDisplay');
+            
+            if (macAddressInput && macAddressDisplay) {
+                var macAddress = macAddressInput.value;
+                macAddressDisplay.textContent = macAddress;
+            }
+        });
+    </script>
+
+    <!-- Payment Form Section -->
+    <div id="payment-form-container" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+            <h2 class="text-2xl mb-4">Enter Payment Details</h2>
+            <p id="payment-amount" class="text-xl mb-4"></p> <!-- Add this line -->
+            <form id="payment-form">
+                <div id="payment-element" class="border p-2 rounded"></div>
+                <div id="card-errors" role="alert" class="text-red-500 mt-2"></div>
+                <button id="submit-payment" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Submit Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showPaymentForm(planId, routerId, amount) {
+            Swal.fire({
+                title: 'Enter Your Details',
+                html: 
+                    '<input type="text" id="phone-number" class="swal2-input" placeholder="Phone number">' +
+                    '<input type="text" id="full-name" class="swal2-input" placeholder="Full name">' +
+                    '<input type="email" id="email" class="swal2-input" placeholder="Email">' +
+                    '<input type="text" id="address" class="swal2-input" placeholder="Full address">',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                preConfirm: () => {
+                    const phoneNumber = Swal.getPopup().querySelector('#phone-number').value;
+                    const fullName = Swal.getPopup().querySelector('#full-name').value;
+                    const email = Swal.getPopup().querySelector('#email').value;
+                    const address = Swal.getPopup().querySelector('#address').value;
+
+                    if (!phoneNumber || !fullName || !email || !address) {
+                        Swal.showValidationMessage('Please enter all required fields');
+                        return false;
+                    }
+
+                    localStorage.setItem('phoneNumber', phoneNumber);
+                    localStorage.setItem('loginUrl', 'http://192.168.180.1/login');
+
+                    // Send data to create_selcom_user.php
+                    return fetch('create_selcom_user.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            phone_number: phoneNumber,
+                            full_name: fullName,
+                            email: email,
+                            address: address,
+                            plan_id: planId,
+                            router_id: routerId
+                        })
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        return { phoneNumber, amount };
+                    }).catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('create_selcom_payment.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            amount: result.value.amount, // Amount in GBP
+                            phone_number: result.value.phoneNumber // Include phone number
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            Swal.fire('Error', data.error, 'error');
+                        } else {
+                            document.getElementById('payment-form-container').classList.remove('hidden');
+                            document.getElementById('payment-amount').textContent = `Amount to be paid: GBP ${result.value.amount}`;
+
+                            // Redirect user to Selcom payment gateway
+                            window.location.href = data.payment_gateway_url;
+                        }
+                    });
+                }
+            });
+        }
+
+        function loginUser() {
+            var phoneNumber = localStorage.getItem('phoneNumber');
+            var loginUrl = localStorage.getItem('loginUrl');
+            if (phoneNumber && loginUrl) {
+                document.getElementById('usernameInput').value = phoneNumber;
+                document.getElementById('passwordInput').value = '1234';
+                document.getElementById('loginForm').action = loginUrl;
+                document.getElementById('loginForm').submit();
+                localStorage.removeItem('phoneNumber'); // Clear phoneNumber after login attempt
+            }
+        }
+
+        // Persist login on page load if payment was successful
+        document.addEventListener('DOMContentLoaded', function() {
+            var phoneNumber = localStorage.getItem('phoneNumber');
+            if (phoneNumber) {
+                loginUser();
+            }
+        });
+
+        // Override form submission to log in the user directly
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var phoneNumber = document.getElementById('usernameInput').value;
+            localStorage.setItem('phoneNumber', phoneNumber);
+            loginUser();
+        });
+    </script>
+
+</body>
+</html>

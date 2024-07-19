@@ -15,6 +15,7 @@
     ],
     "require": {
         "kopokopo/k2-connect-php": "^1.2",
-        "stripe/stripe-php": "^15.1"
+        "stripe/stripe-php": "^15.1",
+        "selcom/selcom-apigw-client": "^1.0"
     }
 }

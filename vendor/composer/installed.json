@@ -463,6 +463,43 @@
             "install-path": "../ralouphie/getallheaders"
         },
         {
+            "name": "selcom/selcom-apigw-client",
+            "version": "v1.0.5",
+            "version_normalized": "1.0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/selcompaytechltd/selcom-apigw-client-php.git",
+                "reference": "3192f3691c388034b91873867266f7adfcb98dc0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/selcompaytechltd/selcom-apigw-client-php/zipball/3192f3691c388034b91873867266f7adfcb98dc0",
+                "reference": "3192f3691c388034b91873867266f7adfcb98dc0",
+                "shasum": ""
+            },
+            "time": "2023-02-27T06:25:09+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "files": [
+                    "src/apigwClient.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "dev",
+                    "email": "dev@selcom.net"
+                }
+            ],
+            "description": "Client library to help access selcom apis",
+            "support": {
+                "issues": "https://github.com/selcompaytechltd/selcom-apigw-client-php/issues",
+                "source": "https://github.com/selcompaytechltd/selcom-apigw-client-php/tree/v1.0.5"
+            },
+            "install-path": "../selcom/selcom-apigw-client"
+        },
+        {
             "name": "stripe/stripe-php",
             "version": "v15.1.0",
             "version_normalized": "15.1.0.0",

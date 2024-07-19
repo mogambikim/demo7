@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "116e48a9b9bf423554095dbb69f9d1d4",
+    "content-hash": "97ef45bf5caed902f63da2ec851f67f5",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -449,6 +449,40 @@
                 "source": "https://github.com/ralouphie/getallheaders/tree/develop"
             },
             "time": "2019-03-08T08:55:37+00:00"
+        },
+        {
+            "name": "selcom/selcom-apigw-client",
+            "version": "v1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/selcompaytechltd/selcom-apigw-client-php.git",
+                "reference": "3192f3691c388034b91873867266f7adfcb98dc0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/selcompaytechltd/selcom-apigw-client-php/zipball/3192f3691c388034b91873867266f7adfcb98dc0",
+                "reference": "3192f3691c388034b91873867266f7adfcb98dc0",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/apigwClient.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "dev",
+                    "email": "dev@selcom.net"
+                }
+            ],
+            "description": "Client library to help access selcom apis",
+            "support": {
+                "issues": "https://github.com/selcompaytechltd/selcom-apigw-client-php/issues",
+                "source": "https://github.com/selcompaytechltd/selcom-apigw-client-php/tree/v1.0.5"
+            },
+            "time": "2023-02-27T06:25:09+00:00"
         },
         {
             "name": "stripe/stripe-php",
