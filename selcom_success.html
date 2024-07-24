@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selcom Payment Success</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.0.18/sweetalert2.all.min.js"></script>
+</head>
+<body class="font-sans antialiased text-gray-900">
+
+    <!-- Success Message -->
+    <div class="min-h-screen flex items-center justify-center bg-green-100">
+        <div class="bg-white p-6 rounded shadow-lg text-center">
+            <h2 class="text-2xl font-bold text-green-600">Payment Logged!</h2>
+            <p class="mt-4">Thank you for using Elmax Networks. Trying To Log You In.</p>
+        </div>
+    </div>
+
+    <!-- Login Form (Hidden) -->
+    <form id="loginForm" method="POST" class="hidden">
+        <input type="hidden" id="usernameInput" name="username">
+        <input type="hidden" id="passwordInput" name="password">
+    </form>
+
+    <script>
+        function loginUser() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const phoneNumber = urlParams.get('username');
+            const password = urlParams.get('password');
+            const loginUrl = 'http://192.168.180.1/login'; // Explicitly set the login URL here
+
+            if (phoneNumber && password) {
+                document.getElementById('usernameInput').value = phoneNumber;
+                document.getElementById('passwordInput').value = password;
+                document.getElementById('loginForm').action = loginUrl;
+
+                // Wait for 5 seconds before submitting the form
+                setTimeout(() => {
+                    document.getElementById('loginForm').submit();
+                }, 5000);
+            } else {
+                console.error('Missing login parameters');
+            }
+        }
+
+        // Automatically log in the user on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loginUser();
+        });
+    </script>
+</body>
+</html>

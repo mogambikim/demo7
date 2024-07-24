@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4505282';
-$consumerkey    = "fVTAnkk86pPtMBI3xRGLm4yYAaICYRRs7FHS7gTbUyCLAjux";
-$consumersecret = "1xw0dYop6dszhkxLKOu3lOcdmBMTNkozL8nyUdCmAVD80QeS2QL4NI8NQ6HaCImA";
-$validationurl = "https://optinetproviders.freeispradius.com/validation_url.php";
+$shortcode = '4114609';
+$consumerkey    = "rmd5nylTfoR5M5sDYxrNghVcS4DscHSa";
+$consumersecret = "Zg8jCx1ot6Is9yGx";
+$validationurl = "https://gibmagnetworks.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://optinetproviders.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://gibmagnetworks.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
