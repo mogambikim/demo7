@@ -801,43 +801,22 @@ function hotspot_settings() {
         // Save the generated HTML to a local file
         $localFile = __DIR__ . '/login.html';
         file_put_contents($localFile, $htmlContent);
-        
-        // Function to upload a file to a specified remote path
-        function uploadFileToRouter($ftp, $localFile, $remoteFile) {
-            if (ftp_put($ftp, $remoteFile, $localFile, FTP_BINARY)) {
-                return "File uploaded successfully to $remoteFile.";
-            } else {
-                return "Failed to upload the file to $remoteFile.";
-            }
-        }
-        
-        // Connect to the MikroTik router via FTP and upload the file to both potential paths
+
+        // Connect to the MikroTik router via FTP and upload the file
         $logMessage = "";
         $ftp = ftp_connect($mikrotik_host);
         if ($ftp && ftp_login($ftp, $mikrotik_user, $mikrotik_pass)) {
             ftp_pasv($ftp, true);
-        
-            // Upload to the first potential path
-            $remoteFile1 = 'hotspot/login.html';
-            $logMessage1 = uploadFileToRouter($ftp, $localFile, $remoteFile1);
-        
-            // Upload to the second potential path
-            $remoteFile2 = 'flash/hotspot/login.html';
-            $logMessage2 = uploadFileToRouter($ftp, $localFile, $remoteFile2);
-        
-            $logMessage = $logMessage1 . "\n" . $logMessage2;
+            $remoteFile = 'hotspot/login.html';
+            if (ftp_put($ftp, $remoteFile, $localFile, FTP_BINARY)) {
+                $logMessage = "File uploaded successfully.";
+            } else {
+                $logMessage = "Failed to upload the file.";
+            }
             ftp_close($ftp);
         } else {
             $logMessage = "Failed to connect to the MikroTik router.";
         }
-        
-        // Log the message in a log file located in the root directory
-        $logFile = dirname(__DIR__, 2) . '/upload_log.txt';
-        file_put_contents($logFile, date('Y-m-d H:i:s') . " - " . $logMessage . PHP_EOL, FILE_APPEND);
-        
-        // Redirect with a success message
-        r2(U . "plugin/hotspot_settings", 's', "Settings Saved and Uploaded to Router");
-        
 
         // Log the message in a log file located in the root directory
         $logFile = dirname(__DIR__, 2) . '/upload_log.txt';
