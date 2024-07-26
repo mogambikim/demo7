@@ -116,27 +116,7 @@ function BankStkPush_payment_notification()
     curl_exec($ch);
     curl_close($ch);
 
- /*   // Send the callback data to third_update.php using cURL asynchronously
-$url_third = APP_URL . '/third_update.php';
-$ch_third = curl_init($url_third);
-curl_setopt($ch_third, CURLOPT_POST, true);
-curl_setopt($ch_third, CURLOPT_POSTFIELDS, $captureLogs);
-curl_setopt($ch_third, CURLOPT_RETURNTRANSFER, false);
-curl_setopt($ch_third, CURLOPT_TIMEOUT, 1);
-curl_exec($ch_third);
-curl_close($ch_third);
 
-// Send the callback data to final_update.php using cURL asynchronously
-$url_final = APP_URL . '/final_update.php';
-$ch_final = curl_init($url_final);
-curl_setopt($ch_final, CURLOPT_POST, true);
-curl_setopt($ch_final, CURLOPT_POSTFIELDS, $captureLogs);
-curl_setopt($ch_final, CURLOPT_RETURNTRANSFER, false);
-curl_setopt($ch_final, CURLOPT_TIMEOUT, 1);
-curl_exec($ch_final);
-curl_close($ch_final);*/
-
-// Send the callback data to transactions.php using cURL asynchronously
 $url_transactions = APP_URL . '/transactions.php';
 $ch_transactions = curl_init($url_transactions);
 curl_setopt($ch_transactions, CURLOPT_POST, true);
@@ -274,29 +254,19 @@ curl_close($ch_transactions);
                 ->find_one();
 
 
-// if($check_mpesa){
-    
-//     echo "double callback, ignore one";
-    
-//     die;
-    
-    
-// }
+
 
 
 
 
  $plan_type=$plans->type;
+ $typebp = $plans->typebp; // Use typebp to check if it's Limited
               
            $UserId=$userid->id;    
             
               
                
                 if($plan_type=="Hotspot"){
-             
-            
-            // echo $mpesa_code;
-            // die;
              
              
       $plan_id=$plans->id;
@@ -333,7 +303,11 @@ $expiry_time = date("H:i:s", $expiry_timestamp);
              
      $recharged_on=date("Y:m:d");
      $recharged_time=date("H:i:s");
-             
+     // Additional parameters for limited plans
+     $data_limit = $plans->data_limit;
+     $data_unit = $plans->data_unit;
+     $time_limit = $plans->time_limit;
+     $time_unit = $plans->time_unit;            
               
              
              $updated_count = ORM::for_table('tbl_user_recharges')

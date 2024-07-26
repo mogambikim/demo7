@@ -1,11 +1,11 @@
 <?php
 
-$shortcode = '4114609';
-$consumerkey    = "rmd5nylTfoR5M5sDYxrNghVcS4DscHSa";
-$consumersecret = "Zg8jCx1ot6Is9yGx";
-$validationurl = "https://gibmagnetworks.freeispradius.com/validation_url.php";
+$shortcode = '4139979';
+$consumerkey    = "BtAqAqGQa5CjIq1C8VX18elnLrMZURgmjGdDpRD7AMH3yddS";
+$consumersecret = "GIDneYpPkfJ2H7u5JGNiBOCUexJgTxeVuALlIHqgZ2SQUv2oK6pLQyCtgIQBGcZD";
+$validationurl = "https://skylinqytech.freeispradius.com/validation_url.php";
 //before submitting check if its paybill_webhook or till_webhook before making any mistake
-$confirmationurl = "https://gibmagnetworks.freeispradius.com/paybill_webhook.php";
+$confirmationurl = "https://skylinqytech.freeispradius.com/paybill_webhook.php";
 
 $authenticationurl = 'https://api.safaricom.co.ke/oauth/v2/generate?grant_type=client_credentials';
 $registerurl = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';

@@ -331,36 +331,31 @@ curl_close($ch_transactions);
 // }
 
 
-
-
- $plan_type=$plans->type;
+$plan_type=$plans->type;
+$typebp = $plans->typebp; // Use typebp to check if it's Limited
+             
+          $UserId=$userid->id;    
+           
+             
               
-           $UserId=$userid->id;    
+               if($plan_type=="Hotspot"){
             
-              
-               
-                if($plan_type=="Hotspot"){
-             
             
-            // echo $mpesa_code;
-            // die;
-             
-             
-      $plan_id=$plans->id;
+     $plan_id=$plans->id;
 
-    
-             
-             
-             
+   
+            
+            
+            
 $validity = $plans->validity;
 $units = $plans->validity_unit;
 
 // Convert units to seconds
 $unit_in_seconds = [
-    'Mins' => 60,
-    'Hrs' => 3600,
-    'Days' => 86400,
-    'Months' => 2592000 // Assuming 30 days per month for simplicity
+   'Mins' => 60,
+   'Hrs' => 3600,
+   'Days' => 86400,
+   'Months' => 2592000 // Assuming 30 days per month for simplicity
 ];
 
 // Get the unit in seconds
@@ -373,13 +368,18 @@ $expiry_timestamp = time() + ($validity * $unit_seconds);
 $expiry_date = date("Y-m-d", $expiry_timestamp);
 $expiry_time = date("H:i:s", $expiry_timestamp);
 
- //"Expiry Time: $expiry_time";
-       
-     
-   
-             
-     $recharged_on=date("Y:m:d");
-     $recharged_time=date("H:i:s");
+//"Expiry Time: $expiry_time";
+      
+    
+  
+            
+    $recharged_on=date("Y:m:d");
+    $recharged_time=date("H:i:s");
+    // Additional parameters for limited plans
+    $data_limit = $plans->data_limit;
+    $data_unit = $plans->data_unit;
+    $time_limit = $plans->time_limit;
+    $time_unit = $plans->time_unit;          
              
               
              
