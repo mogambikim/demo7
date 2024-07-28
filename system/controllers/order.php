@@ -314,58 +314,124 @@ if($plan['allow_purchase'] != 'yes'){
         $ui->assign('plan', $plan);
         $ui->display('user-sendPlan.tpl');
         break;
-    case 'buy':
-        if (strpos($user['email'], '@') === false) {
-            r2(U . 'accounts/profile', 'e', Lang::T("Please enter your email address"));
-        }
-        if (!file_exists($PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $config['payment_gateway'] . '.php')) {
-            r2(U . 'home', 'e', Lang::T("No Payment Gateway Available"));
-        }
-        require_once $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $config['payment_gateway'] . '.php';
-        $files = scandir($PAYMENTGATEWAY_PATH);
-        foreach ($files as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) == 'php') {
-                $pgs[] = str_replace('.php', '', $file);
-            }
-        }
-        $ui->assign('pgs', $pgs);
-        $ui->assign('route2', $routes[2]);
-        $ui->assign('route3', $routes[3]);
 
-        //$ui->assign('plan', $plan);
-        $ui->display('user-selectGateway.tpl');
-        break;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Updated buy case
+case 'buy':
+    file_put_contents('order.log', "Buy action triggered with route2: " . $routes[2] . " and route3: " . $routes[3] . "\n", FILE_APPEND);
+
+    if (strpos($user['email'], '@') === false) {
+        file_put_contents('order.log', "User email invalid: " . $user['email'] . "\n", FILE_APPEND);
+        r2(U . 'accounts/profile', 'e', Lang::T("Please enter your email address"));
+    }
+
+    // Fetch the payment gateway from tbl_appconfig
+    $payment_gateway_config = ORM::for_table('tbl_appconfig')->where('setting', 'payment_gateway')->find_one();
+    if (!$payment_gateway_config) {
+        file_put_contents('order.log', "Payment gateway configuration not found.\n", FILE_APPEND);
+        r2(U . 'home', 'e', Lang::T("No Payment Gateway Available"));
+    }
+    $config['payment_gateway'] = $payment_gateway_config->value;
+
+    if (!file_exists($PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $config['payment_gateway'] . '.php')) {
+        file_put_contents('order.log', "Payment gateway file not found: " . $config['payment_gateway'] . "\n", FILE_APPEND);
+        r2(U . 'home', 'e', Lang::T("No Payment Gateway Available"));
+    }
+
+    require_once $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $config['payment_gateway'] . '.php';
+
+    $pgs = [$config['payment_gateway']];
+
+    file_put_contents('order.log', "Available payment gateway: " . $config['payment_gateway'] . "\n", FILE_APPEND);
+
+    // Fetch the plan details to display
+    $plan = ORM::for_table('tbl_plans')->where('id', $routes[3])->find_one();
+    if (!$plan) {
+        file_put_contents('order.log', "Plan not found with ID: " . $routes[3] . "\n", FILE_APPEND);
+        r2(U . 'home', 'e', Lang::T("Plan Not found"));
+    }
+
+    $ui->assign('pgs', $pgs);
+    $ui->assign('route2', $routes[2]);
+    $ui->assign('route3', $routes[3]);
+    $ui->assign('plan', $plan->as_array());
+
+    file_put_contents('order.log', "Selected Plan ID: " . $plan['id'] . ", Plan Name: " . $plan['name_plan'] . "\n", FILE_APPEND);
+
+    $ui->display('user-selectGateway.tpl');
+    break;
+    
     case 'pay_now':
         $gateway = $_POST['gateway'];
-        //$routes[2] = $_GET['route2'];
-        //$routes[3] = $_GET['route3'];
+        file_put_contents('order.log', "Pay Now action triggered with gateway: " . $gateway . "\n", FILE_APPEND);
+    
+        $router_id = $_POST['router_id'];
+        $plan_id = $_POST['plan_id'];
+    
+        file_put_contents('order.log', "Received Router ID: " . $router_id . ", Plan ID: " . $plan_id . "\n", FILE_APPEND);
+    
         if ($gateway == 'none') {
-            r2(U . 'order/buy/' . $routes[2] . '/' . $routes[3], 'e', Lang::T("No Payment Gateway Selected"));
+            file_put_contents('order.log', "No payment gateway selected.\n", FILE_APPEND);
+            r2(U . 'order/buy/' . $router_id . '/' . $plan_id, 'e', Lang::T("No Payment Gateway Selected"));
         }
+    
         run_hook('customer_buy_plan'); #HOOK
         include $PAYMENTGATEWAY_PATH . DIRECTORY_SEPARATOR . $gateway . '.php';
         call_user_func($gateway . '_validate_config');
-
-        if ($routes['2'] == 'radius') {
-            $router['id'] = 0;
-            $router['name'] = 'radius';
-        } else if ($routes['2'] > 0) {
-            $router = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($routes['2']);
-        } else {
+    
+        $router = ORM::for_table('tbl_routers')->where('enabled', '1')->find_one($router_id);
+        if (!$router) {
             $router['id'] = 0;
             $router['name'] = 'balance';
         }
-        $plan = ORM::for_table('tbl_plans')->where('enabled', '1')->where('allow_purchase', 'yes')->find_one($routes['3']);
+    
+        file_put_contents('order.log', "Router selected: ID = " . $router['id'] . ", Name = " . $router['name'] . "\n", FILE_APPEND);
+    
+        // Fetch the correct plan details
+        file_put_contents('order.log', "Attempting to fetch Plan ID: " . $plan_id . "\n", FILE_APPEND);
+        $plan = ORM::for_table('tbl_plans')->where('enabled', '1')->where('id', $plan_id)->find_one();
         if (empty($router) || empty($plan)) {
+            file_put_contents('order.log', "Router or Plan not found. Router ID: " . $router_id . ", Plan ID: " . $plan_id . "\n", FILE_APPEND);
             r2(U . "order/package", 'e', Lang::T("Plan Not found"));
         }
+    
+        file_put_contents('order.log', "Plan ID in pay_now: " . $plan['id'] . ", Plan Name: " . $plan['name_plan'] . "\n", FILE_APPEND);
+    
         $d = ORM::for_table('tbl_payment_gateway')
             ->where('username', $user['username'])
             ->where('status', 1)
             ->find_one();
+    
         if ($d) {
             if ($d['pg_url_payment']) {
+                file_put_contents('order.log', "Unpaid transaction found. Redirecting to payment page.\n", FILE_APPEND);
                 r2(U . "order/view/" . $d['id'], 'w', Lang::T("You already have unpaid transaction, cancel it or pay it."));
             } else {
                 if ($config['payment_gateway'] == $d['gateway']) {
@@ -376,6 +442,7 @@ if($plan['allow_purchase'] != 'yes'){
                 }
             }
         }
+    
         if (empty($id)) {
             $d = ORM::for_table('tbl_payment_gateway')->create();
             $d->username = $user['username'];
@@ -401,12 +468,18 @@ if($plan['allow_purchase'] != 'yes'){
             $d->status = 1;
             $d->save();
         }
+    
         if (!$id) {
+            file_put_contents('order.log', "Failed to create transaction.\n", FILE_APPEND);
             r2(U . "order/package/" . $d['id'], 'e', Lang::T("Failed to create Transaction.."));
         } else {
+            file_put_contents('order.log', "Transaction created with ID: " . $id . "\n", FILE_APPEND);
+            file_put_contents('order.log', "Transaction details: \n Plan ID: " . $plan['id'] . "\n Plan Name: " . $plan['name_plan'] . "\n Router ID: " . $router['id'] . "\n Router Name: " . $router['name'] . "\n Price: " . $plan['price'] . "\n", FILE_APPEND);
             call_user_func($config['payment_gateway'] . '_create_transaction', $d, $user);
         }
         break;
+    
     default:
         r2(U . "order/package/", 's', '');
-}
+    }
+    

@@ -828,5 +828,15 @@
     "Kindly_note_when_the_METHOD_is_QUERY__an_alternative_was_used_to_update_Payment_since_the_main_one_failed__All_Transactions_at_Date": "Kindly note when the METHOD is QUERY, an alternative was used to update Payment since the main one failed. All Transactions at Date",
     "Router_IP_Addresses": "Router IP Addresses",
     "Router_ID_not_specified_": "Router ID not specified.",
-    "View_IPs": "View IPs"
+    "View_IPs": "View IPs",
+    "Available_Payment_Gateway": "Available Payment Gateway",
+    "Package_Details": "Package Details",
+    "Summary": "Summary",
+    "Pay_Now": "Pay Now",
+    "Admin_has_not_yet_setup_the_payment_gateway__please_tell_admin": "Admin has not yet setup the payment gateway, please tell admin",
+    "Transaction_successful_": "Transaction successful.",
+    "Expired": "Expired",
+    "Cancel_the_order_": "Cancel the order?",
+    "No_Payment_Gateway_Available": "No Payment Gateway Available",
+    "Admin_has_not_yet_setup_flutterwave_payment_gateway__please_tell_admin": "Admin has not yet setup flutterwave payment gateway, please tell admin"
 }
