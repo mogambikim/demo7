@@ -59,6 +59,7 @@ if (!$Userexist) {
     $createUser->pppoe_password = '1234';
     $createUser->email = $email;
     $createUser->service_type = 'Hotspot';
+    $createUser->router_id = '1';
     $createUser->save();
     logToFile('user_creation.log', "User created successfully: " . $phone);
 } else {
